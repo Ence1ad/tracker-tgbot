@@ -1,10 +1,5 @@
-from tgbot.bot_obj import bot
-from telethon import TelegramClient, events
-
-
-@bot.on(events.NewMessage(pattern='/start'))
-async def start(event):
-    await event.respond('Hello world')
+from config import bot
+from tgbot.handlers import start
 
 
 def main():
