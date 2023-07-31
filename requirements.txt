@@ -1,2 +1,4 @@
-Telethon
-python-dotenv
+Telethon==1.29.2
+python-dotenv==1.0.0
+sqlalchemy==2.0.19
+asyncpg==0.28.0
