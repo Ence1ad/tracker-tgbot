@@ -1,23 +1,23 @@
 from telethon.tl.types import KeyboardButtonRow, ReplyInlineMarkup, KeyboardButtonUrl, KeyboardButtonCallback
-
+from tgbot.buttons_names import *
 
 def start_kb() -> ReplyInlineMarkup:
     inline_keyboard = ReplyInlineMarkup(
         [
             KeyboardButtonRow(
                 [
-                    KeyboardButtonCallback(text="Обо мне",
+                    KeyboardButtonCallback(text=first_btn,
                                            data=b'some_bytes'),
-                    KeyboardButtonCallback(text="Пройти тест",
+                    KeyboardButtonCallback(text=second_btn,
                                            data=b'some_bytes'),
 
                 ]
             ),
             KeyboardButtonRow(
                 [
-                    KeyboardButtonUrl(text="Мой сайт",
+                    KeyboardButtonUrl(text=third_btn,
                                       url='https://google.com'),
-                    KeyboardButtonCallback(text="Заказать курс",
+                    KeyboardButtonCallback(text=third_btn,
                                            data=b'some_bytes'),
 
                 ]
