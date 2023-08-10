@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, ScalarResult, update
 
 from ..db_session import create_async_session
 from .categories import ActionsCategories
@@ -13,21 +13,29 @@ async def create_category(user_id, category_title: str) -> None:
             session.add(new_category)
 
 
-async def get_categories(user_id) -> list:
+async def get_categories(user_id) -> ScalarResult:
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(ActionsCategories.category_name).where(ActionsCategories.user_id == user_id)
+            stmt = select(ActionsCategories).where(ActionsCategories.user_id == user_id)
             res = await session.execute(stmt)
             await session.commit()
             return res.scalars()
 
-async def update_category() -> None:
-    pass
 
-async def delete_category(user_id, category_name) -> None:
+async def update_category(user_id, category_id, new_category_name) -> None:
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = update(ActionsCategories) \
+                .where(ActionsCategories.user_id == user_id, ActionsCategories.category_id == category_id) \
+                .values(category_name=new_category_name)
+            await session.execute(stmt)
+            await session.commit()
+
+
+async def delete_category(user_id, category_id) -> None:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = delete(ActionsCategories).where(ActionsCategories.user_id == user_id,
-                                                   ActionsCategories.category_name == category_name)
-            res = await session.execute(stmt)
+                                                   ActionsCategories.category_id == category_id)
+            await session.execute(stmt)
             await session.commit()

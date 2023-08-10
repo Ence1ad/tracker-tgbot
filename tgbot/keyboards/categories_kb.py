@@ -1,63 +1,47 @@
-from telethon.tl.types import KeyboardButtonRow, ReplyInlineMarkup, KeyboardButtonUrl, KeyboardButtonCallback, \
-    KeyboardButton
-from tgbot.buttons_names import my_categories, create_categories, update_categories, delete_categories
-from telethon.tl.custom.button import Button
+from aiogram.filters.callback_data import CallbackData
+from aiogram.types import InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from tgbot.keyboards.buttons_names import user_categories, create_categories, update_categories, delete_categories
 
 
-async def categories_inline_kb() -> ReplyInlineMarkup:
-    inline_keyboard = ReplyInlineMarkup(
-        [
-            KeyboardButtonRow(
-                [
-                    KeyboardButtonCallback(text=my_categories,
-                                           data=b'my_categories'),
-                    KeyboardButtonCallback(text=create_categories,
-                                           data=b'create_categories'
-                                           ),
-
-                ]
-            ),
-            KeyboardButtonRow(
-                [
-                    KeyboardButtonCallback(text=update_categories,
-                                           data=b'update_categories'),
-                    KeyboardButtonCallback(text=delete_categories,
-                                           data=b'delete_categories'),
-
-                ]
-            ),
-        ]
-    )
-    return inline_keyboard
+class DeleteCategoryCallback(CallbackData, prefix="del"):
+    category_id: int
+    category_name: str
 
 
-# def show_options_kb(lst: list) -> ReplyInlineMarkup:
-async def show_options_kb(lst: list) -> ReplyInlineMarkup:
-    buttons = []
-    for title in lst:
-        buttons.append(Button.inline(text=title, data=title))
-    markup = await buttons_each_rows(buttons, 3)
-    return markup
+class UpdateCategoryCallback(CallbackData, prefix="udp"):
+    category_id: int
+    category_name: str
 
 
-async def buttons_each_rows(buttons, row_num) -> ReplyInlineMarkup:
-    kb_row = []
-    buttons_in_row = []
-    btn_cnt = len(buttons)
-    while btn_cnt > 0:
-        if btn_cnt < row_num:
-            kb_row.append(KeyboardButtonRow(buttons))
-            break
-        if btn_cnt % row_num != 0:
-            kb = buttons.pop()
-            kb_row.append(KeyboardButtonRow([kb]))
-            btn_cnt -= 1
+async def categories_custom_inline_kb() -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text=user_categories, callback_data=user_categories)
+    kb_builder.button(text=create_categories, callback_data=create_categories)
+    kb_builder.button(text=update_categories, callback_data=update_categories)
+    kb_builder.button(text=delete_categories, callback_data=delete_categories)
+    kb_builder.adjust(2, 2)
+    return kb_builder.as_markup()
 
-        for idx, button in enumerate(buttons, 1):
-            buttons_in_row.append(button)
-            if idx % row_num == 0:
-                kb_row.append(KeyboardButtonRow(buttons_in_row))
-                buttons_in_row = []
-                btn_cnt -= row_num
-    markup = ReplyInlineMarkup(rows=kb_row)
-    return markup
+
+async def remove_category_inline_kb(categories: list) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    for cat in categories:
+        kb_builder.button(
+            text=f"{cat.category_name}",
+            callback_data=DeleteCategoryCallback(category_id=cat.category_id, category_name=cat.category_name)
+        )
+    kb_builder.adjust(3)
+    return kb_builder.as_markup()
+
+
+async def update_category_inline_kb(categories: list) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    for cat in categories:
+        kb_builder.button(
+            text=f"{cat.category_name}",
+            callback_data=UpdateCategoryCallback(category_id=cat.category_id, category_name=cat.category_name)
+        )
+    kb_builder.adjust(3)
+    return kb_builder.as_markup()

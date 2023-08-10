@@ -5,7 +5,8 @@ reports_btn = 'Reports'
 settings_btn = 'Settings'
 
 # buttons for start_kb.py
-my_categories = 'My categories'
+user_categories = 'My categories'
 create_categories = 'New category'
 update_categories = 'Update category'
 delete_categories = 'Delete category'
+

@@ -1,28 +1,14 @@
-from telethon.tl.types import KeyboardButtonRow, ReplyInlineMarkup, KeyboardButtonCallback
-from tgbot.buttons_names import actions_btn, categories_btn, reports_btn, settings_btn
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from tgbot.keyboards.buttons_names import actions_btn, categories_btn, reports_btn, settings_btn
 
 
-async def start_kb() -> ReplyInlineMarkup:
-    reply_markup = ReplyInlineMarkup(
-        [
-            KeyboardButtonRow(
-                [
-                    KeyboardButtonCallback(text=actions_btn,
-                                           data=b'some_bytes'),
-                    KeyboardButtonCallback(text=categories_btn,
-                                           data=b'categories_btn'),
-
-                ]
-            ),
-            KeyboardButtonRow(
-                [
-                    KeyboardButtonCallback(text=reports_btn,
-                                           data=b'reports_btn'),
-                    KeyboardButtonCallback(text=settings_btn,
-                                           data=b'some_bytes'),
-
-                ]
-            ),
-        ]
-    )
-    return reply_markup
+async def start_custom_kb() -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text=actions_btn, callback_data=actions_btn)
+    kb_builder.button(text=categories_btn, callback_data=categories_btn)
+    kb_builder.button(text=reports_btn, callback_data=reports_btn)
+    kb_builder.button(text=settings_btn, callback_data=settings_btn)
+    kb_builder.adjust(2, 2)
+    return kb_builder.as_markup()
