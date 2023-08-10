@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Integer, String, Column, PrimaryKeyConstraint, DateTime
 from dataclasses import dataclass, field
-from db.base_model import SqlAlchemyBase
+from ..base_model import SqlAlchemyBase
 
 
 class SAUser(SqlAlchemyBase):

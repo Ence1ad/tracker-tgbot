@@ -1,6 +1,7 @@
-from db.user import SAUser, NewUser
-from db.db_session import create_async_session
 from sqlalchemy import select
+
+from ..db_session import create_async_session
+from .user import SAUser, NewUser
 
 
 async def create_user(user_obj: NewUser) -> None:

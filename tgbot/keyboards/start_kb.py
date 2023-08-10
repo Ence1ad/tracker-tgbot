@@ -1,27 +1,28 @@
-from telethon.tl.types import KeyboardButtonRow, ReplyInlineMarkup, KeyboardButtonUrl, KeyboardButtonCallback
-from tgbot.buttons_names import *
+from telethon.tl.types import KeyboardButtonRow, ReplyInlineMarkup, KeyboardButtonCallback
+from tgbot.buttons_names import actions_btn, categories_btn, reports_btn, settings_btn
 
-def start_kb() -> ReplyInlineMarkup:
-    inline_keyboard = ReplyInlineMarkup(
+
+async def start_kb() -> ReplyInlineMarkup:
+    reply_markup = ReplyInlineMarkup(
         [
             KeyboardButtonRow(
                 [
-                    KeyboardButtonCallback(text=first_btn,
+                    KeyboardButtonCallback(text=actions_btn,
                                            data=b'some_bytes'),
-                    KeyboardButtonCallback(text=second_btn,
-                                           data=b'some_bytes'),
+                    KeyboardButtonCallback(text=categories_btn,
+                                           data=b'categories_btn'),
 
                 ]
             ),
             KeyboardButtonRow(
                 [
-                    KeyboardButtonUrl(text=third_btn,
-                                      url='https://google.com'),
-                    KeyboardButtonCallback(text=third_btn,
+                    KeyboardButtonCallback(text=reports_btn,
+                                           data=b'reports_btn'),
+                    KeyboardButtonCallback(text=settings_btn,
                                            data=b'some_bytes'),
 
                 ]
             ),
         ]
     )
-    return inline_keyboard
+    return reply_markup

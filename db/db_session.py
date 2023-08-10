@@ -6,7 +6,7 @@ import db.__all_models
 from db.base_model import SqlAlchemyBase
 from config import db_url
 
-engine = create_async_engine(db_url, echo=True)
+engine = create_async_engine(db_url, echo=False)
 
 
 async def create_tables():
