@@ -1,11 +1,17 @@
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from db.categories.categories_commands import update_category
-from tgbot.handlers.category_handlers import show_user_category
-from tgbot.keyboards.categories_kb import update_category_inline_kb, UpdateCategoryCallback
+from tgbot.handlers.categories_handlers import show_user_category
+from tgbot.keyboards.categories_kb import list_categories_inline_kb
 from tgbot.utils.answer_text import upd_category_text, new_category_text, select_category_text, empty_categories_text
 from tgbot.utils.states import UpdateCategoryState
+
+
+class UpdateCategoryCallback(CallbackData, prefix="udp"):
+    category_id: int
+    category_name: str
 
 
 async def select_category(call: CallbackQuery, state: FSMContext, callback_data: UpdateCategoryCallback):
@@ -18,7 +24,7 @@ async def select_category(call: CallbackQuery, state: FSMContext, callback_data:
 async def select_update_category(call: CallbackQuery, state: FSMContext):
     categories: list = list(await show_user_category(call))
     if categories:
-        markup = await update_category_inline_kb(categories)
+        markup = await list_categories_inline_kb(categories, UpdateCategoryCallback)
         await call.message.answer(text=select_category_text, reply_markup=markup)
         await state.set_state(UpdateCategoryState.GET_NAME)
     else:

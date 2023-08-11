@@ -1,7 +1,4 @@
-from datetime import datetime
-
-from sqlalchemy import Integer, String, Column, PrimaryKeyConstraint, DateTime, ForeignKey
-from dataclasses import dataclass, field
+from sqlalchemy import Integer, String, Column, ForeignKey
 
 from sqlalchemy.orm import relationship
 

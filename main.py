@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiogram import Dispatcher, Router
 
 from config import bot
-from tgbot import register_categories_handlers
+from tgbot import register_categories_handlers, register_actions_handlers
 
 from tgbot.handlers.start import command_start_handler
 from tgbot.utils.bot_commands import my_commands
@@ -24,6 +24,7 @@ async def main() -> None:
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))
     register_categories_handlers(router)
+    register_actions_handlers(router)
 
     try:
         await dp.start_polling(bot)

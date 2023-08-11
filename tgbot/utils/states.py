@@ -8,3 +8,11 @@ class CategoryState(StatesGroup):
 class UpdateCategoryState(StatesGroup):
     GET_NAME = State()
     GET_ID = State()
+
+
+class ActionState(StatesGroup):
+    GET_NAME = State()
+    CATEGORY_ID = State()
+
+class UpdateActionState(StatesGroup):
+    GET_NAME = State()

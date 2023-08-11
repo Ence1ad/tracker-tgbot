@@ -20,5 +20,3 @@ async def get_category_name_from_user(message: Message, state: FSMContext):
     await state.clear()
     await create_category(user_id, state_data['category_name'].strip()[:29])
     await message.answer(text=added_new_category_text)
-    # else:
-    #     await call.message.answer(text=f'You can use only characters and numbers')

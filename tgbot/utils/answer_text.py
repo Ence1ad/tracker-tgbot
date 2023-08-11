@@ -20,3 +20,18 @@ select_category_text = f"Select the category"
 rm_category_text = "You deleted your category: "
 
 upd_category_text = "You updated your category: "
+
+# for get_category_name_from_user func
+added_new_action_text = 'You successfully added new action'
+
+# for new_action func
+new_action_text = f"Write action name"
+
+# for display_actions func
+show_action_text = "This is your actions:"
+select_action_text = "Select the actions:"
+empty_actions_text = f"You don't have any actions yet"
+
+rm_action_text = "You deleted your action: "
+
+upd_action_text = "You updated your action: "

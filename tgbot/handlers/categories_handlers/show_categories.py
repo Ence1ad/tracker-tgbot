@@ -3,13 +3,13 @@ from sqlalchemy import ScalarResult
 
 from db.categories.categories_commands import get_categories
 from tgbot.utils.answer_text import empty_categories_text
-from tgbot.keyboards.categories_kb import categories_custom_inline_kb
+from tgbot.keyboards.categories_kb import categories_menu_inline_kb
 from tgbot.utils.answer_text import show_categories_text, categories_options_text
 
 
 async def get_categories_options(call: CallbackQuery):
     await call.message.delete()
-    markup = await categories_custom_inline_kb()
+    markup = await categories_menu_inline_kb()
     await call.message.answer(text=categories_options_text, reply_markup=markup)
 
 

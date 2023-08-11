@@ -11,6 +11,7 @@ async def create_category(user_id, category_title: str) -> None:
                 category_name=category_title,
                 user_id=user_id)
             session.add(new_category)
+            await session.commit()
 
 
 async def get_categories(user_id) -> ScalarResult:
