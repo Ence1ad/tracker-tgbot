@@ -2,7 +2,7 @@
 actions_btn = 'Actions'
 categories_btn = 'Categories'
 reports_btn = 'Reports'
-settings_btn = 'Settings'
+trackers_btn = 'Trackers'
 
 # buttons for categories_kb.py
 user_categories = 'My categories'
@@ -17,4 +17,11 @@ create_actions = 'New actions'
 update_actions = 'Update actions'
 delete_actions = 'Delete actions'
 
+# buttons for tracker_kb.py
+launched_btn = 'Launched'
+new_tracker_btn = 'New tracker'
+day_track_btn = 'Day tracking'
+delete_tracker_btn = 'Delete tracker'
+yes_btn = 'Yes'
+no_btn = 'No'
 

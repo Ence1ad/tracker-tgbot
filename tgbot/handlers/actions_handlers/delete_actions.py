@@ -1,16 +1,11 @@
 from aiogram.types import CallbackQuery
-from aiogram.filters.callback_data import CallbackData
 
 from db.actions.actions_db_commands import delete_action
 from tgbot.handlers.actions_handlers.show_actions import show_user_actions
 from tgbot.keyboards.actions_kb import list_actions_inline_kb
 
 from tgbot.utils.answer_text import select_action_text, empty_actions_text, rm_action_text
-
-
-class DeleteActionCallback(CallbackData, prefix="del_act"):
-    action_id: int
-    action_name: str
+from tgbot.utils.callback_data_classes import DeleteActionCallback
 
 
 async def select_remove_action(call: CallbackQuery):

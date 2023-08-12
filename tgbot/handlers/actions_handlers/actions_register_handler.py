@@ -1,14 +1,14 @@
 from aiogram import F
 
-from tgbot.handlers.actions_handlers.category import select_category, SelectCategoryCallback
-from tgbot.handlers.actions_handlers.delete_actions import select_remove_action, del_action, DeleteActionCallback
+from tgbot.handlers.actions_handlers.category import select_category
+from tgbot.handlers.actions_handlers.delete_actions import select_remove_action, del_action
 from tgbot.handlers.actions_handlers.show_actions import get_actions_options, display_actions
 from tgbot.handlers.actions_handlers.new_actions import new_action, get_action_name_from_user
-from tgbot.handlers.actions_handlers.update_actions import select_update_action, UpdateActionCallback, select_action, \
-    upd_action
+from tgbot.handlers.actions_handlers.update_actions import select_update_action, select_action, upd_action
 
 from tgbot.keyboards.buttons_names import create_actions, user_actions, delete_actions, update_actions, \
     select_actions_btn
+from tgbot.utils.callback_data_classes import SelectCategoryCallback, DeleteActionCallback, UpdateActionCallback
 from tgbot.utils.states import ActionState, UpdateActionState
 
 

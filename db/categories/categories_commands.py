@@ -1,7 +1,7 @@
 from sqlalchemy import select, delete, ScalarResult, update
 
 from ..db_session import create_async_session
-from .categories import ActionsCategories
+from .categories_model import ActionsCategories
 
 
 async def create_category(user_id, category_title: str) -> None:

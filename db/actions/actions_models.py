@@ -11,6 +11,6 @@ class Actions(SqlAlchemyBase):
     action_name = Column(String(30), unique=True)
     category_id = Column(Integer, ForeignKey('actions_category.category_id', ondelete='cascade'))
     user_id = Column(Integer, ForeignKey('users.user_id', ondelete='cascade'))
-    sa_user = relationship("SAUser", backref="actions")
-    actions_categories = relationship("ActionsCategories", backref="actions")
+    sa_user = relationship("SAUser")
+    actions_categories = relationship("ActionsCategories", lazy='joined')
 

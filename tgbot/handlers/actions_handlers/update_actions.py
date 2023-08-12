@@ -1,4 +1,3 @@
-from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -6,12 +5,8 @@ from db.actions.actions_db_commands import update_action
 from tgbot.handlers.actions_handlers.show_actions import show_user_actions
 from tgbot.keyboards.actions_kb import list_actions_inline_kb
 from tgbot.utils.answer_text import new_action_text, select_action_text, empty_actions_text, upd_action_text
+from tgbot.utils.callback_data_classes import UpdateActionCallback
 from tgbot.utils.states import UpdateActionState
-
-
-class UpdateActionCallback(CallbackData, prefix="udp_act"):
-    action_id: int
-    action_name: str
 
 
 async def select_action(call: CallbackQuery, state: FSMContext, callback_data: UpdateActionCallback):

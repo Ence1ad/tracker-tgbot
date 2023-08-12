@@ -10,4 +10,4 @@ class ActionsCategories(SqlAlchemyBase):
     category_id = Column(Integer, primary_key=True, autoincrement=True)
     category_name = Column(String(30), unique=True)
     user_id = Column(Integer, ForeignKey('users.user_id'))
-    sa_user = relationship("SAUser", backref="actions_category")
+    sa_user = relationship("SAUser")
