@@ -12,9 +12,10 @@ from tgbot.utils.callback_data_classes import SelectCategoryTrackerCallback
 
 async def select_category_tracker(call: CallbackQuery):
     user_id = call.from_user.id
-    call_datetime: datetime = call.message.date
+
     tracker: Tracker = await get_launch_tracker(user_id)
     if not tracker:
+        # TODO сделать чтобы выводил категории у которых есть активности
         categories: list = list(await show_user_category(call))
         if categories:
             markup = await list_categories_inline_kb(categories, SelectCategoryTrackerCallback)

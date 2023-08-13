@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from aiogram.types import CallbackQuery
 
 from .actions_tracker import USER_TRACKER_CATEGORY
@@ -12,8 +10,6 @@ from db.tracker.tracker_db_command import create_tracker
 async def create_new_tracker(call: CallbackQuery, callback_data: SelectActionTrackerCallback):
     user_id = call.from_user.id
     start_time = call.message.date
-    # print(start_time.timestamp())
-    # print(datetime(start_time.strftime("%Y-%m-%d %H:%M:%S")))
     action_id = callback_data.action_id
     action_name = callback_data.action_name
     await call.message.delete()

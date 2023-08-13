@@ -47,8 +47,6 @@ async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime)
             track_start = returning[0]
             track_end = returning[1]
             track_sum: timedelta = track_end - track_start
-            print(str(track_sum))
-            print(track_sum)
             stmt = update(Tracker).where(Tracker.user_id == user_id, Tracker.tracker_id == tracker_id).values(
                 time_sum=track_sum).execution_options(synchronize_session="fetch")
             await session.execute(stmt)

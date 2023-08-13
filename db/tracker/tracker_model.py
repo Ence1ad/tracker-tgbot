@@ -1,7 +1,6 @@
-from datetime import datetime
+import datetime
 
-
-from sqlalchemy import Integer, Column, ForeignKey, DateTime, Interval
+from sqlalchemy import Integer, Column, ForeignKey, DateTime, Interval, Date
 
 from sqlalchemy.orm import relationship
 
@@ -12,6 +11,7 @@ class Tracker(SqlAlchemyBase):
     __tablename__ = 'track_time'
     tracker_id = Column(Integer(), primary_key=True, autoincrement=True)
     time_sum = Column(Interval())
+    creation_day = Column(Date(), default=datetime.datetime.today())
     track_start = Column(DateTime(timezone=True))
     track_end = Column(DateTime(timezone=True))
     category_id = Column(Integer(), ForeignKey('actions_category.category_id', ondelete='cascade'))

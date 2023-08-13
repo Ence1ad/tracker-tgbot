@@ -8,6 +8,7 @@ from tgbot.utils.callback_data_classes import SelectCategoryTrackerCallback, Sel
 
 USER_TRACKER_CATEGORY = {}
 
+
 async def display_actions_tracker(call: CallbackQuery, callback_data: SelectCategoryTrackerCallback):
     user_id = call.from_user.id
     USER_TRACKER_CATEGORY[user_id] = callback_data.category_id
@@ -22,6 +23,5 @@ async def display_actions_tracker(call: CallbackQuery, callback_data: SelectCate
 async def show_user_actions_tracker(call: CallbackQuery) -> ScalarResult:
     user_id = call.from_user.id
     await call.message.delete()
-    print(USER_TRACKER_CATEGORY)
     actions: ScalarResult = await get_user_actions(user_id, category_id=USER_TRACKER_CATEGORY[user_id])
     return actions
