@@ -1,8 +1,7 @@
 from copy import deepcopy
-from datetime import timedelta
 from itertools import zip_longest
 
-# менять только в случае изменения значений дня результата get_report функции
+# Менять только в случае изменения значений дня результата get_report функции
 DOWS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 
@@ -75,16 +74,3 @@ async def adjust_data_main(report):
     headers.insert(0, "dow")
     data_for_excel.insert(0, tuple(headers))
     return data_for_excel
-
-# Eсли нужно добавить одинаковые данные по какому-то полю, создай список с этим полем
-# и проходись по нему добавляя данные в новый список
-
-
-# for dow in dows:
-#     lll = []
-#     for k in lst:
-#         if dow in k:
-#             lll.append(k[dow])
-#         s += f'{dow}: {lll}, '
-#         res.append({dow: lll})
-#     res = {"my_json": [s]}

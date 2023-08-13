@@ -15,7 +15,9 @@ async def display_actions_tracker(call: CallbackQuery, callback_data: SelectCate
     actions: list = list(await show_user_actions_tracker(call))
     if actions:
         markup = await list_actions_inline_kb(actions, SelectActionTrackerCallback)
-        await call.message.answer(text=f"{show_action_text}", reply_markup=markup)
+        await call.message.answer(
+            text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{show_action_text}",
+            reply_markup=markup)
     else:
         await call.message.answer(text=empty_actions_text)
 

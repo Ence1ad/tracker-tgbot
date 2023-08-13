@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from config import bot
 from db.report.report_commands import get_report
 from tgbot.handlers.reports_handlers.create_report import create_bar
-from tgbot.utils.prob import adjust_data_main, _get_headers
+from tgbot.utils.prepare_data import adjust_data_main, _get_headers
 
 
 async def get_report_options(call: CallbackQuery):

@@ -1,18 +1,21 @@
 from copy import deepcopy
+import datetime
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 
+from tgbot.utils.answer_text import chart_name
 
-async def create_bar(sheet_name="bar.xlsx", max_col=6, *, rows):
+
+async def create_bar(sheet_name="Weekly Report.xlsx", max_col=6, *, rows):
     wb = Workbook(write_only=True)
-    ws = wb.create_sheet()
+    ws = wb.create_sheet(title=f"week - {datetime.datetime.today().isocalendar().week}")
     for row in rows:
         ws.append(row)
     chart1 = BarChart()
     chart1.type = "col"
     chart1.style = 10
-    chart1.title = "Week Tracking"
+    chart1.title = chart_name
     chart1.y_axis.title = 'Devoted time'
     chart1.x_axis.title = 'Days of the week'
 
@@ -32,7 +35,7 @@ async def horizontal_bar_chart(chart1, ws):
     chart2 = deepcopy(chart1)
     chart2.style = 10
     chart2.type = "bar"
-    chart2.title = "Horizontal Bar Chart"
+    chart2.title = chart_name
     ws.add_chart(chart2, "I10")
 
 
@@ -43,7 +46,7 @@ async def stacked_chart(chart1, ws):
     chart3.style = 10
     chart3.grouping = "stacked"
     chart3.overlap = 100
-    chart3.title = 'Stacked Chart'
+    chart3.title = chart_name
     ws.add_chart(chart3, "A27")
 
 
@@ -53,5 +56,5 @@ async def percent_stacked_hart(chart1, ws):
     chart4.style = 10
     chart4.grouping = "percentStacked"
     chart4.overlap = 100
-    chart4.title = 'Percent Stacked Chart'
+    chart4.title = chart_name
     ws.add_chart(chart4, "I27")

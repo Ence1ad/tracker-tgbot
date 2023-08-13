@@ -7,7 +7,7 @@ from tgbot.utils.states import ActionState
 
 from db.actions.actions_db_commands import create_actions
 
-
+# Todo сделать ограничение на 15 активностей
 async def new_action(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer(text=new_action_text)

@@ -6,7 +6,7 @@ from tgbot.utils.callback_data_classes import SelectActionTrackerCallback
 
 from db.tracker.tracker_db_command import create_tracker
 
-
+# TODO трекер должен автоматом останавливаться через нужное время
 async def create_new_tracker(call: CallbackQuery, callback_data: SelectActionTrackerCallback):
     user_id = call.from_user.id
     start_time = call.message.date

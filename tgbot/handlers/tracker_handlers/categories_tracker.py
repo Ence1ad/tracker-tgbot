@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from aiogram.types import CallbackQuery
 
 from db.tracker.tracker_db_command import get_launch_tracker

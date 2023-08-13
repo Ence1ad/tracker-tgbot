@@ -61,3 +61,5 @@ async def traker_text(call: CallbackQuery, tracker):
     duration = str(call_datetime - launch_time[0]).split('.')[0]
     text = f"\n\rcategory: {category_name[0]}\n\raction:  {action_name[0]}\n\rduration: {duration}"
     return text
+
+chart_name = F"Week №{datetime.datetime.today().isocalendar().week} Tracking"

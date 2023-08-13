@@ -14,7 +14,8 @@ async def get_actions_options(call: CallbackQuery, callback_data: SelectCategory
     USER_CATEGORY[user_id] = callback_data.category_id
     await call.message.delete()
     markup = await actions_inline_kb()
-    await call.message.answer(text=categories_options_text, reply_markup=markup)
+    await call.message.answer(text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{categories_options_text}",
+                              reply_markup=markup)
 
 
 async def display_actions(call: CallbackQuery):
