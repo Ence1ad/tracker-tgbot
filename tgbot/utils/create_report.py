@@ -4,10 +4,10 @@ import datetime
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 
-from tgbot.utils.answer_text import chart_name
+from tgbot.utils.answer_text import chart_name, xlsx_title
 
 
-async def create_bar(sheet_name="Weekly Report.xlsx", max_col=6, *, rows):
+async def create_bar(sheet_name=xlsx_title, max_col=6, *, rows):
     wb = Workbook(write_only=True)
     ws = wb.create_sheet(title=f"week - {datetime.datetime.today().isocalendar().week}")
     for row in rows:

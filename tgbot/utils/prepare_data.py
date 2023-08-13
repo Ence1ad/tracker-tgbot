@@ -17,7 +17,7 @@ async def _get_raw_data_from_report(report):
     return raw_data
 
 
-async def _get_headers(report) -> list[str]:
+async def get_headers(report) -> list[str]:
     headers = []
     for field in report:
         if field[0] not in headers:
@@ -66,7 +66,7 @@ async def _matrix_for_excel(blank_matrix) -> list:
 
 
 async def adjust_data_main(report):
-    headers = await _get_headers(report)
+    headers = await get_headers(report)
     blank_matrix = await _create_blank_matrix(headers)
     data_from_db = await _get_raw_data_from_report(report)
     matrix_with_data_ = await _insert_data_into_matrix(data_from_db, blank_matrix)
