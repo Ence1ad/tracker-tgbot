@@ -12,6 +12,7 @@ async def get_report_options(call: CallbackQuery):
     # TODO сделать чтобы нельзя было создать отчет пока запущена активность
     report = await get_report(user_id)
     report = list(report)
+    print(report)
     if report:
         max_row = await get_headers(report)
         max_row = len(max_row)+1
