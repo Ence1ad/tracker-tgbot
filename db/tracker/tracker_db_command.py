@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, Sequence, func, Date
 
+from ..actions.actions_models import Actions
 from ..db_session import create_async_session
 from .tracker_model import Tracker
 
@@ -19,13 +20,15 @@ async def create_tracker(user_id: int, category_id: int, action_id: int, track_s
             await session.commit()
 
 
-async def get_user_tracker(user_id: int) -> Tracker:
+async def get_user_tracker(user_id: int) -> Sequence:
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(Tracker).where(Tracker.user_id == user_id)
+            stmt = select(Tracker.tracker_id, Tracker.time_sum, Actions.action_name).join(Actions).where(Tracker.user_id == user_id,
+                          Tracker.track_end.cast(Date) == func.current_date(), Tracker.time_sum.is_not(None))
+            print(stmt)
             res = await session.execute(stmt)
             await session.commit()
-            return res.first()
+            return res.fetchall()
 
 
 async def get_launch_tracker(user_id: int) -> Tracker:
@@ -54,4 +57,9 @@ async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime)
 
 
 async def delete_tracker(user_id: int, tracker_id: int):
-    pass
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = delete(Tracker).where(Tracker.user_id == user_id,
+                                         Tracker.tracker_id == tracker_id)
+            await session.execute(stmt)
+            await session.commit()

@@ -36,6 +36,9 @@ launch_tracker_text = "Launched tracker:"
 already_launch_tracker_text = "You already have a tracker running:"
 answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
 stop_tracker_text = "Tracker stopped:"
+daily_tracker_text = "Select stopped daily tracker"
+empty_tracker_text = "You don't have any trackers"
+delete_tracker_text = "You deleted the tracker"
 
 
 async def traker_text(call: CallbackQuery, tracker):

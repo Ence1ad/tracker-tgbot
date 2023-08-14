@@ -13,13 +13,13 @@ delete_categories = 'Delete category'
 # buttons for actions_kb.py
 select_actions_btn = 'Get categories'
 user_actions = 'List of actions'
-create_actions = 'New actions'
-update_actions = 'Update actions'
-delete_actions = 'Delete actions'
+create_actions = 'New action'
+update_actions = 'Update action'
+delete_actions = 'Delete action'
 
 # buttons for tracker_kb.py
 launched_btn = 'Launched tracker'
-new_tracker_btn = 'Start tracker'
+new_tracker_btn = 'Start tracking'
 day_track_btn = 'Day tracking'
 delete_tracker_btn = 'Delete tracker'
 yes_btn = 'Yes'

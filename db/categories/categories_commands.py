@@ -14,7 +14,7 @@ async def create_category(user_id, category_title: str) -> None:
             await session.commit()
 
 
-async def get_categories(user_id) -> ScalarResult:
+async def get_categories(user_id: int) -> ScalarResult:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = select(ActionsCategories).where(ActionsCategories.user_id == user_id)
@@ -23,7 +23,7 @@ async def get_categories(user_id) -> ScalarResult:
             return res.scalars()
 
 
-async def update_category(user_id, category_id, new_category_name) -> None:
+async def update_category(user_id: int, category_id: int, new_category_name: str) -> None:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = update(ActionsCategories) \
@@ -33,7 +33,7 @@ async def update_category(user_id, category_id, new_category_name) -> None:
             await session.commit()
 
 
-async def delete_category(user_id, category_id) -> None:
+async def delete_category(user_id: int, category_id: int) -> None:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = delete(ActionsCategories).where(ActionsCategories.user_id == user_id,
