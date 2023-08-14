@@ -5,6 +5,9 @@ from tgbot.utils.answer_text import new_tracker_text
 from tgbot.utils.callback_data_classes import SelectActionTrackerCallback
 
 from db.tracker.tracker_db_command import create_tracker
+from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.buttons_names import tracker_menu_buttons
+
 
 # TODO трекер должен автоматом останавливаться через нужное время
 async def create_new_tracker(call: CallbackQuery, callback_data: SelectActionTrackerCallback):
@@ -15,4 +18,5 @@ async def create_new_tracker(call: CallbackQuery, callback_data: SelectActionTra
     await call.message.delete()
     await create_tracker(user_id, category_id=USER_TRACKER_CATEGORY[user_id], action_id=action_id,
                          track_start=start_time)
-    await call.message.answer(text=f"{new_tracker_text} {action_name}")
+    markup = await menu_inline_kb(tracker_menu_buttons)
+    await call.message.answer(text=f"{new_tracker_text} {action_name}", reply_markup=markup)

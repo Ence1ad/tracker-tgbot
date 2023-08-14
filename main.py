@@ -2,12 +2,14 @@ import asyncio
 import logging
 
 from aiogram.filters import Command
-from aiogram import Dispatcher, Router
+from aiogram import Dispatcher, Router, F
 
 from config import bot
 from tgbot.handlers import register_categories_handlers, register_actions_handlers, register_tracker_handlers, register_report_handlers
+from tgbot.handlers.exit_handler import exit_menu
 
 from tgbot.handlers.start import command_start_handler
+from tgbot.keyboards.buttons_names import exit_btn
 from tgbot.utils.bot_commands import my_commands
 
 router = Router()
@@ -23,6 +25,7 @@ async def main() -> None:
     await start_bot(bot)
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))
+    router.callback_query.register(exit_menu, F.data == exit_btn)
     register_categories_handlers(router)
     register_actions_handlers(router)
     register_tracker_handlers(router)

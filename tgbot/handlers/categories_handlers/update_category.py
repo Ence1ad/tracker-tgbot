@@ -2,6 +2,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from db.categories.categories_commands import update_category
+from tgbot.keyboards.buttons_names import category_menu_buttons
+from tgbot.keyboards.menu_kb import menu_inline_kb
 from tgbot.handlers.categories_handlers import show_user_category
 from tgbot.keyboards.categories_kb import list_categories_inline_kb
 from tgbot.utils.answer_text import upd_category_text, new_category_text, select_category_text, empty_categories_text
@@ -33,4 +35,5 @@ async def upd_category(message: Message, state: FSMContext):
     await state.clear()
     new_category_name = state_data['category_name'].strip()[:29]
     await update_category(user_id, state_data['category_id'], new_category_name)
-    await message.answer(text=f"{upd_category_text} {new_category_name}")
+    markup = await menu_inline_kb(category_menu_buttons)
+    await message.answer(text=f"{upd_category_text} {new_category_name}", reply_markup=markup)

@@ -1,6 +1,8 @@
 from aiogram.types import CallbackQuery
 
 from db.actions.actions_db_commands import delete_action
+from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.buttons_names import actions_menu_buttons
 from tgbot.handlers.actions_handlers.show_actions import show_user_actions
 from tgbot.keyboards.actions_kb import list_actions_inline_kb
 
@@ -22,4 +24,5 @@ async def del_action(call: CallbackQuery, callback_data: DeleteActionCallback):
     await call.message.delete()
     action_id = callback_data.action_id
     await delete_action(user_id, action_id)
-    await call.message.answer(text=f"{rm_action_text} {callback_data.action_name}")
+    markup = await menu_inline_kb(actions_menu_buttons)
+    await call.message.answer(text=f"{rm_action_text} {callback_data.action_name}", reply_markup=markup)

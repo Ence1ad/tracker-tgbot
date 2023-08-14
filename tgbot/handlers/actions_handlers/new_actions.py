@@ -1,6 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
+from tgbot.keyboards.buttons_names import actions_menu_buttons
+from tgbot.keyboards.menu_kb import menu_inline_kb
 from tgbot.handlers.actions_handlers.show_actions import USER_CATEGORY
 from tgbot.utils.answer_text import new_action_text, added_new_action_text
 from tgbot.utils.states import ActionState
@@ -20,4 +22,5 @@ async def get_action_name_from_user(message: Message, state: FSMContext):
     state_data = await state.get_data()
     await state.clear()
     await create_actions(user_id, state_data['category_name'].strip()[:29], category_id=USER_CATEGORY[user_id])
-    await message.answer(text=added_new_action_text)
+    markup = await menu_inline_kb(actions_menu_buttons)
+    await message.answer(text=added_new_action_text, reply_markup=markup)

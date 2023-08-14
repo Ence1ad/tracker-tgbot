@@ -1,6 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
+from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.buttons_names import actions_menu_buttons
 from tgbot.utils.answer_text import new_category_text, added_new_category_text
 from tgbot.utils.states import CategoryState
 
@@ -19,4 +21,5 @@ async def get_category_name_from_user(message: Message, state: FSMContext):
     state_data = await state.get_data()
     await state.clear()
     await create_category(user_id, state_data['category_name'].strip()[:29])
-    await message.answer(text=added_new_category_text)
+    markup = await menu_inline_kb(actions_menu_buttons)
+    await message.answer(text=added_new_category_text, reply_markup=markup)

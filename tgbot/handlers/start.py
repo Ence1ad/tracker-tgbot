@@ -3,7 +3,8 @@ from aiogram.types import Message
 
 from db.users.user import NewUser
 from db.users.users_commands import create_user, check_user_in_db
-from ..keyboards.start_kb import start_custom_kb
+from ..keyboards.buttons_names import start_menu_buttons
+from ..keyboards.menu_kb import menu_inline_kb
 from ..utils.answer_text import user_in_db_text, new_user_text
 
 
@@ -22,7 +23,7 @@ async def command_start_handler(message: Message) -> None:
     user_id_from_db: str | None = await check_user_in_db(user_id)
 
     # Get keyboard
-    start_markup = await start_custom_kb()
+    start_markup = await menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
     if user_id == user_id_from_db:
         await message.answer(text=user_in_db_text, reply_markup=start_markup)
