@@ -22,7 +22,6 @@ class SAUser(SqlAlchemyBase):
     )
 
 
-# TODO можно заморочиться и переписать на SQLModel когда библиотека начнет поддерживать async запросы
 @dataclass
 class NewUser:
     user_id: field(init=False)

@@ -57,5 +57,4 @@ send_report_text = "This is your weekly report"
 empty_trackers_text = "You don't have any trackers"
 
 # for create_report.py
-chart_name = F"Week №{datetime.datetime.today().isocalendar().week} Tracking"
 xlsx_title = "Weekly Report.xlsx"

@@ -7,6 +7,7 @@ from aiogram import Dispatcher, Router, F
 from config import bot
 from tgbot.handlers import register_categories_handlers, register_actions_handlers, register_tracker_handlers,\
      register_report_handlers
+from tgbot.handlers.cancel import command_cancel_handler
 from tgbot.handlers.exit_handler import exit_menu
 
 from tgbot.handlers.start import command_start_handler
@@ -26,6 +27,7 @@ async def main() -> None:
     await start_bot(bot)
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))
+    router.callback_query.register(command_cancel_handler, F.data == 'cancel')
     router.callback_query.register(exit_menu, F.data == exit_btn)
     register_categories_handlers(router)
     register_actions_handlers(router)

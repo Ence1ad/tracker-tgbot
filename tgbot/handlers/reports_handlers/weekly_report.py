@@ -5,8 +5,8 @@ from db.report.report_commands import get_report
 from tgbot.keyboards.buttons_names import reports_buttons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import xlsx_title, send_report_text, empty_trackers_text
-from tgbot.utils.create_report import create_bar
-from tgbot.utils.prepare_data import adjust_data_main, get_headers
+from data_preparation.create_report import create_bar
+from data_preparation.prepare_data import adjust_data_main, get_headers
 
 
 async def get_weekly_report(call: CallbackQuery):

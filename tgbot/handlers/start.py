@@ -4,7 +4,7 @@ from aiogram.types import Message
 from db.users.user import NewUser
 from db.users.users_commands import create_user, check_user_in_db
 from ..keyboards.buttons_names import start_menu_buttons
-from ..keyboards.inline_kb import menu_inline_kb
+from ..keyboards.inline_kb import start_menu_inline_kb
 from ..utils.answer_text import user_in_db_text, new_user_text
 
 
@@ -19,11 +19,12 @@ async def command_start_handler(message: Message) -> None:
     # await message.answer(f"Hello, <b>{message.from_user.id}!</b>")
 
     user_id: int = message.from_user.id
+    await message.delete()
     user_obj: NewUser = await _get_sender_data(message)
     user_id_from_db: str | None = await check_user_in_db(user_id)
 
     # Get keyboard
-    start_markup = await menu_inline_kb(start_menu_buttons)
+    start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
     if user_id == user_id_from_db:
         await message.answer(text=user_in_db_text, reply_markup=start_markup)

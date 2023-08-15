@@ -1,16 +1,22 @@
-from inspect import signature
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tgbot.keyboards.buttons_names import yes_btn, no_btn, exit_btn
+from tgbot.keyboards.buttons_names import yes_btn, no_btn, exit_btn, cancel_btn
 from tgbot.keyboards.callback_data_classes import DeleteTrackerCallback, SelectActionTrackerCallback, \
-    DeleteActionCallback, UpdateActionCallback, SelectCategoryCallback, DeleteCategoryCallback,\
+    DeleteActionCallback, UpdateActionCallback, SelectCategoryCallback, DeleteCategoryCallback, \
     UpdateCategoryCallback, SelectCategoryTrackerCallback
 
 
+async def start_menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    for data, txt in buttons.items():
+        kb_builder.button(text=txt, callback_data=data)
+    kb_builder.adjust(2, 2, 1)
+    kb_builder.row(InlineKeyboardButton(text=cancel_btn, callback_data=cancel_btn))
+    return kb_builder.as_markup()
+
+
 async def menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
-    print(signature(menu_inline_kb).parameters.values())
     kb_builder = InlineKeyboardBuilder()
     for data, txt in buttons.items():
         kb_builder.button(text=txt, callback_data=data)

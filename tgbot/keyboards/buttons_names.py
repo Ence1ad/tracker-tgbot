@@ -1,4 +1,5 @@
 exit_btn = 'exit'
+cancel_btn = 'cancel'
 
 # buttons for start_kb.py
 start_menu_buttons = dict(

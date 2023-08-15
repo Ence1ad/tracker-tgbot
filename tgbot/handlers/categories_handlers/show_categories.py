@@ -20,8 +20,8 @@ async def display_categories(call: CallbackQuery):
     categories: list = list(await get_categories_without_actions(user_id))
     if categories:
         cats_in_column = ''
-        for category in categories:
-            cats_in_column += category.category_name + '\n\r'
+        for idx, category in enumerate(categories, 1):
+            cats_in_column += f"{idx}. {category.category_name}\n\r"
         markup = await menu_inline_kb(category_menu_buttons)
         await call.message.answer(text=f"{show_categories_text}\n\r{cats_in_column}", reply_markup=markup)
     else:
