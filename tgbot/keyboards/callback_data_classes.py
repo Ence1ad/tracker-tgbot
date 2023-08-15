@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from aiogram.filters.callback_data import CallbackData
 
 

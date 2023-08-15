@@ -4,7 +4,7 @@ from aiogram.types import Message
 from db.users.user import NewUser
 from db.users.users_commands import create_user, check_user_in_db
 from ..keyboards.buttons_names import start_menu_buttons
-from ..keyboards.menu_kb import menu_inline_kb
+from ..keyboards.inline_kb import menu_inline_kb
 from ..utils.answer_text import user_in_db_text, new_user_text
 
 

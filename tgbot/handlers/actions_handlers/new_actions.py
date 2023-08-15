@@ -2,12 +2,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from tgbot.keyboards.buttons_names import actions_menu_buttons
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.handlers.actions_handlers.show_actions import USER_CATEGORY
 from tgbot.utils.answer_text import new_action_text, added_new_action_text
 from tgbot.utils.states import ActionState
 
 from db.actions.actions_db_commands import create_actions
+
 
 # Todo сделать ограничение на 15 активностей
 async def new_action(call: CallbackQuery, state: FSMContext):

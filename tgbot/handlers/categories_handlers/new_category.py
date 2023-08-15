@@ -2,12 +2,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import category_menu_buttons
 from tgbot.utils.answer_text import new_category_text, added_new_category_text
 from tgbot.utils.states import CategoryState
 
-from db.categories.categories_commands import create_category, get_categories_without_actions
+from db.categories.categories_commands import create_category
 
 
 async def new_category(call: CallbackQuery, state: FSMContext):

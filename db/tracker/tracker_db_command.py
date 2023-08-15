@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, delete, update, Sequence, func, Date, cast
+from sqlalchemy import select, delete, update, Sequence, func, Date, cast, Row
 
 from ..actions.actions_models import Actions
 from ..db_session import create_async_session
@@ -31,7 +31,7 @@ async def get_user_tracker(user_id: int) -> Sequence:
             return res.fetchall()
 
 
-async def get_launch_tracker(user_id: int) -> Tracker:
+async def get_launch_tracker(user_id: int) -> Row | None:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = select(Tracker).where(Tracker.user_id == user_id, Tracker.track_end.is_(None))

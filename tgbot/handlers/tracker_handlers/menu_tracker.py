@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from tgbot.keyboards.buttons_names import tracker_menu_buttons
 from tgbot.utils.answer_text import options_text
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
 async def get_tracker_options(call: CallbackQuery):

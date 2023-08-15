@@ -5,7 +5,8 @@ from aiogram.filters import Command
 from aiogram import Dispatcher, Router, F
 
 from config import bot
-from tgbot.handlers import register_categories_handlers, register_actions_handlers, register_tracker_handlers, register_report_handlers
+from tgbot.handlers import register_categories_handlers, register_actions_handlers, register_tracker_handlers,\
+     register_report_handlers
 from tgbot.handlers.exit_handler import exit_menu
 
 from tgbot.handlers.start import command_start_handler

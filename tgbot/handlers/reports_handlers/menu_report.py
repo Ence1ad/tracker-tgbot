@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from db.tracker.tracker_db_command import get_user_tracker
 from tgbot.keyboards.buttons_names import reports_buttons
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import options_text, empty_tracker_text
 
 

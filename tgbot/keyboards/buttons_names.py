@@ -24,7 +24,7 @@ actions_menu_buttons = dict(
     delete_actions='🗑 Delete action',
 )
 
-# buttons for tracker_kb.py
+# buttons for inline_kb.py
 tracker_menu_buttons = dict(
     launched_btn='⏳ Launched tracker',
     new_tracker_btn='⏲ Start tracking',

@@ -6,7 +6,7 @@ from tgbot.handlers.actions_handlers.show_actions import get_actions_options, di
 from tgbot.handlers.actions_handlers.new_actions import new_action, get_action_name_from_user
 from tgbot.handlers.actions_handlers.update_actions import select_update_action, select_action, upd_action
 
-from tgbot.utils.callback_data_classes import SelectCategoryCallback, DeleteActionCallback, UpdateActionCallback
+from tgbot.keyboards.callback_data_classes import SelectCategoryCallback, DeleteActionCallback, UpdateActionCallback
 from tgbot.utils.states import ActionState, UpdateActionState
 
 

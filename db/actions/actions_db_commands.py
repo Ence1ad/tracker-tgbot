@@ -19,7 +19,8 @@ async def create_actions(user_id, action_name, category_id: str) -> None:
 async def get_user_actions(user_id: int, category_id: int):
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(Actions, ActionsCategories).join(ActionsCategories).where(Actions.user_id == user_id, Actions.category_id == category_id)
+            stmt = select(Actions, ActionsCategories).join(ActionsCategories)\
+                .where(Actions.user_id == user_id, Actions.category_id == category_id)
             res = await session.execute(stmt)
             await session.commit()
             return res.fetchall()

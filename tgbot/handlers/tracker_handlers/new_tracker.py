@@ -2,10 +2,10 @@ from aiogram.types import CallbackQuery
 
 from tgbot.handlers.actions_handlers.show_actions import USER_CATEGORY
 from tgbot.utils.answer_text import new_tracker_text
-from tgbot.utils.callback_data_classes import SelectActionTrackerCallback
+from tgbot.keyboards.callback_data_classes import SelectActionTrackerCallback
 
 from db.tracker.tracker_db_command import create_tracker
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import tracker_menu_buttons
 
 

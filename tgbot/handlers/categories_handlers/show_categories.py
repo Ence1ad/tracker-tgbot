@@ -3,7 +3,7 @@ from sqlalchemy import ScalarResult
 
 from db.categories.categories_commands import get_categories, get_categories_without_actions
 from tgbot.keyboards.buttons_names import category_menu_buttons
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import empty_categories_text
 from tgbot.utils.answer_text import show_categories_text, categories_options_text
 
@@ -12,7 +12,6 @@ async def get_categories_options(call: CallbackQuery):
     await call.message.delete()
     markup = await menu_inline_kb(category_menu_buttons)
     await call.message.answer(text=categories_options_text, reply_markup=markup)
-
 
 
 async def display_categories(call: CallbackQuery):

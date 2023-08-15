@@ -3,11 +3,10 @@ from aiogram.types import Message, CallbackQuery
 
 from db.actions.actions_db_commands import update_action
 from tgbot.keyboards.buttons_names import actions_menu_buttons
-from tgbot.keyboards.menu_kb import menu_inline_kb
 from tgbot.handlers.actions_handlers.show_actions import show_user_actions
-from tgbot.keyboards.actions_kb import list_actions_inline_kb
+from tgbot.keyboards.inline_kb import list_inline_kb_with_cb_class, menu_inline_kb
 from tgbot.utils.answer_text import new_action_text, select_action_text, empty_actions_text, upd_action_text
-from tgbot.utils.callback_data_classes import UpdateActionCallback
+from tgbot.keyboards.callback_data_classes import UpdateActionCallback
 from tgbot.utils.states import UpdateActionState
 
 
@@ -22,7 +21,7 @@ async def select_action(call: CallbackQuery, state: FSMContext, callback_data: U
 async def select_update_action(call: CallbackQuery, state: FSMContext):
     action: list = list(await show_user_actions(call))
     if action:
-        markup = await list_actions_inline_kb(action, UpdateActionCallback)
+        markup = await list_inline_kb_with_cb_class(action, UpdateActionCallback)
         await call.message.answer(text=select_action_text, reply_markup=markup)
         await state.set_state(UpdateActionState.GET_NAME)
     else:

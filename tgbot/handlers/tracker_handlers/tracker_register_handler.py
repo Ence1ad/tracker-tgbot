@@ -8,7 +8,7 @@ from .launched import select_launched_tracker
 from .menu_tracker import get_tracker_options, no_btn_handler
 from .new_tracker import create_new_tracker
 from tgbot.keyboards.buttons_names import yes_btn, no_btn
-from tgbot.utils.callback_data_classes import SelectCategoryTrackerCallback, SelectActionTrackerCallback, \
+from tgbot.keyboards.callback_data_classes import SelectCategoryTrackerCallback, SelectActionTrackerCallback, \
     DeleteTrackerCallback
 
 

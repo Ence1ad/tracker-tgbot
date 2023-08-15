@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from config import bot
 from db.report.report_commands import get_report
 from tgbot.keyboards.buttons_names import reports_buttons
-from tgbot.keyboards.menu_kb import menu_inline_kb
+from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import xlsx_title, send_report_text, empty_trackers_text
 from tgbot.utils.create_report import create_bar
 from tgbot.utils.prepare_data import adjust_data_main, get_headers
