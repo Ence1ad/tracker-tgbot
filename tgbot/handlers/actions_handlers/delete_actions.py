@@ -16,7 +16,8 @@ async def select_remove_action(call: CallbackQuery):
         markup = await list_actions_inline_kb(actions, DeleteActionCallback)
         await call.message.answer(text=select_action_text, reply_markup=markup)
     else:
-        await call.message.answer(text=empty_actions_text)
+        markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))
+        await call.message.answer(text=empty_actions_text, reply_markup=markup)
 
 
 async def del_action(call: CallbackQuery, callback_data: DeleteActionCallback):

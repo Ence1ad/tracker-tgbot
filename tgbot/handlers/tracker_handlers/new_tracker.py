@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery
 
-from .actions_tracker import USER_TRACKER_CATEGORY
+from tgbot.handlers.actions_handlers.show_actions import USER_CATEGORY
 from tgbot.utils.answer_text import new_tracker_text
 from tgbot.utils.callback_data_classes import SelectActionTrackerCallback
 
@@ -16,7 +16,7 @@ async def create_new_tracker(call: CallbackQuery, callback_data: SelectActionTra
     action_id = callback_data.action_id
     action_name = callback_data.action_name
     await call.message.delete()
-    await create_tracker(user_id, category_id=USER_TRACKER_CATEGORY[user_id], action_id=action_id,
+    await create_tracker(user_id, category_id=USER_CATEGORY[user_id], action_id=action_id,
                          track_start=start_time)
     markup = await menu_inline_kb(tracker_menu_buttons)
     await call.message.answer(text=f"{new_tracker_text} {action_name}", reply_markup=markup)

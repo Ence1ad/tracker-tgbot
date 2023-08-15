@@ -39,5 +39,10 @@ reports_buttons = dict(
     annual_report_btn='🗓 Annual Report'
 )
 
+tracker_two_buttons = dict(
+    new_tracker_btn='⏲ Start tracking',
+    exit_btn='exit'
+)
+
 yes_btn = '🟩 Yes'
 no_btn = '🟥 No'

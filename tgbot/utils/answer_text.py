@@ -13,7 +13,7 @@ categories_options_text = f"Select the button"
 new_category_text = f"Write category name"
 added_new_category_text = 'You successfully added new category'
 show_categories_text = "This is your categories:"
-empty_categories_text = f"❎ You don't have any categories yet"
+empty_categories_text = f"You don't have any categories yet"
 select_category_text = f"Select the category"
 rm_category_text = "You have deleted your category: "
 upd_category_text = "You have updated your category: "
@@ -23,7 +23,7 @@ added_new_action_text = 'You successfully added new action'
 
 # text for actions handlers
 new_action_text = f"Write action name"
-show_action_text = "This is your actions"
+show_action_text = "Your actions for category "
 select_action_text = "Select the actions"
 empty_actions_text = f"You don't have any actions yet"
 rm_action_text = "You deleted your action:"
@@ -38,7 +38,7 @@ already_launch_tracker_text = "You already have a running tracker "
 answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
 stop_tracker_text = "Tracker stopped:"
 daily_tracker_text = "Delete daily tracker"
-empty_tracker_text = "You don't have any stopped trackers"
+empty_tracker_text = "You don't have any trackers yet"
 delete_tracker_text = "You deleted the tracker"
 
 
@@ -54,7 +54,7 @@ async def traker_text(call: CallbackQuery, tracker):
 
 # for reports handlers
 send_report_text = "This is your weekly report"
-empty_trackers_text = "❎ You don't have any trackers"
+empty_trackers_text = "You don't have any trackers"
 
 # for create_report.py
 chart_name = F"Week №{datetime.datetime.today().isocalendar().week} Tracking"

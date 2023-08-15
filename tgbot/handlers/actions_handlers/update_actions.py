@@ -26,7 +26,8 @@ async def select_update_action(call: CallbackQuery, state: FSMContext):
         await call.message.answer(text=select_action_text, reply_markup=markup)
         await state.set_state(UpdateActionState.GET_NAME)
     else:
-        await call.message.answer(text=empty_actions_text)
+        markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))
+        await call.message.answer(text=empty_actions_text, reply_markup=markup)
 
 
 async def upd_action(message: Message, state: FSMContext):

@@ -7,10 +7,10 @@ from tgbot.utils.states import CategoryState, UpdateCategoryState
 
 
 def register_categories_handlers(router):
-    router.callback_query.register(get_categories_options, F.data == 'categories_btn')
+    # router.callback_query.register(get_categories_options, F.data == 'categories_btn')
+    router.callback_query.register(display_categories, (F.data == 'categories_btn') | (F.data == 'user_categories'))
     router.callback_query.register(new_category, F.data == 'create_categories')
     router.message.register(get_category_name_from_user, CategoryState.GET_NAME)
-    router.callback_query.register(display_categories, F.data == 'user_categories')
     router.callback_query.register(select_remove_category, F.data == 'delete_categories')
     router.callback_query.register(del_category, DeleteCategoryCallback.filter())
     router.callback_query.register(select_update_category, F.data == 'update_categories')

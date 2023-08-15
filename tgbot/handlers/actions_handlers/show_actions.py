@@ -1,5 +1,4 @@
 from aiogram.types import CallbackQuery
-from sqlalchemy import ScalarResult
 
 from db.actions.actions_db_commands import get_user_actions
 from tgbot.keyboards.menu_kb import menu_inline_kb
@@ -16,24 +15,28 @@ async def get_actions_options(call: CallbackQuery, callback_data: SelectCategory
     USER_CATEGORY[user_id] = callback_data.category_id
     await call.message.delete()
     markup = await menu_inline_kb(actions_menu_buttons)
-    await call.message.answer(text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{categories_options_text}",
-                              reply_markup=markup)
+    await call.message.answer(
+        text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{categories_options_text}",
+        reply_markup=markup)
 
 
 async def display_actions(call: CallbackQuery):
-    actions: list = list(await show_user_actions(call))
-    markup = await menu_inline_kb(actions_menu_buttons)
+    actions = await show_user_actions(call)
     if actions:
+        markup = await menu_inline_kb(actions_menu_buttons)
         act_in_column = ''
         for action in actions:
-            act_in_column += action.action_name + '\n\r'
-        await call.message.answer(text=f"{show_action_text}\n\r{act_in_column}", reply_markup=markup)
+            act_in_column += action.Actions.action_name + '\n\r'
+        await call.message.answer(
+            text=f"{show_action_text}<i>{actions[0].ActionsCategories.category_name}</i>:\n\r{act_in_column}",
+            reply_markup=markup)
     else:
+        markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))
         await call.message.answer(text=empty_actions_text, reply_markup=markup)
 
 
-async def show_user_actions(call: CallbackQuery) -> ScalarResult:
+async def show_user_actions(call: CallbackQuery):
     user_id = call.from_user.id
     await call.message.delete()
-    actions: ScalarResult = await get_user_actions(user_id, category_id=USER_CATEGORY[user_id])
+    actions = await get_user_actions(user_id, category_id=USER_CATEGORY[user_id])
     return actions

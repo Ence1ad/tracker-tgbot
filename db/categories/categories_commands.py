@@ -1,5 +1,6 @@
 from sqlalchemy import select, delete, ScalarResult, update
 
+from ..actions.actions_models import Actions
 from ..db_session import create_async_session
 from .categories_model import ActionsCategories
 
@@ -14,10 +15,19 @@ async def create_category(user_id, category_title: str) -> None:
             await session.commit()
 
 
-async def get_categories(user_id: int) -> ScalarResult:
+async def get_categories_without_actions(user_id: int) -> ScalarResult:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = select(ActionsCategories).where(ActionsCategories.user_id == user_id)
+            res = await session.execute(stmt)
+            await session.commit()
+            return res.scalars()
+
+
+async def get_categories(user_id: int) -> ScalarResult:
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = select(ActionsCategories).join(Actions).where(ActionsCategories.user_id == user_id)
             res = await session.execute(stmt)
             await session.commit()
             return res.scalars()
