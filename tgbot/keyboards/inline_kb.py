@@ -64,10 +64,10 @@ async def _tracker(trackers: list, callback_class, builder):
 async def _actions(actions: list, callback_class, builder):
     for act in actions:
         builder.button(
-            text=f"{act.Actions.action_name}",
-            callback_data=callback_class(action_id=act.Actions.action_id, action_name=act.Actions.action_name)
+            text=f"{act.action_name}",
+            callback_data=callback_class(action_id=act.action_id, action_name=act.action_name)
         )
-    builder.adjust(3)
+    builder.adjust(2)
     return builder
 
 
@@ -77,5 +77,5 @@ async def _categories(categories: list, callback_class, builder):
             text=f"{cat.category_name}",
             callback_data=callback_class(category_id=cat.category_id, category_name=cat.category_name)
         )
-    builder.adjust(3)
+    builder.adjust(2)
     return builder

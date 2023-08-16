@@ -21,14 +21,13 @@ async def get_actions_options(call: CallbackQuery, callback_data: SelectCategory
 
 
 async def display_actions(call: CallbackQuery):
-    actions = await show_user_actions(call)
+    actions = list(await show_user_actions(call))
     if actions:
+
         markup = await menu_inline_kb(actions_menu_buttons)
-        act_in_column = ''
-        for action in actions:
-            act_in_column += action.Actions.action_name + '\n\r'
+        act_in_column = ''.join([action.action_name + '\n\r' for action in actions])
         await call.message.answer(
-            text=f"{show_action_text}<i>{actions[0].ActionsCategories.category_name}</i>:\n\r{act_in_column}",
+            text=f"{show_action_text}<i>{actions[0].category_name}</i>:\n\r{act_in_column}",
             reply_markup=markup)
     else:
         markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))

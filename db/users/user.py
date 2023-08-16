@@ -1,18 +1,27 @@
 from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import Integer, String, Column, PrimaryKeyConstraint, DateTime
+from sqlalchemy import String, PrimaryKeyConstraint, BigInteger
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from dataclasses import dataclass, field
+
+from ..actions.actions_models import ActionsModel
 from ..base_model import SqlAlchemyBase
+from ..categories.categories_model import CategoriesModel
+from ..tracker.tracker_model import TrackerModel
 
 
-class SAUser(SqlAlchemyBase):
+class UserModel(SqlAlchemyBase):
     __tablename__ = 'users'
-    user_id = Column(Integer)
-    first_name = Column(String(100), nullable=True)
-    last_name = Column(String(100), nullable=True)
-    username = Column(String(100), nullable=True)
-    phone = Column(String(100), nullable=True)
-    created_on = Column(DateTime(), default=datetime.now)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    first_name: Mapped[Optional[str]] = mapped_column(String(64))
+    last_name: Mapped[Optional[str]] = mapped_column(String(64))
+    username: Mapped[Optional[str]] = mapped_column(String(32))
+    phone: Mapped[Optional[str]] = mapped_column(String(12))
+    created_on: Mapped[datetime] = mapped_column(default=datetime.now)
+    # categories: Mapped[list["CategoriesModel"]] = relationship(back_populates='user', lazy='joined')
+    # trackers: Mapped[list["TrackerModel"]] = relationship(back_populates='user', lazy='joined')
+    # actions: Mapped[list["ActionsModel"]] = relationship(back_populates='user', lazy='joined')
 
     __table_args__ = (
         PrimaryKeyConstraint('user_id', name='user_pk'),

@@ -9,7 +9,6 @@ from tgbot.utils.answer_text import options_text, empty_tracker_text
 async def get_report_options(call: CallbackQuery):
     user_id = call.from_user.id
     trackers = await get_user_tracker(user_id)
-    print(trackers)
     await call.message.delete()
     if trackers:
         markup = await menu_inline_kb(reports_buttons)

@@ -1,7 +1,6 @@
 from aiogram.types import CallbackQuery
-from sqlalchemy import ScalarResult
 
-from db.categories.categories_commands import get_categories, get_categories_without_actions
+from db.categories.categories_commands import get_categories_without_actions
 from tgbot.keyboards.buttons_names import category_menu_buttons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import empty_categories_text
@@ -27,10 +26,3 @@ async def display_categories(call: CallbackQuery):
     else:
         markup = await menu_inline_kb(dict(create_categories='🆕 Create category'))
         await call.message.answer(text=empty_categories_text, reply_markup=markup)
-
-
-async def show_user_category(call: CallbackQuery) -> ScalarResult:
-    user_id = call.from_user.id
-    await call.message.delete()
-    categories: ScalarResult = await get_categories(user_id)
-    return categories

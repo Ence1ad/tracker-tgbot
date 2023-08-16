@@ -1,5 +1,4 @@
 from copy import deepcopy
-import datetime
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference

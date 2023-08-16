@@ -1,4 +1,4 @@
 # noinspection PyUnresolvedReferences
-from db.users.user import SAUser
+from db.users.user import UserModel
 # noinspection PyUnresolvedReferences
-from db.categories.categories_model import ActionsCategories
+from db.categories.categories_model import CategoriesModel

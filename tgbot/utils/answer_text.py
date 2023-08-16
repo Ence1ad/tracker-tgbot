@@ -43,9 +43,9 @@ delete_tracker_text = "You deleted the tracker"
 
 
 async def traker_text(call: CallbackQuery, tracker):
-    action_name = tracker.Tracker.actions.action_name,
-    category_name = tracker.Tracker.actions.actions_categories.category_name,
-    launch_time = tracker.Tracker.track_start,
+    action_name = tracker[0].action_name,
+    category_name = tracker[0].category_name,
+    launch_time = tracker[0].track_start,
     call_datetime: datetime = call.message.date
     duration = str(call_datetime - launch_time[0]).split('.')[0]
     text = f"\n\rcategory: {category_name[0]}\n\raction:  {action_name[0]}\n\rduration: {duration}"

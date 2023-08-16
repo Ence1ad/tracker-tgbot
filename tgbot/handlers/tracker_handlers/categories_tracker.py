@@ -2,7 +2,6 @@ from aiogram.types import CallbackQuery
 
 from db.categories.categories_commands import get_categories_without_actions
 from db.tracker.tracker_db_command import get_launch_tracker
-from db.tracker.tracker_model import Tracker
 from tgbot.keyboards.inline_kb import stop_tracker_inline_kb, list_inline_kb_with_cb_class, menu_inline_kb
 from tgbot.utils.answer_text import select_category_text, traker_text, already_launch_tracker_text, \
     empty_categories_text

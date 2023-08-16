@@ -1,16 +1,17 @@
-from sqlalchemy import Integer, String, Column, ForeignKey
+from sqlalchemy import Integer, String, Column, ForeignKey, BigInteger
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.base_model import SqlAlchemyBase
+from ..base_model import SqlAlchemyBase
 
 
-class Actions(SqlAlchemyBase):
+class ActionsModel(SqlAlchemyBase):
     __tablename__ = 'actions'
-    action_id = Column(Integer, primary_key=True, autoincrement=True)
-    action_name = Column(String(30), unique=True)
-    category_id = Column(Integer, ForeignKey('actions_category.category_id', ondelete='cascade'))
-    user_id = Column(Integer, ForeignKey('users.user_id', ondelete='cascade'))
-    sa_user = relationship("SAUser")
-    actions_categories = relationship("ActionsCategories", lazy='joined')
+    action_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    action_name: Mapped[str] = mapped_column(String(30), unique=True)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey('categories.category_id', ondelete='cascade'))
+    user_id: Mapped[int] = Column(BigInteger, ForeignKey('users.user_id', ondelete='cascade'))
+    # user = relationship("UserModel", back_populates='actions', lazy='joined')
+    # categories = relationship("CategoriesModel", lazy='joined')
+    # trackers = relationship("TrackerModel", back_populates='actions', lazy='joined')
 

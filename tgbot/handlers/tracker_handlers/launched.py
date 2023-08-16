@@ -1,7 +1,6 @@
 from aiogram.types import CallbackQuery
 
 from db.tracker.tracker_db_command import get_launch_tracker
-from db.tracker.tracker_model import Tracker
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import tracker_menu_buttons
 from tgbot.keyboards.inline_kb import stop_tracker_inline_kb
