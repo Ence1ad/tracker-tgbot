@@ -2,13 +2,10 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import String, PrimaryKeyConstraint, BigInteger
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import mapped_column, Mapped
 from dataclasses import dataclass, field
 
-from ..actions.actions_models import ActionsModel
 from ..base_model import SqlAlchemyBase
-from ..categories.categories_model import CategoriesModel
-from ..tracker.tracker_model import TrackerModel
 
 
 class UserModel(SqlAlchemyBase):

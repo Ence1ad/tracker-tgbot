@@ -1,40 +1,38 @@
+import enum
+
 from aiogram.filters.callback_data import CallbackData
 
 
-class DeleteCategoryCallback(CallbackData, prefix="del"):
+class CategoryOperation(enum.IntEnum):
+    READ = 0
+    UDP = 1
+    DEL = 2
+    READ_TRACKER = 3
+
+
+class ActionOperation(enum.IntEnum):
+    READ = 0
+    UDP = 1
+    DEL = 2
+    READ_TRACKER = 3
+
+
+class TrackerOperation(enum.IntEnum):
+    DEL = 0
+
+
+class CategoryCD(CallbackData, prefix="cat"):
+    operation: CategoryOperation
     category_id: int
     category_name: str
 
 
-class UpdateCategoryCallback(CallbackData, prefix="udp"):
-    category_id: int
-    category_name: str
-
-
-class SelectCategoryCallback(CallbackData, prefix="sel"):
-    category_id: int
-    category_name: str
-
-
-class DeleteActionCallback(CallbackData, prefix="del_act"):
+class ActionCD(CallbackData, prefix="act"):
+    operation: ActionOperation
     action_id: int
     action_name: str
 
 
-class UpdateActionCallback(CallbackData, prefix="udp_act"):
-    action_id: int
-    action_name: str
-
-
-class SelectCategoryTrackerCallback(CallbackData, prefix="sel_tra"):
-    category_id: int
-    category_name: str
-
-
-class SelectActionTrackerCallback(CallbackData, prefix="sel_act"):
-    action_id: int
-    action_name: str
-
-
-class DeleteTrackerCallback(CallbackData, prefix="del_tra"):
+class TrackerCD(CallbackData, prefix="tra"):
+    operation: TrackerOperation
     tracker_id: int

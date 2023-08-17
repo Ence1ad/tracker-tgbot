@@ -11,7 +11,6 @@ from data_preparation.prepare_data import adjust_data_main, get_headers
 
 async def get_weekly_report(call: CallbackQuery):
     user_id = call.from_user.id
-    # TODO сделать чтобы нельзя было создать отчет пока запущена активность
     report = await get_report(user_id)
     report = list(report)
     markup = await menu_inline_kb(reports_buttons)
@@ -20,8 +19,8 @@ async def get_weekly_report(call: CallbackQuery):
         max_row = len(max_row)+1
         data_for_bar = await adjust_data_main(report)
         await create_bar(rows=data_for_bar, max_col=max_row)
+        await call.answer(text=send_report_text)
         await call.message.delete()
-        await call.message.answer(text=send_report_text)
         document = FSInputFile(xlsx_title)
         return await bot.send_document(chat_id=call.from_user.id, document=document)
     else:

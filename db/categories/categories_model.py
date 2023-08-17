@@ -1,9 +1,8 @@
 from sqlalchemy import String, ForeignKey, BigInteger
 
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base_model import SqlAlchemyBase
-from db.tracker.tracker_model import TrackerModel
 
 
 class CategoriesModel(SqlAlchemyBase):

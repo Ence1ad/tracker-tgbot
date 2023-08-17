@@ -11,7 +11,7 @@ new_user_text = f"Hello friend! What can I do for you?"
 # text for categories handlers
 categories_options_text = f"Select the button"
 new_category_text = f"Write category name"
-added_new_category_text = 'You successfully added new category'
+added_new_category_text = 'You have successfully added the new category'
 show_categories_text = "This is your categories:"
 empty_categories_text = f"You don't have any categories yet"
 select_category_text = f"Select the category"
@@ -33,7 +33,7 @@ first_start_text = 'Please use setting button for adjust your action tracker'
 # text for tracker handlers
 new_tracker_text = f"You launch tracking action: "
 not_launched_tracker_text = "You don't have any launched tracker"
-launch_tracker_text = "Launched tracker:"
+launch_tracker_text = f"Launched tracker:"
 already_launch_tracker_text = "You already have a running tracker "
 answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
 stop_tracker_text = "Tracker stopped:"
@@ -46,9 +46,12 @@ async def traker_text(call: CallbackQuery, tracker):
     action_name = tracker[0].action_name,
     category_name = tracker[0].category_name,
     launch_time = tracker[0].track_start,
+    get_max_length = max(len(action_name[0]), len(category_name[0]))
     call_datetime: datetime = call.message.date
+    sign = '*'
     duration = str(call_datetime - launch_time[0]).split('.')[0]
-    text = f"\n\rcategory: {category_name[0]}\n\raction:  {action_name[0]}\n\rduration: {duration}"
+    # text = f"\n\r{sign * (get_max_length + 4)}\n\r🗄: {category_name[0]}\n\r{sign * (get_max_length + 4)}\n\r🎬: {action_name[0]}\n\r{sign * (get_max_length + 4)}\n\r⏱: {duration}"
+    text = f"\n\r{sign * (get_max_length + 4)}\n\r🗄: {category_name[0]}\n\r{sign * (get_max_length + 4)}\n\r🎬: {action_name[0]}\n\r{sign * (get_max_length + 4)}\n\r⏱: {duration}"
     return text
 
 

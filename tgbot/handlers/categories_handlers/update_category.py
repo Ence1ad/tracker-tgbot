@@ -5,11 +5,11 @@ from db.categories.categories_commands import update_category, get_categories_wi
 from tgbot.keyboards.inline_kb import list_inline_kb_with_cb_class, menu_inline_kb
 from tgbot.keyboards.buttons_names import category_menu_buttons
 from tgbot.utils.answer_text import upd_category_text, new_category_text, select_category_text, empty_categories_text
-from tgbot.keyboards.callback_data_classes import UpdateCategoryCallback
+from tgbot.keyboards.callback_data_classes import CategoryOperation, CategoryCD
 from tgbot.utils.states import UpdateCategoryState
 
 
-async def select_category(call: CallbackQuery, state: FSMContext, callback_data: UpdateCategoryCallback):
+async def select_category(call: CallbackQuery, state: FSMContext, callback_data: CategoryCD):
     await call.message.delete()
     await call.message.answer(text=new_category_text)
     await state.update_data(category_id=callback_data.category_id)
@@ -21,7 +21,7 @@ async def select_update_category(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     categories: list = list(await get_categories_without_actions(user_id))
     if categories:
-        markup = await list_inline_kb_with_cb_class(categories, UpdateCategoryCallback)
+        markup = await list_inline_kb_with_cb_class(categories, CategoryOperation.UDP)
         await call.message.answer(text=select_category_text, reply_markup=markup)
         await state.set_state(UpdateCategoryState.GET_NAME)
     else:

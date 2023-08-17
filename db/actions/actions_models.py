@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Column, ForeignKey, BigInteger
 
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ..base_model import SqlAlchemyBase
 

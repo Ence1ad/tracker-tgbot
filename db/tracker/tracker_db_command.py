@@ -3,7 +3,6 @@ from typing import Any
 
 from sqlalchemy import select, delete, update, Sequence, func, Date, cast
 
-
 from ..actions.actions_models import ActionsModel
 from ..categories.categories_model import CategoriesModel
 from ..db_session import create_async_session
@@ -36,7 +35,8 @@ async def get_user_tracker(user_id: int) -> Sequence:
 async def get_launch_tracker(user_id: int) -> Any | None:
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(TrackerModel.tracker_id, TrackerModel.track_start, ActionsModel.action_name, CategoriesModel.category_name)\
+            stmt = select(TrackerModel.tracker_id, TrackerModel.track_start, ActionsModel.action_name,
+                          CategoriesModel.category_name) \
                 .join_from(TrackerModel, CategoriesModel).join_from(TrackerModel, ActionsModel) \
                 .where(TrackerModel.user_id == user_id, TrackerModel.track_end.is_(None))
             res = await session.execute(stmt)

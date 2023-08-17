@@ -1,8 +1,8 @@
 from aiogram.types import CallbackQuery
 
 from db.actions.actions_db_commands import get_user_actions
+from tgbot.keyboards.callback_data_classes import CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb
-from tgbot.handlers.actions_handlers.category import SelectCategoryCallback
 from tgbot.keyboards.buttons_names import actions_menu_buttons
 
 from tgbot.utils.answer_text import empty_actions_text, categories_options_text, show_action_text
@@ -10,7 +10,7 @@ from tgbot.utils.answer_text import empty_actions_text, categories_options_text,
 USER_CATEGORY = {}
 
 
-async def get_actions_options(call: CallbackQuery, callback_data: SelectCategoryCallback):
+async def get_actions_options(call: CallbackQuery, callback_data: CategoryCD):
     user_id = call.from_user.id
     USER_CATEGORY[user_id] = callback_data.category_id
     await call.message.delete()

@@ -26,7 +26,6 @@ async def get_headers(report) -> list[str]:
 
 
 async def _create_blank_matrix(headers) -> dict[str, list[dict]]:
-    # TODO поставить вместо числа длину headers
     lst_works = []
     for unzip_item in zip_longest(headers, (0 for _ in range(len(headers))), fillvalue=None):
         lst_works.append({unzip_item[0]: unzip_item[1]})

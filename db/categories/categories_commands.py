@@ -16,10 +16,10 @@ async def create_category(user_id, category_title: str) -> None:
 async def get_categories_without_actions(user_id: int) -> ScalarResult:
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(CategoriesModel.category_id, CategoriesModel.category_name).where(CategoriesModel.user_id == user_id)
+            stmt = select(CategoriesModel.category_id, CategoriesModel.category_name).where(
+                CategoriesModel.user_id == user_id)
             res = await session.execute(stmt)
             return res.fetchall()
-
 
 
 async def update_category(user_id: int, category_id: int, new_category_name: str) -> None:

@@ -27,9 +27,9 @@ actions_menu_buttons = dict(
 
 # buttons for inline_kb.py
 tracker_menu_buttons = dict(
-    launched_btn='⏳ Launched tracker',
-    new_tracker_btn='⏲ Start tracking',
-    delete_tracker_btn='🗑 Delete tracker',
+    new_tracker_btn='▶️ Start tracking',
+    launched_btn='⏹ Stop tracking',
+    delete_tracker_btn='🗑 Delete trackers',
 )
 
 # buttons for reports_kb.py
@@ -41,7 +41,7 @@ reports_buttons = dict(
 )
 
 tracker_two_buttons = dict(
-    new_tracker_btn='⏲ Start tracking',
+    new_tracker_btn='▶️ Start tracking',
     exit_btn='exit'
 )
 

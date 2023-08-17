@@ -2,9 +2,8 @@ import datetime
 
 from sqlalchemy import Integer, ForeignKey, DateTime
 
-from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped
 
-from db.actions.actions_models import ActionsModel
 from db.base_model import SqlAlchemyBase
 
 

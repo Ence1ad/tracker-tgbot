@@ -6,20 +6,20 @@ from tgbot.handlers.actions_handlers.show_actions import show_user_actions
 from tgbot.keyboards.inline_kb import list_inline_kb_with_cb_class, menu_inline_kb
 
 from tgbot.utils.answer_text import select_action_text, empty_actions_text, rm_action_text
-from tgbot.keyboards.callback_data_classes import DeleteActionCallback
+from tgbot.keyboards.callback_data_classes import ActionOperation, ActionCD
 
 
 async def select_remove_action(call: CallbackQuery):
     actions: list = list(await show_user_actions(call))
     if actions:
-        markup = await list_inline_kb_with_cb_class(actions, DeleteActionCallback)
+        markup = await list_inline_kb_with_cb_class(actions, ActionOperation.DEL)
         await call.message.answer(text=select_action_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))
         await call.message.answer(text=empty_actions_text, reply_markup=markup)
 
 
-async def del_action(call: CallbackQuery, callback_data: DeleteActionCallback):
+async def del_action(call: CallbackQuery, callback_data: ActionCD):
     user_id = call.from_user.id
     await call.message.delete()
     action_id = callback_data.action_id

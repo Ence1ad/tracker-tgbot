@@ -24,4 +24,5 @@ async def get_category_name_from_user(message: Message, state: FSMContext):
     await state.clear()
     await create_category(user_id, category_name)
     markup = await menu_inline_kb(category_menu_buttons)
+
     await message.answer(text=added_new_category_text, reply_markup=markup)
