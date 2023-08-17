@@ -31,21 +31,26 @@ async def stop_tracker_inline_kb() -> InlineKeyboardMarkup:
     return kb_builder.as_markup()
 
 
-async def list_inline_kb_with_cb_class(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
+async def cb_data_class_inline_kb(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
+    get_kb = {
+        CategoryOperation: _categories,
+        ActionOperation: _actions,
+        TrackerOperation: _tracker
+    }
+    callback_class = None
     if isinstance(enum_val, CategoryOperation):
-        kb_builder_cat = await _categories(data_from_db, callback_class=CategoryCD, builder=kb_builder,
-                                           operation=enum_val),
-        kb_builder = kb_builder_cat[0]
+        callback_class = CategoryCD
 
     elif isinstance(enum_val, ActionOperation):
-        kb_builder_act = await _actions(data_from_db, callback_class=ActionCD, builder=kb_builder, operation=enum_val),
-        kb_builder = kb_builder_act[0]
+        callback_class = ActionCD
 
     elif isinstance(enum_val, TrackerOperation):
-        kb_builder_tra = await _tracker(data_from_db, callback_class=TrackerCD, builder=kb_builder, operation=enum_val)
-        kb_builder = kb_builder_tra
+        callback_class = TrackerCD
+
+    kb_builder = await get_kb[enum_val.__class__](data_from_db, callback_class=callback_class, builder=kb_builder,
+                                                  operation=enum_val)
 
     kb_builder.row(InlineKeyboardButton(text=exit_btn, callback_data=exit_btn))
     return kb_builder.as_markup()

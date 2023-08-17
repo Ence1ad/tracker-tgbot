@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from db.categories.categories_commands import update_category, get_categories_without_actions
-from tgbot.keyboards.inline_kb import list_inline_kb_with_cb_class, menu_inline_kb
+from tgbot.keyboards.inline_kb import cb_data_class_inline_kb, menu_inline_kb
 from tgbot.keyboards.buttons_names import category_menu_buttons
 from tgbot.utils.answer_text import upd_category_text, new_category_text, select_category_text, empty_categories_text
 from tgbot.keyboards.callback_data_classes import CategoryOperation, CategoryCD
@@ -21,7 +21,7 @@ async def select_update_category(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     categories: list = list(await get_categories_without_actions(user_id))
     if categories:
-        markup = await list_inline_kb_with_cb_class(categories, CategoryOperation.UDP)
+        markup = await cb_data_class_inline_kb(categories, CategoryOperation.UDP)
         await call.message.answer(text=select_category_text, reply_markup=markup)
         await state.set_state(UpdateCategoryState.GET_NAME)
     else:

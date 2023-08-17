@@ -31,27 +31,27 @@ upd_action_text = "You updated your action:"
 first_start_text = 'Please use setting button for adjust your action tracker'
 
 # text for tracker handlers
-new_tracker_text = f"You launch tracking action: "
-not_launched_tracker_text = "You don't have any launched tracker"
-launch_tracker_text = f"Launched tracker:"
-already_launch_tracker_text = "You already have a running tracker "
+new_tracker_text = f"You have started tracking action: "
+not_launched_tracker_text = "You don't have any launched tracker yet!"
+launch_tracker_text = f"Started tracker:\n\r"
+already_launch_tracker_text = "You already have a running tracker:\n\r"
 answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
-stop_tracker_text = "Tracker stopped:"
+stop_tracker_text = "Tracker stopped:\n\r"
 daily_tracker_text = "Delete daily tracker"
 empty_tracker_text = "You don't have any trackers yet"
 delete_tracker_text = "You deleted the tracker"
 
 
-async def traker_text(call: CallbackQuery, tracker):
-    action_name = tracker[0].action_name,
-    category_name = tracker[0].category_name,
-    launch_time = tracker[0].track_start,
-    get_max_length = max(len(action_name[0]), len(category_name[0]))
+async def traker_text(call: CallbackQuery, tracker) -> str:
+    text = []
     call_datetime: datetime = call.message.date
-    sign = '*'
-    duration = str(call_datetime - launch_time[0]).split('.')[0]
-    # text = f"\n\r{sign * (get_max_length + 4)}\n\r🗄: {category_name[0]}\n\r{sign * (get_max_length + 4)}\n\r🎬: {action_name[0]}\n\r{sign * (get_max_length + 4)}\n\r⏱: {duration}"
-    text = f"\n\r{sign * (get_max_length + 4)}\n\r🗄: {category_name[0]}\n\r{sign * (get_max_length + 4)}\n\r🎬: {action_name[0]}\n\r{sign * (get_max_length + 4)}\n\r⏱: {duration}"
+    for track in tracker:
+        launch_time = track.track_start
+        category_name = "🗄:" + track.category_name
+        action_name = "🎬:" + track.action_name
+        duration = "⏱:" + str(call_datetime - launch_time).split('.')[0]
+        text += [category_name, action_name, duration]
+    text = '\n\r'.join(text)
     return text
 
 

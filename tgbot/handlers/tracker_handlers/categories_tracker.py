@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from db.categories.categories_commands import get_categories_without_actions
 from db.tracker.tracker_db_command import get_launch_tracker
-from tgbot.keyboards.inline_kb import stop_tracker_inline_kb, list_inline_kb_with_cb_class, menu_inline_kb
+from tgbot.keyboards.inline_kb import stop_tracker_inline_kb, cb_data_class_inline_kb, menu_inline_kb
 from tgbot.utils.answer_text import select_category_text, traker_text, already_launch_tracker_text, \
     empty_categories_text
 from tgbot.keyboards.callback_data_classes import CategoryOperation
@@ -15,7 +15,7 @@ async def select_category_tracker(call: CallbackQuery):
     if not tracker:
         categories: list = list(await get_categories_without_actions(user_id))
         if categories:
-            markup = await list_inline_kb_with_cb_class(categories, CategoryOperation.READ_TRACKER)
+            markup = await cb_data_class_inline_kb(categories, CategoryOperation.READ_TRACKER)
             await call.message.answer(text=select_category_text, reply_markup=markup)
         else:
             markup = await menu_inline_kb(dict(create_categories='🆕 Create category'))
