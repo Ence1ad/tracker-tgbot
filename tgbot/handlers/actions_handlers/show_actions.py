@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery
 
 from db.actions.actions_db_commands import get_user_actions
-from tgbot.keyboards.callback_data_classes import CategoryCD
+from tgbot.keyboards.callback_factories import CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import actions_menu_buttons
 

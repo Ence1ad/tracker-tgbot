@@ -14,7 +14,7 @@ from tgbot.handlers.help_handler import command_help_handler
 from tgbot.handlers.settings_handler import command_settings_handler
 
 from tgbot.handlers.start import command_start_handler
-from tgbot.keyboards.buttons_names import exit_btn
+from tgbot.keyboards.buttons_names import exit_btn, cancel_btn
 from tgbot.utils.bot_commands import my_commands
 
 router = Router()
@@ -31,7 +31,7 @@ async def main() -> None:
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))
     router.message.register(command_cancel_handler, Command(commands=["cancel"]), any_state)
-    router.callback_query.register(command_cancel_handler, F.data == 'cancel', any_state)
+    router.callback_query.register(command_cancel_handler, F.data == cancel_btn, any_state)
     router.callback_query.register(exit_menu, F.data == exit_btn)
     router.message.register(command_help_handler, Command(commands=["help"]))
     router.message.register(command_settings_handler, Command(commands=["settings"]))

@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tgbot.keyboards.buttons_names import yes_btn, no_btn, exit_btn, cancel_btn
-from tgbot.keyboards.callback_data_classes import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
+from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
     TrackerOperation, TrackerCD
 
 
@@ -31,7 +31,7 @@ async def stop_tracker_inline_kb() -> InlineKeyboardMarkup:
     return kb_builder.as_markup()
 
 
-async def cb_data_class_inline_kb(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
+async def callback_factories_kb(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
     get_kb = {
@@ -56,7 +56,7 @@ async def cb_data_class_inline_kb(data_from_db: list, enum_val) -> InlineKeyboar
     return kb_builder.as_markup()
 
 
-async def _tracker(trackers: list, callback_class, builder, operation):
+async def _tracker(trackers: list, callback_class, builder: InlineKeyboardBuilder, operation: TrackerOperation) -> InlineKeyboardBuilder:
     for tracker in trackers:
         spend_hours = round(tracker.time_sum.seconds / 3600, 2)
         builder.button(
@@ -67,7 +67,7 @@ async def _tracker(trackers: list, callback_class, builder, operation):
     return builder
 
 
-async def _actions(actions: list, callback_class, builder, operation):
+async def _actions(actions: list, callback_class, builder: InlineKeyboardBuilder, operation: ActionOperation):
     for act in actions:
         builder.button(
             text=f"{act.action_name}",
@@ -77,7 +77,7 @@ async def _actions(actions: list, callback_class, builder, operation):
     return builder
 
 
-async def _categories(categories: list, callback_class, builder, operation):
+async def _categories(categories: list, callback_class, builder: InlineKeyboardBuilder, operation: CategoryOperation) -> InlineKeyboardBuilder:
     for cat in categories:
         builder.button(
             text=f"{cat.category_name}",

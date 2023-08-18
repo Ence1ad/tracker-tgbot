@@ -3,16 +3,16 @@ from aiogram.types import CallbackQuery
 from db.actions.actions_db_commands import delete_action
 from tgbot.keyboards.buttons_names import actions_menu_buttons
 from tgbot.handlers.actions_handlers.show_actions import show_user_actions
-from tgbot.keyboards.inline_kb import cb_data_class_inline_kb, menu_inline_kb
+from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 
 from tgbot.utils.answer_text import select_action_text, empty_actions_text, rm_action_text
-from tgbot.keyboards.callback_data_classes import ActionOperation, ActionCD
+from tgbot.keyboards.callback_factories import ActionOperation, ActionCD
 
 
 async def select_remove_action(call: CallbackQuery):
     actions: list = list(await show_user_actions(call))
     if actions:
-        markup = await cb_data_class_inline_kb(actions, ActionOperation.DEL)
+        markup = await callback_factories_kb(actions, ActionOperation.DEL)
         await call.message.answer(text=select_action_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(dict(create_actions='🆕 Create action'))

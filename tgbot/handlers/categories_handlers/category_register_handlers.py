@@ -1,6 +1,6 @@
 from aiogram import F
 
-from tgbot.keyboards.callback_data_classes import CategoryCD, CategoryOperation
+from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation
 from tgbot.handlers.categories_handlers import new_category, get_category_name_from_user, display_categories, \
     select_remove_category, del_category, select_update_category, select_category, upd_category
 from tgbot.utils.states import CategoryState, UpdateCategoryState
