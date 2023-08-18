@@ -21,12 +21,11 @@ async def command_start_handler(message: Message) -> None:
     user_id: int = message.from_user.id
     await message.delete()
     user_obj: NewUser = await _get_sender_data(message)
-    user_id_from_db: str | None = await check_user_in_db(user_id)
-
+    user_from_db: str | None = await check_user_in_db(user_id)
     # Get keyboard
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
-    if user_id == user_id_from_db:
+    if user_from_db:
         await message.answer(text=user_in_db_text, reply_markup=start_markup)
 
     else:

@@ -34,7 +34,8 @@ async def upd_action(message: Message, state: FSMContext):
     user_id = message.from_user.id
     state_data = await state.get_data()
     await state.clear()
-    new_action_name = state_data['action_name'].strip()[:29]
+    new_action_name = state_data['action_name']
+    # TODO сделать ограничение по длине сообщения
     await update_action(user_id, state_data['action_id'], new_action_name)
     markup = await menu_inline_kb(actions_menu_buttons)
     await message.answer(text=f"{upd_action_text} {new_action_name}", reply_markup=markup)

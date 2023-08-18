@@ -1,6 +1,3 @@
-exit_btn = '⬅️ exit'
-cancel_btn = '🚫 cancel'
-
 # buttons for start_kb.py
 start_menu_buttons = dict(
     actions_btn='🎬 Actions',
@@ -45,5 +42,17 @@ tracker_two_buttons = dict(
     exit_btn='exit'
 )
 
-yes_btn = '🟩 Yes'
-no_btn = '🟥 No'
+choice_buttons = dict(
+    yes_btn='🟩 Yes',
+    no_btn='🟥 No'
+)
+
+exit_btn = '⬅️ exit'
+cancel_btn = '🚫 cancel'
+
+action_limit_btn = dict(
+    actions_btn='🔀 Change category',
+    delete_actions='🗑 Delete action'
+)
+
+new_category_button = dict(create_categories='🆕 Create category')

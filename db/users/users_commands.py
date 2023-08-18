@@ -21,3 +21,4 @@ async def check_user_in_db(user_id: int) -> str | None:
             stmt = select(UserModel.user_id).where(UserModel.user_id == user_id)
             result = await session.execute(stmt)
             return result.scalar()
+            # return await session.get(UserModel, user_id)

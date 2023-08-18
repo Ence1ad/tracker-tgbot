@@ -17,6 +17,8 @@ empty_categories_text = f"You don't have any categories yet"
 select_category_text = f"Select the category"
 rm_category_text = "You have deleted your category: "
 upd_category_text = "You have updated your category: "
+correct_category_text = 'Please write the correct category name. ' \
+                        'The category name is a text, no more than 30 characters!'
 
 # for get_category_name_from_user func
 added_new_action_text = 'You successfully added new action'
@@ -29,6 +31,10 @@ empty_actions_text = f"You don't have any actions yet"
 rm_action_text = "You deleted your action:"
 upd_action_text = "You updated your action:"
 first_start_text = 'Please use setting button for adjust your action tracker'
+correct_action_text = "Please write the correct action name. The action name is a text, no more than 30 characters!"
+action_limit_text = f"You have reached the limit of the number of actions for this category.\n" \
+                    f"Please delete any action or change the category"
+action_exists_text = "already exists!\nPlease write another name:"
 
 # text for tracker handlers
 new_tracker_text = f"You have started tracking action: "

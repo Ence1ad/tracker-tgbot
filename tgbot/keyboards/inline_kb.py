@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tgbot.keyboards.buttons_names import yes_btn, no_btn, exit_btn, cancel_btn
+from tgbot.keyboards.buttons_names import exit_btn, cancel_btn
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
     TrackerOperation, TrackerCD
 
