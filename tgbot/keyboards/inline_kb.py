@@ -24,13 +24,6 @@ async def menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
     return kb_builder.as_markup()
 
 
-async def stop_tracker_inline_kb() -> InlineKeyboardMarkup:
-    kb_builder = InlineKeyboardBuilder()
-    kb_builder.button(text=yes_btn, callback_data=yes_btn)
-    kb_builder.button(text=no_btn, callback_data=no_btn)
-    return kb_builder.as_markup()
-
-
 async def callback_factories_kb(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
@@ -56,7 +49,11 @@ async def callback_factories_kb(data_from_db: list, enum_val) -> InlineKeyboardM
     return kb_builder.as_markup()
 
 
-async def _tracker(trackers: list, callback_class, builder: InlineKeyboardBuilder, operation: TrackerOperation) -> InlineKeyboardBuilder:
+async def _tracker(trackers: list,
+                   callback_class,
+                   builder: InlineKeyboardBuilder,
+                   operation: TrackerOperation
+                   ) -> InlineKeyboardBuilder:
     for tracker in trackers:
         spend_hours = round(tracker.time_sum.seconds / 3600, 2)
         builder.button(
@@ -67,7 +64,10 @@ async def _tracker(trackers: list, callback_class, builder: InlineKeyboardBuilde
     return builder
 
 
-async def _actions(actions: list, callback_class, builder: InlineKeyboardBuilder, operation: ActionOperation):
+async def _actions(actions: list,
+                   callback_class,
+                   builder: InlineKeyboardBuilder,
+                   operation: ActionOperation) -> InlineKeyboardBuilder:
     for act in actions:
         builder.button(
             text=f"{act.action_name}",
@@ -77,7 +77,11 @@ async def _actions(actions: list, callback_class, builder: InlineKeyboardBuilder
     return builder
 
 
-async def _categories(categories: list, callback_class, builder: InlineKeyboardBuilder, operation: CategoryOperation) -> InlineKeyboardBuilder:
+async def _categories(categories: list,
+                      callback_class,
+                      builder: InlineKeyboardBuilder,
+                      operation: CategoryOperation
+                      ) -> InlineKeyboardBuilder:
     for cat in categories:
         builder.button(
             text=f"{cat.category_name}",

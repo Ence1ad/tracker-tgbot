@@ -6,6 +6,6 @@ from tgbot.utils.answer_text import options_text
 
 
 async def exit_menu(call: CallbackQuery):
-    await call.message.delete()
+    # await call.message.delete()
     markup = await start_menu_inline_kb(start_menu_buttons)
-    await call.message.answer(text=options_text, reply_markup=markup)
+    await call.message.edit_text(text=options_text, reply_markup=markup)

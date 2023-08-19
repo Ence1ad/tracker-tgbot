@@ -11,8 +11,8 @@ from db.categories.categories_commands import create_category
 
 
 async def new_category(call: CallbackQuery, state: FSMContext):
-    await call.message.delete()
-    await call.message.answer(text=new_category_text)
+    # await call.message.delete()
+    await call.message.edit_text(text=new_category_text)
     await state.set_state(CategoryState.GET_NAME)
 
 
@@ -24,5 +24,4 @@ async def get_category_name_from_user(message: Message, state: FSMContext):
     await state.clear()
     await create_category(user_id, category_name)
     markup = await menu_inline_kb(category_menu_buttons)
-
     await message.answer(text=added_new_category_text, reply_markup=markup)

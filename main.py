@@ -16,7 +16,7 @@ from tgbot.handlers.settings_handler import command_settings_handler
 from tgbot.handlers.start import command_start_handler
 from tgbot.keyboards.buttons_names import exit_btn, cancel_btn
 from tgbot.utils.bot_commands import my_commands
-
+from aiogram.fsm.storage.redis import RedisStorage
 router = Router()
 
 
@@ -26,7 +26,7 @@ async def start_bot(tgbot):
 
 async def main() -> None:
     # Dispatcher is a root router
-    dp = Dispatcher()
+    dp = Dispatcher(storage=RedisStorage.from_url("redis://localhost:6379/0"))
     await start_bot(bot)
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))

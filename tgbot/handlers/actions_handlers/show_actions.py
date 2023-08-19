@@ -7,15 +7,16 @@ from tgbot.keyboards.buttons_names import actions_menu_buttons
 
 from tgbot.utils.answer_text import empty_actions_text, categories_options_text, show_action_text
 
-USER_CATEGORY = {}
+USER_CATEGORY_NAME = {}
+USER_CATEGORY_ID = {}
 
 
 async def get_actions_options(call: CallbackQuery, callback_data: CategoryCD):
     user_id = call.from_user.id
-    USER_CATEGORY[user_id] = callback_data.category_id
-    await call.message.delete()
+    USER_CATEGORY_ID[user_id] = callback_data.category_id
+    # await call.message.delete()
     markup = await menu_inline_kb(actions_menu_buttons)
-    await call.message.answer(
+    await call.message.edit_text(
         text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{categories_options_text}",
         reply_markup=markup)
 
@@ -37,5 +38,5 @@ async def display_actions(call: CallbackQuery):
 async def show_user_actions(call: CallbackQuery):
     user_id = call.from_user.id
     await call.message.delete()
-    actions = await get_user_actions(user_id, category_id=USER_CATEGORY[user_id])
+    actions = await get_user_actions(user_id, category_id=USER_CATEGORY_ID[user_id])
     return actions

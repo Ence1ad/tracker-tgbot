@@ -46,12 +46,13 @@ stop_tracker_text = "Tracker stopped:\n\r"
 daily_tracker_text = "Delete daily tracker"
 empty_tracker_text = "You don't have any trackers yet"
 delete_tracker_text = "You deleted the tracker"
+just_one_tracker = "You have only one tracker running. Do you want to stop the tracker?"
 
 
 async def traker_text(call: CallbackQuery, tracker) -> str:
     text = []
     call_datetime: datetime = call.message.date
-    for track in tracker:
+    for track in set(tracker):
         launch_time = track.track_start
         category_name = "🗄:" + track.category_name
         action_name = "🎬:" + track.action_name

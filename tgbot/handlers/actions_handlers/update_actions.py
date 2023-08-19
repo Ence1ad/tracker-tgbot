@@ -11,8 +11,8 @@ from tgbot.utils.states import UpdateActionState
 
 
 async def select_action(call: CallbackQuery, state: FSMContext, callback_data: ActionCD):
-    await call.message.delete()
-    await call.message.answer(text=new_action_text)
+    # await call.message.delete()
+    await call.message.edit_text(text=new_action_text)
     await state.clear()
     await state.update_data(action_id=callback_data.action_id)
     await state.set_state(UpdateActionState.GET_NAME)

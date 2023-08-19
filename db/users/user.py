@@ -26,6 +26,7 @@ class UserModel(SqlAlchemyBase):
         # ForeignKeyConstraint(['user_id'], ['users.id']),
         # Index('title_content_index' 'title', 'content'),  # composite index on title and content
     )
+
     def __str__(self):
         return str(self.user_id)
 

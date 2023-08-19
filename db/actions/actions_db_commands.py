@@ -26,6 +26,16 @@ async def get_user_actions(user_id: int, category_id: int):
             return await session.execute(stmt)
 
 
+async def get_user_actions_for_tracker(user_id: int, category_name: str):
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = \
+                select(ActionsModel.action_id, ActionsModel.action_name, CategoriesModel.category_name).join(
+                    CategoriesModel) \
+                .where(ActionsModel.user_id == user_id, CategoriesModel.category_name == category_name)
+            return await session.execute(stmt)
+
+
 async def delete_action(user_id: int, action_id: int) -> None:
     async with await create_async_session() as session:
         async with session.begin():
@@ -50,7 +60,7 @@ async def check_action(user_id: int, action_name: str, category_id: int) -> str 
             res = await session.execute(stmt)
             user_actions = res.scalars().all()
             action_limit = 10
-            if user_actions and (len(user_actions) < action_limit):
+            if len(user_actions) < action_limit:
                 for action in user_actions:
                     if str(action_name) == action:
                         return None

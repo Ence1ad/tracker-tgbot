@@ -13,14 +13,14 @@ async def get_report(user_id: int) -> Sequence:
                 func.current_date() + cast(-6 - extract("dow", func.current_date()), Integer) % 7)).scalar_subquery()
 
             cte_stmt = \
-                select(TrackerModel.action_id, func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
+                select(TrackerModel.action_name, func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
                        # cast(-1 + extract("dow", Tracker.creation_day), Integer).label("day_of_week"),
                        func.sum(TrackerModel.time_sum).label("time_sum_action")) \
                 .where(and_(TrackerModel.user_id == user_id, TrackerModel.track_end.is_not(None),
                             TrackerModel.track_start.cast(Date).between(subq, func.current_date())
                             )
                        )\
-                .group_by(TrackerModel.action_id, TrackerModel.tracker_id, TrackerModel.user_id,
+                .group_by(TrackerModel.action_name, TrackerModel.tracker_id, TrackerModel.user_id,
                           cast(TrackerModel.track_start, Date)).order_by(TrackerModel.tracker_id).cte()
 
             stmt = select(ActionsModel.action_name, text("day_of_week"), func.sum(text("time_sum_action")))\

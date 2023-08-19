@@ -21,8 +21,8 @@ async def select_remove_action(call: CallbackQuery):
 
 async def del_action(call: CallbackQuery, callback_data: ActionCD):
     user_id = call.from_user.id
-    await call.message.delete()
+    # await call.message.delete()
     action_id = callback_data.action_id
     await delete_action(user_id, action_id)
     markup = await menu_inline_kb(actions_menu_buttons)
-    await call.message.answer(text=f"{rm_action_text} {callback_data.action_name}", reply_markup=markup)
+    await call.message.edit_text(text=f"{rm_action_text} {callback_data.action_name}", reply_markup=markup)

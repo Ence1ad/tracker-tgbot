@@ -10,23 +10,23 @@ from tgbot.utils.states import UpdateCategoryState
 
 
 async def select_category(call: CallbackQuery, state: FSMContext, callback_data: CategoryCD):
-    await call.message.delete()
-    await call.message.answer(text=new_category_text)
+    # await call.message.delete()
+    await call.message.edit_text(text=new_category_text)
     await state.update_data(category_id=callback_data.category_id)
     await state.set_state(UpdateCategoryState.GET_NAME)
 
 
 async def select_update_category(call: CallbackQuery, state: FSMContext):
     user_id = call.from_user.id
-    await call.message.delete()
+    # await call.message.delete()
     categories: list = list(await get_categories_without_actions(user_id))
     if categories:
         markup = await callback_factories_kb(categories, CategoryOperation.UDP)
-        await call.message.answer(text=select_category_text, reply_markup=markup)
+        await call.message.edit_text(text=select_category_text, reply_markup=markup)
         await state.set_state(UpdateCategoryState.GET_NAME)
     else:
         markup = await menu_inline_kb(dict(create_categories='🆕 Create category'))
-        await call.message.answer(text=empty_categories_text, reply_markup=markup)
+        await call.message.edit_text(text=empty_categories_text, reply_markup=markup)
 
 
 async def upd_category(message: Message, state: FSMContext):
