@@ -1,6 +1,6 @@
 from aiogram import F
 
-from tgbot.handlers.actions_handlers.category import select_category
+from tgbot.handlers.actions_handlers.category_actions import select_category
 from tgbot.handlers.actions_handlers.delete_actions import select_remove_action, del_action
 from tgbot.handlers.actions_handlers.show_actions import get_actions_options, display_actions
 from tgbot.handlers.actions_handlers.new_actions import new_action, get_action_name_from_user

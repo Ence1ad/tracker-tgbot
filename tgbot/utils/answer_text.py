@@ -25,8 +25,8 @@ added_new_action_text = 'You successfully added new action'
 
 # text for actions handlers
 new_action_text = f"Write action name"
-show_action_text = "Your actions for category "
-select_action_text = "Select the actions"
+show_action_text = "Your actions for the category:"
+select_action_text = "Select the action"
 empty_actions_text = f"You don't have any actions yet"
 rm_action_text = "You deleted your action:"
 upd_action_text = "You updated your action:"

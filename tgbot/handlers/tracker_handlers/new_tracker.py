@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery
 
-from tgbot.handlers.actions_handlers.show_actions import USER_CATEGORY_NAME
+from cache.redis_cache import redis_client
 from tgbot.utils.answer_text import new_tracker_text
 from tgbot.keyboards.callback_factories import ActionCD
 
@@ -14,8 +14,8 @@ async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD):
     user_id = call.from_user.id
     start_time = call.message.date
     action_name = callback_data.action_name
-    # await call.message.delete()
-    await create_tracker(user_id, category_name=USER_CATEGORY_NAME[user_id], action_name=action_name,
+    category_name = (await redis_client.hget(name=user_id, key='category_name')).decode(encoding='utf-8')
+    await create_tracker(user_id, category_name=category_name, action_name=action_name,
                          track_start=start_time)
     markup = await menu_inline_kb(tracker_menu_buttons_stop)
     await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)

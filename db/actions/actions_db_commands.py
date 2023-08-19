@@ -5,7 +5,7 @@ from ..db_session import create_async_session
 from .actions_models import ActionsModel
 
 
-async def create_actions(user_id: int, action_name: str, category_id: str) -> None:
+async def create_actions(user_id: int, action_name: str, category_id: int) -> None:
     # TODO необходима проверка существует ли категория перед созданием действия
     async with await create_async_session() as session:
         async with session.begin():

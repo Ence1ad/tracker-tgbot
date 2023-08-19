@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram import Dispatcher, Router, F
 from aiogram.fsm.state import any_state
 
+from cache.redis_cache import redis_client
 from config import bot
 from tgbot.handlers import register_categories_handlers, register_actions_handlers, register_tracker_handlers,\
      register_report_handlers
@@ -26,7 +27,8 @@ async def start_bot(tgbot):
 
 async def main() -> None:
     # Dispatcher is a root router
-    dp = Dispatcher(storage=RedisStorage.from_url("redis://localhost:6379/0"))
+
+    dp = Dispatcher(storage=RedisStorage(redis=redis_client))
     await start_bot(bot)
     dp.include_router(router)
     router.message.register(command_start_handler, Command("start"))

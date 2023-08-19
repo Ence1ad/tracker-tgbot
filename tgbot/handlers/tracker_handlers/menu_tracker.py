@@ -13,7 +13,7 @@ async def get_tracker_options(call: CallbackQuery):
     if tracker:
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
         track_text = await traker_text(call, tracker)
-        await call.message.edit_text(text=launch_tracker_text + track_text, reply_markup=markup)
+        await call.message.answer(text=launch_tracker_text + track_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(tracker_menu_buttons_start)
         await call.message.answer(text=options_text, reply_markup=markup)

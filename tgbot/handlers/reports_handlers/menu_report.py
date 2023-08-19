@@ -7,6 +7,7 @@ from tgbot.utils.answer_text import options_text, empty_tracker_text, traker_tex
 
 
 async def get_report_options(call: CallbackQuery):
+    # TODO переделать функцию, сделать ее более умной
     user_id = call.from_user.id
     await call.message.delete()
     if await get_user_tracker(user_id):

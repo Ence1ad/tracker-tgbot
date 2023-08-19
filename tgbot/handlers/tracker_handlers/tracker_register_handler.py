@@ -2,9 +2,9 @@ from aiogram import F
 
 from .del_tracker import del_tracking_data, select_removing_tracker
 from .stop_tracker import stop_tracker_handler
-from .actions_tracker import display_actions_tracker
-from .categories_tracker import select_category_tracker
-from .launched import select_launched_tracker
+from .tracker_actions import display_actions_tracker
+from .tracker_categories import select_category_tracker
+from .started_tracker import select_launched_tracker
 from .menu_tracker import get_tracker_options, no_btn_handler
 from .new_tracker import create_new_tracker
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, TrackerCD, \
