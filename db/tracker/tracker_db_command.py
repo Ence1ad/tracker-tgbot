@@ -24,10 +24,12 @@ async def create_tracker(user_id: int, category_name: str, action_id: int, track
 async def get_user_tracker(user_id: int) -> Sequence:
     async with await create_async_session() as session:
         async with session.begin():
-            stmt = select(TrackerModel.tracker_id, TrackerModel.time_sum, ActionsModel.action_name).join(
-                ActionsModel).where(
+            stmt = select(TrackerModel.tracker_id, TrackerModel.time_sum, ActionsModel.action_name).join(ActionsModel)\
+                .where(
                 TrackerModel.user_id == user_id,
-                cast(TrackerModel.track_end, Date) == func.current_date(), TrackerModel.time_sum.is_not(None))
+                cast(TrackerModel.track_end, Date) == func.current_date(),
+                TrackerModel.time_sum.is_not(None)
+            )
             res = await session.execute(stmt)
             return res.fetchall()
 
