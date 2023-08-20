@@ -17,7 +17,7 @@ async def get_categories_without_actions(user_id: int) -> ScalarResult:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = select(CategoriesModel.category_id, CategoriesModel.category_name).where(
-                CategoriesModel.user_id == user_id)
+                CategoriesModel.user_id == user_id).order_by(CategoriesModel.category_name)
             return await session.execute(stmt)
 
 

@@ -2,7 +2,13 @@ import datetime
 
 from aiogram.types import CallbackQuery
 
+from settings import LENGTH_ACTION_NAME_LIMIT
+
+# Common
 options_text = f"Select the button"
+char_limit = f"\n\rThe limit on the length of the name is {LENGTH_ACTION_NAME_LIMIT} characters"
+accept_only_text = "Please try again, I only accept text message"
+
 
 # for command_start_handler func
 user_in_db_text = f"Hello friend! I'm glad to see you again!"
@@ -10,7 +16,7 @@ new_user_text = f"Hello friend! What can I do for you?"
 
 # text for categories handlers
 categories_options_text = f"Select the button"
-new_category_text = f"Write category name"
+new_category_text = f"Write the name of the category below."
 added_new_category_text = 'You have successfully added the new category'
 show_categories_text = "This is your categories:"
 empty_categories_text = f"You don't have any categories yet"
@@ -24,7 +30,7 @@ correct_category_text = 'Please write the correct category name. ' \
 added_new_action_text = 'You successfully added new action'
 
 # text for actions handlers
-new_action_text = f"Write action name"
+new_action_text = f"Write the name of the action below."
 show_action_text = "Your actions for the category:"
 select_action_text = "Select the action"
 empty_actions_text = f"You don't have any actions yet"
@@ -35,6 +41,7 @@ correct_action_text = "Please write the correct action name. The action name is 
 action_limit_text = f"You have reached the limit of the number of actions for this category.\n" \
                     f"Please delete any action or change the category"
 action_exists_text = "already exists!\nPlease write another name:"
+
 
 # text for tracker handlers
 new_tracker_text = f"You have started tracking action: "

@@ -1,5 +1,6 @@
 from sqlalchemy import select, delete, update
 
+from settings import LENGTH_ACTION_NAME_LIMIT, USER_ACTIONS_COUNT
 from ..categories.categories_model import CategoriesModel
 from ..db_session import create_async_session
 from .actions_models import ActionsModel
@@ -22,7 +23,7 @@ async def get_user_actions(user_id: int, category_id: int):
             stmt = \
                 select(ActionsModel.action_id, ActionsModel.action_name, CategoriesModel.category_name).join(
                     CategoriesModel) \
-                .where(ActionsModel.user_id == user_id, ActionsModel.category_id == category_id)
+                .where(ActionsModel.user_id == user_id, ActionsModel.category_id == category_id).order_by(ActionsModel.action_name)
             return await session.execute(stmt)
 
 
@@ -55,16 +56,18 @@ async def update_action(user_id: int, action_id: int, new_action_name: int) -> N
 async def check_action(user_id: int, action_name: str, category_id: int) -> str | None:
     async with await create_async_session() as session:
         async with session.begin():
+            # Взять все действия пользователя из таблицы
             stmt = select(ActionsModel.action_name).join(CategoriesModel).where(
                 ActionsModel.user_id == user_id, ActionsModel.category_id == category_id)
             res = await session.execute(stmt)
             user_actions = res.scalars().all()
-            action_limit = 10
+            action_limit = USER_ACTIONS_COUNT
             if len(user_actions) < action_limit:
                 for action in user_actions:
                     if str(action_name) == action:
                         return None
                 else:
-                    return action_name[:30]
+
+                    return action_name[:LENGTH_ACTION_NAME_LIMIT]
             else:
                 return 'action_limit'
