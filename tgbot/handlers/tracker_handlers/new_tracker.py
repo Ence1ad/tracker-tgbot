@@ -16,6 +16,11 @@ async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD):
     action_name = callback_data.action_name
     action_id = callback_data.action_id
     category_name = (await redis_client.hget(name=user_id, key='category_name')).decode(encoding='utf-8')
+    await redis_client.hmset(name=f"{user_id}_tracker",
+                             mapping={"start_time": str(call.message.date),
+                                      "action_name": callback_data.action_name,
+                                      "category_name": category_name
+                                      })
     await create_tracker(user_id, category_name=category_name, action_id=action_id,
                          track_start=start_time)
     markup = await menu_inline_kb(tracker_menu_buttons_stop)

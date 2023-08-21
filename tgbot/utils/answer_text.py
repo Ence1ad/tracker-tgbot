@@ -1,8 +1,10 @@
-import datetime
 
+from datetime import datetime as dt
+import datetime
 from aiogram.types import CallbackQuery
 
-from settings import LENGTH_ACTION_NAME_LIMIT
+from cache.redis_cache import redis_client
+from settings import LENGTH_ACTION_NAME_LIMIT, TIME_ZONE_OFFSET
 
 # Common
 options_text = f"Select the button"
@@ -56,22 +58,22 @@ delete_tracker_text = "You deleted the tracker"
 just_one_tracker = "You have only one tracker running. Do you want to stop the tracker?"
 
 
-async def traker_text(call: CallbackQuery, tracker) -> str:
+async def tracker_text(user_id) -> str:
     text = []
-    call_datetime: datetime = call.message.date
-    for track in set(tracker):
-        launch_time = track.track_start
-        category_name = "🗄:" + track.category_name
-        action_name = "🎬:" + track.action_name
-        duration = "⏱:" + str(call_datetime - launch_time).split('.')[0]
-        text += [category_name, action_name, duration]
+    tracker_data = await redis_client.hgetall(f"{user_id}_tracker")
+    category_name: str = "🗄:" + tracker_data[b'category_name'].decode(encoding='utf-8')
+    action_name: str = "🎬:" + tracker_data[b'action_name'].decode(encoding='utf-8')
+    launch_time = tracker_data[b'start_time'].decode(encoding='utf-8').split('+')[0]
+    launch_time: datetime = dt.strptime(launch_time, "%Y-%m-%d %H:%M:%S")
+    duration: str = "⏱:" + str((dt.now() - launch_time) - datetime.timedelta(hours=TIME_ZONE_OFFSET)).split('.')[0]
+    text.extend([category_name, action_name, duration])
     text = '\n\r'.join(text)
     return text
 
 
 # for reports handlers
 send_report_text = "This is your weekly report"
-empty_trackers_text = "You don't have any trackers"
+empty_trackers_text = "You don't have any trackers for this week"
 
 # for create_report.py
 xlsx_title = "Weekly Report.xlsx"

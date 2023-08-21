@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery
 
 from cache.redis_cache import redis_client
-from db.actions.actions_db_commands import get_user_actions
+from db.actions.actions_db_commands import select_actions
 from tgbot.keyboards.callback_factories import CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import actions_menu_buttons
@@ -36,5 +36,5 @@ async def display_actions(call: CallbackQuery):
 async def show_user_actions(call: CallbackQuery):
     user_id = call.from_user.id
     category_id = int(await redis_client.hget(name=user_id, key="category_id"))
-    actions = await get_user_actions(user_id, category_id=category_id)
+    actions = await select_actions(user_id, category_id=category_id)
     return actions

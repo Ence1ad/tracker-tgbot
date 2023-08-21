@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery
 
-from db.categories.categories_commands import get_categories_without_actions
+from db.categories.categories_commands import select_categories
 from tgbot.keyboards.buttons_names import category_menu_buttons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import empty_categories_text
@@ -16,7 +16,7 @@ async def get_categories_options(call: CallbackQuery):
 async def display_categories(call: CallbackQuery):
     user_id = call.from_user.id
     await call.message.delete()
-    categories: list = list(await get_categories_without_actions(user_id))
+    categories: list = list(await select_categories(user_id))
     if categories:
         cats_in_column = ''
         for idx, category in enumerate(categories, 1):

@@ -24,4 +24,4 @@ async def get_weekly_report(call: CallbackQuery):
         document = FSInputFile(xlsx_title)
         return await bot.send_document(chat_id=call.from_user.id, document=document)
     else:
-        return await call.message.answer(text=empty_trackers_text, reply_markup=markup)
+        return await call.message.edit_text(text=empty_trackers_text, reply_markup=markup)

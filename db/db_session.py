@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from db.base_model import SqlAlchemyBase
 from config import db_url
 
-engine = create_async_engine(db_url, echo=True, pool_size=10, max_overflow=20)
+engine = create_async_engine(db_url, echo=False, pool_size=10, max_overflow=20)
 
 
 async def create_tables():

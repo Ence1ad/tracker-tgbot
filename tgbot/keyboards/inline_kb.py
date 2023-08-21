@@ -55,7 +55,7 @@ async def _tracker(trackers: list,
                    operation: TrackerOperation
                    ) -> InlineKeyboardBuilder:
     for tracker in trackers:
-        spend_hours = round(tracker.time_sum.seconds / 3600, 2)
+        spend_hours = round(tracker.duration.seconds / 3600, 2)
         builder.button(
             text=f"{tracker.action_name} - {spend_hours}h",
             callback_data=callback_class(operation=operation, tracker_id=tracker.tracker_id)

@@ -11,6 +11,7 @@ from tgbot.keyboards.callback_factories import ActionOperation, ActionCD
 
 async def select_remove_action(call: CallbackQuery):
     actions: list = list(await show_user_actions(call))
+    await call.message.delete()
     if actions:
         markup = await callback_factories_kb(actions, ActionOperation.DEL)
         await call.message.answer(text=select_action_text, reply_markup=markup)
@@ -21,7 +22,6 @@ async def select_remove_action(call: CallbackQuery):
 
 async def del_action(call: CallbackQuery, callback_data: ActionCD):
     user_id = call.from_user.id
-    # await call.message.delete()
     action_id = callback_data.action_id
     await delete_action(user_id, action_id)
     markup = await menu_inline_kb(actions_menu_buttons)
