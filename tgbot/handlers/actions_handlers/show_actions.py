@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery
 
-from cache.redis_cache import redis_client
-from db.actions.actions_db_commands import select_actions
+from cache.redis_commands import redis_hset_category_id, redis_hget_category_id
+from db.actions.actions_db_commands import select_category_actions
 from tgbot.keyboards.callback_factories import CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import actions_menu_buttons
@@ -11,7 +11,7 @@ from tgbot.utils.answer_text import empty_actions_text, categories_options_text,
 
 async def get_actions_options(call: CallbackQuery, callback_data: CategoryCD):
     user_id = call.from_user.id
-    await redis_client.hset(name=user_id, key="category_id", value=callback_data.category_id)
+    await redis_hset_category_id(user_id, callback_data.category_id)
     markup = await menu_inline_kb(actions_menu_buttons)
     await call.message.edit_text(
         text=f"Selected category -> <i>{callback_data.category_name}</i>\n\r{categories_options_text}",
@@ -35,6 +35,6 @@ async def display_actions(call: CallbackQuery):
 
 async def show_user_actions(call: CallbackQuery):
     user_id = call.from_user.id
-    category_id = int(await redis_client.hget(name=user_id, key="category_id"))
-    actions = await select_actions(user_id, category_id=category_id)
+    category_id = await redis_hget_category_id(user_id)
+    actions = await select_category_actions(user_id, category_id=category_id)
     return actions

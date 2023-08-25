@@ -58,4 +58,11 @@ action_limit_btn = dict(
     delete_actions='🗑 Delete action'
 )
 
+category_limit_btn = dict(delete_categories='🗑 Delete category',)
+
 new_category_button = dict(create_categories='🆕 Create category')
+
+new_action_button = dict(create_actions='🆕 Create action')
+
+select_action_button = dict(actions_btn='🎬 Actions')
+

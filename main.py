@@ -27,7 +27,6 @@ async def start_bot(tgbot):
 
 async def main() -> None:
     # Dispatcher is a root router
-
     dp = Dispatcher(storage=RedisStorage(redis=redis_client))
     await start_bot(bot)
     dp.include_router(router)
@@ -52,4 +51,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    asyncio.run(main(), debug=True)

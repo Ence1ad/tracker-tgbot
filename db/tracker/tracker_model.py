@@ -14,7 +14,7 @@ class TrackerModel(SqlAlchemyBase):
     track_start: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     track_end: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     category_name: Mapped[int] = mapped_column(ForeignKey('categories.category_name', ondelete='cascade'))
-    action_id: Mapped[int] = mapped_column(ForeignKey('actions.action_id', onupdate='cascade'))
+    action_id: Mapped[int] = mapped_column(ForeignKey('actions.action_id', ondelete='cascade'))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id', ondelete='cascade'))
     # user = relationship("UserModel", back_populates="trackers", lazy='joined')
     # categories = relationship("CategoriesModel", back_populates="trackers", lazy='joined')

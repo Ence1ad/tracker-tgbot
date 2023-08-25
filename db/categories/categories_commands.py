@@ -47,3 +47,15 @@ async def delete_category(user_id: int, category_id: int) -> None:
                        CategoriesModel.category_id == category_id)
 
             await session.execute(del_stmt)
+
+
+async def category_exists(user_id: int, category_id: int) -> int | None:
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = \
+                select(CategoriesModel.category_id)\
+                .where(CategoriesModel.user_id == user_id,
+                       CategoriesModel.category_id == category_id)
+
+            res = await session.execute(stmt)
+            return res.scalar_one_or_none()

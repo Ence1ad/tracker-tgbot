@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, Result, func
 
 from ..categories.categories_model import CategoriesModel
 from ..db_session import create_async_session
@@ -16,7 +16,7 @@ async def create_actions(user_id: int, action_name: str, category_id: int) -> No
             session.add(create_stmt)
 
 
-async def select_actions(user_id: int, category_id: int):
+async def select_category_actions(user_id: int, category_id: int) -> Result:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = \
@@ -56,7 +56,7 @@ async def delete_action(user_id: int, action_id: int) -> None:
             await session.execute(del_stmt)
 
 
-async def update_action(user_id: int, action_id: int, new_action_name: int) -> None:
+async def update_action(user_id: int, action_id: int, new_action_name: str) -> None:
     async with await create_async_session() as session:
         async with session.begin():
             udp_stmt = \
@@ -66,3 +66,27 @@ async def update_action(user_id: int, action_id: int, new_action_name: int) -> N
                 .values(action_name=new_action_name)
 
             await session.execute(udp_stmt)
+
+
+async def select_action_count(user_id: int, category_id: int) -> int | None:
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = \
+                select(func.count(ActionsModel.action_id))\
+                .where(ActionsModel.user_id == user_id,
+                       ActionsModel.category_id == category_id)
+
+            action_cnt = await session.execute(stmt)
+            return action_cnt.scalar_one_or_none()
+
+
+async def action_exists(user_id: int, action_id: int) -> int | None:
+    async with await create_async_session() as session:
+        async with session.begin():
+            stmt = \
+                select(ActionsModel.action_id)\
+                .where(ActionsModel.user_id == user_id,
+                       ActionsModel.action_id == action_id)
+
+            res = await session.execute(stmt)
+            return res.scalar_one_or_none()

@@ -16,8 +16,10 @@ async def get_report(user_id: int) -> Sequence:
 
             cte_stmt = \
                 select(TrackerModel.action_id,
-                       func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
-                       func.sum(TrackerModel.duration).label("duration_action")) \
+                       # func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
+                       func.to_char(TrackerModel.track_start, 'D').label("day_of_week"),
+                       func.round((func.extract('epoch', func.sum(TrackerModel.duration))/3600), 2).label("duration_action")
+                       ) \
                 .where(and_(TrackerModel.user_id == user_id,
                             TrackerModel.track_end.is_not(None),
                             TrackerModel.track_start.cast(Date)
