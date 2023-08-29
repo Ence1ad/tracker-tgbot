@@ -1,3 +1,5 @@
+
+# import calendar
 import pandas as pd
 # import plotly.express as px
 # from plotly.offline import plot
@@ -10,6 +12,11 @@ async def pd_data(tracker_data):
     headers = df.keys().tolist()
     headers.insert(0, "dow")
     data_lst.insert(0, headers)
+    # for i in data_lst[1]:
+    #     if isinstance(i, str):
+    #         weekday = calendar.day_name[int(i)]
+    #         print(weekday)
+    #     print(type(i))
     return data_lst
 
     # create plotly bar

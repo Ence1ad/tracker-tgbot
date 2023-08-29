@@ -1,9 +1,4 @@
-
-from datetime import datetime as dt
-import datetime
-
-from cache.redis_cache import redis_client
-from settings import LENGTH_ACTION_NAME_LIMIT, TIME_ZONE_OFFSET
+from settings import LENGTH_ACTION_NAME_LIMIT
 
 # Common
 options_text = f"Select the button"
@@ -27,7 +22,7 @@ upd_category_text = "You have updated your category: "
 correct_category_text = 'Please write the correct category name. ' \
                         'The category name is a text, no more than 30 characters!'
 categories_is_fake_text = "Choose the right category"
-category_exists_text = "already exists!\nPlease write another name: "
+category_exists_text = "category already exists!\nPlease write another name: "
 category_limit_text = f"You have reached the limit of the number of categories for this category.\n" \
                     f"Please delete any categories"
 
@@ -38,14 +33,14 @@ to_delete_action_text = "Select the action to delete"
 select_action_text = "Select the action"
 to_update_action_text = "Select the action to update"
 empty_actions_text = f"You don't have any actions yet"
-rm_action_text = "You deleted your action: "
-upd_action_text = "You updated your action: "
+rm_action_text = "You have deleted your action: "
+upd_action_text = "You have updated the name of your action"
 first_start_text = 'Please use setting button for adjust your action tracker'
 correct_action_text = "Please write the correct action name. The action name is a text, no more than 30 characters!"
 action_limit_text = f"You have reached the limit of the number of actions for this category.\n" \
                     f"Please delete any action or change the category"
-action_exists_text = "already exists!\nPlease write another name: "
-action_not_exists_text = "You don't have any actions with this name"
+action_exists_text = "action already exists!\nPlease write another name: "
+action_not_exists_text = "Choose the right action"
 added_new_action_text = 'You successfully added new action'
 
 # text for tracker handlers
@@ -57,21 +52,10 @@ answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
 stop_tracker_text = "Tracker stopped:\n\r"
 daily_tracker_text = "Delete daily tracker"
 empty_tracker_text = "You don't have any trackers yet"
-delete_tracker_text = "You deleted the tracker"
+delete_tracker_text = "You have deleted the tracker"
 just_one_tracker = "You have only one tracker running. Do you want to stop the tracker?"
-
-
-async def tracker_text(user_id) -> str:
-    text = []
-    tracker_data = await redis_client.hgetall(f"{user_id}_tracker")
-    category_name: str = "🗄:" + tracker_data[b'category_name'].decode(encoding='utf-8')
-    action_name: str = "🎬:" + tracker_data[b'action_name'].decode(encoding='utf-8')
-    launch_time = tracker_data[b'start_time'].decode(encoding='utf-8').split('+')[0]
-    launch_time: datetime = dt.strptime(launch_time, "%Y-%m-%d %H:%M:%S")
-    duration: str = "⏱:" + str((dt.now() - launch_time) - datetime.timedelta(hours=TIME_ZONE_OFFSET)).split('.')[0]
-    text.extend([category_name, action_name, duration])
-    text = '\n\r'.join(text)
-    return text
+not_enough_data_text = "I can't create a tracker. The data is not defined."
+already_delete_tracker_text = "You have already deleted the tracker"
 
 
 # for reports handlers

@@ -15,8 +15,8 @@ from tgbot.utils.validators import valid_name
 async def new_category(call: CallbackQuery, state: FSMContext):
     user_id = call.from_user.id
     await call.message.edit_text(text=new_category_text)
-    categories_count = await select_categories(user_id)
-    if categories_count and (len(categories_count.all()) >= USER_ACTIONS_LIMIT):
+    categories = await select_categories(user_id)
+    if categories and (len(categories) >= USER_ACTIONS_LIMIT):
         markup = await menu_inline_kb(category_limit_btn)
         await state.clear()
         return await call.message.edit_text(text=category_limit_text, reply_markup=markup)
@@ -37,6 +37,7 @@ async def get_category_name_from_user(message: Message, state: FSMContext):
         await create_category(user_id, checking_name)
         markup = await menu_inline_kb(category_menu_buttons)
         await message.answer(text=added_new_category_text, reply_markup=markup)
+
     else:
         await message.answer(
             text=f"{category_name} {category_exists_text}")

@@ -71,7 +71,11 @@ async def _actions(actions: list,
     for act in actions:
         builder.button(
             text=f"{act.action_name}",
-            callback_data=callback_class(operation=operation, action_id=act.action_id, action_name=act.action_name)
+            callback_data=callback_class(operation=operation,
+                                         action_id=act.action_id,
+                                         action_name=act.action_name,
+                                         category_id=act.category_id,
+                                         category_name=act.category_name)
         )
     builder.adjust(2)
     return builder

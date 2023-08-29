@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Sequence, Date
+from sqlalchemy import Integer, Sequence, Date, Float
 from sqlalchemy import select, extract, cast, func, and_, text
 
 from ..actions.actions_models import ActionsModel
@@ -18,7 +18,9 @@ async def get_report(user_id: int) -> Sequence:
                 select(TrackerModel.action_id,
                        # func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
                        func.to_char(TrackerModel.track_start, 'D').label("day_of_week"),
-                       func.round((func.extract('epoch', func.sum(TrackerModel.duration))/3600), 2).label("duration_action")
+                       cast(func.round((func.extract('epoch',
+                                        func.sum(TrackerModel.duration))/3600), 2).label("duration_action"),
+                            Float)
                        ) \
                 .where(and_(TrackerModel.user_id == user_id,
                             TrackerModel.track_end.is_not(None),

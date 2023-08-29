@@ -9,6 +9,7 @@ from .menu_tracker import get_tracker_options, no_btn_handler
 from .new_tracker import create_new_tracker
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, TrackerCD, \
     TrackerOperation, ActionCD, ActionOperation
+from ...utils.states import TrackerState
 
 
 def register_tracker_handlers(router):
@@ -16,7 +17,8 @@ def register_tracker_handlers(router):
     router.callback_query.register(select_category_tracker, F.data == 'new_tracker_btn')
     router.callback_query.register(display_actions_tracker,
                                    CategoryCD.filter(F.operation == CategoryOperation.READ_TRACKER))
-    router.callback_query.register(create_new_tracker, ActionCD.filter(F.operation == ActionOperation.READ_TRACKER))
+    router.callback_query.register(create_new_tracker, ActionCD.filter(F.operation == ActionOperation.READ_TRACKER),
+                                   TrackerState.WAIT_CATEGORY_DATA)
     router.callback_query.register(select_launched_tracker, F.data == 'launched_btn')
     router.callback_query.register(stop_tracker_handler, F.data == 'yes_btn')
     router.callback_query.register(no_btn_handler, F.data == 'no_btn')

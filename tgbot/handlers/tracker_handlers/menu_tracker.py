@@ -1,8 +1,9 @@
 from aiogram.types import CallbackQuery
 
+from cache.redis_commands import tracker_text
 from db.tracker.tracker_db_command import select_started_tracker
 from tgbot.keyboards.buttons_names import tracker_menu_buttons_start, tracker_menu_buttons_stop
-from tgbot.utils.answer_text import options_text, tracker_text, launch_tracker_text
+from tgbot.utils.answer_text import options_text, launch_tracker_text
 from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
@@ -20,6 +21,5 @@ async def get_tracker_options(call: CallbackQuery):
 
 
 async def no_btn_handler(call: CallbackQuery):
-    # await call.message.delete()
     markup = await menu_inline_kb(tracker_menu_buttons_stop)
     await call.message.edit_text(text=options_text, reply_markup=markup)

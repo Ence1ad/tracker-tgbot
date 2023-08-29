@@ -3,7 +3,7 @@ from copy import deepcopy
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 
-from tgbot.datetime_data import new_sheet_name, current_week_data
+from data_preparation.datetime_data import new_sheet_name, current_week_data
 from tgbot.utils.answer_text import xlsx_title
 
 

@@ -10,9 +10,10 @@ async def _get_raw_data_from_report(report):
     for field in report:
         d = {}
         title = field[0]
-        duration = round(field[2].seconds / 3600, 2)
+        # duration = round(field[2].seconds / 3600, 2)
         dow = field[1]
-        d[dow] = {title: duration}
+        print(field[2])
+        d[dow] = {title: field[2]}
         raw_data.append(d)
     return raw_data
 

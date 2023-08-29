@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete, ScalarResult, update
+from sqlalchemy import select, delete, update
 
 from ..db_session import create_async_session
 from .categories_model import CategoriesModel
@@ -14,7 +14,7 @@ async def create_category(user_id, category_title: str) -> None:
             session.add(create_stmt)
 
 
-async def select_categories(user_id: int) -> ScalarResult:
+async def select_categories(user_id: int):
     async with await create_async_session() as session:
         async with session.begin():
             stmt = \
@@ -22,8 +22,8 @@ async def select_categories(user_id: int) -> ScalarResult:
                        CategoriesModel.category_name)\
                 .where(CategoriesModel.user_id == user_id)\
                 .order_by(CategoriesModel.category_name)
-
-            return await session.execute(stmt)
+            res = await session.execute(stmt)
+            return res.fetchall()
 
 
 async def update_category(user_id: int, category_id: int, new_category_name: str) -> None:
@@ -33,20 +33,22 @@ async def update_category(user_id: int, category_id: int, new_category_name: str
                 update(CategoriesModel) \
                 .where(CategoriesModel.user_id == user_id,
                        CategoriesModel.category_id == category_id) \
-                .values(category_name=new_category_name)
+                .values(category_name=new_category_name).returning(CategoriesModel.category_id)
 
-            await session.execute(udp_stmt)
+            res = await session.execute(udp_stmt)
+            return res.scalar_one_or_none()
 
 
-async def delete_category(user_id: int, category_id: int) -> None:
+async def delete_category(user_id: int, category_id: int) -> int | None:
     async with await create_async_session() as session:
         async with session.begin():
             del_stmt = \
                 delete(CategoriesModel)\
                 .where(CategoriesModel.user_id == user_id,
-                       CategoriesModel.category_id == category_id)
+                       CategoriesModel.category_id == category_id).returning(CategoriesModel.category_id)
 
-            await session.execute(del_stmt)
+            returning = await session.execute(del_stmt)
+            return returning.scalar_one_or_none()
 
 
 async def category_exists(user_id: int, category_id: int) -> int | None:

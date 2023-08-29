@@ -1,8 +1,10 @@
+
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Sequence, Date, Integer
-from sqlalchemy import select, delete, update, extract, func, cast
+from sqlalchemy import Sequence, Date
+from sqlalchemy import select, delete, update, func, cast
+
 
 from ..actions.actions_models import ActionsModel
 from ..categories.categories_model import CategoriesModel
@@ -32,26 +34,6 @@ async def select_trackers(user_id: int) -> Sequence:
                 .where(TrackerModel.user_id == user_id,
                        cast(TrackerModel.track_end, Date) == func.current_date(),
                        TrackerModel.duration.is_not(None))
-            res = await session.execute(stmt)
-            return res.fetchall()
-
-
-async def select_trackers_from_monday(user_id: int) -> Sequence:
-    async with await create_async_session() as session:
-        async with session.begin():
-            last_monday_subq = \
-                (select(func.current_date() + cast(-6 - extract("dow", func.current_date()), Integer) % 7)
-                 ).scalar_subquery()
-
-            stmt = \
-                select(TrackerModel.tracker_id,
-                       TrackerModel.duration,
-                       ActionsModel.action_name)\
-                .join(ActionsModel) \
-                .where(TrackerModel.user_id == user_id,
-                       # TrackerModel.track_end.between(last_monday_subq, func.current_date()),
-                       TrackerModel.duration.is_not(None))
-
             res = await session.execute(stmt)
             return res.fetchall()
 
@@ -93,11 +75,12 @@ async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime)
             await session.execute(udp_stmt1)
 
 
-async def delete_tracker(user_id: int, tracker_id: int):
+async def delete_tracker(user_id: int, tracker_id: int) -> int | None:
     async with await create_async_session() as session:
         async with session.begin():
             stmt = \
                 delete(TrackerModel)\
                 .where(TrackerModel.user_id == user_id,
-                       TrackerModel.tracker_id == tracker_id)
-            await session.execute(stmt)
+                       TrackerModel.tracker_id == tracker_id).returning(TrackerModel.tracker_id)
+            returning = await session.execute(stmt)
+            return returning.scalar_one_or_none()

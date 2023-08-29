@@ -13,11 +13,13 @@ from tgbot.utils.states import ActionState, UpdateActionState
 def register_actions_handlers(router):
     router.callback_query.register(select_category, F.data == 'actions_btn')
     router.callback_query.register(get_actions_options, CategoryCD.filter(F.operation == CategoryOperation.READ))
-    router.callback_query.register(display_actions, F.data == 'user_actions')
-    router.callback_query.register(new_action_reaction_handler, F.data == 'create_actions')
+    router.callback_query.register(display_actions, (F.data == 'user_actions'), ActionState.WAIT_CATEGORY_DATA)
+    router.callback_query.register(new_action_reaction_handler, F.data == 'create_actions',
+                                   ActionState.WAIT_CATEGORY_DATA)
     router.message.register(create_action_handler, ActionState.GET_NAME)
-    router.callback_query.register(select_remove_action, F.data == 'delete_actions')
+    router.callback_query.register(select_remove_action,  (F.data == 'delete_actions'), ActionState.WAIT_CATEGORY_DATA)
     router.callback_query.register(del_action, ActionCD.filter(F.operation == ActionOperation.DEL))
-    router.callback_query.register(update_action_reaction_handler, F.data == 'update_actions')
+    router.callback_query.register(update_action_reaction_handler, F.data == 'update_actions',
+                                   ActionState.WAIT_CATEGORY_DATA)
     router.callback_query.register(select_action, ActionCD.filter(F.operation == ActionOperation.UDP))
     router.message.register(upd_action, UpdateActionState.GET_NAME)

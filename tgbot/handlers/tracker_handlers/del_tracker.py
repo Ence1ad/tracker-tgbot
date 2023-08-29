@@ -1,9 +1,10 @@
 from aiogram.types import CallbackQuery
 
 from db.tracker.tracker_db_command import select_trackers, delete_tracker
-from tgbot.keyboards.buttons_names import tracker_menu_buttons_start, tracker_menu_buttons_stop
+from tgbot.keyboards.buttons_names import tracker_menu_buttons_start
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
-from tgbot.utils.answer_text import daily_tracker_text, empty_tracker_text, delete_tracker_text
+from tgbot.utils.answer_text import daily_tracker_text, empty_tracker_text, delete_tracker_text, \
+    already_delete_tracker_text
 from tgbot.keyboards.callback_factories import TrackerOperation, TrackerCD
 
 
@@ -24,6 +25,10 @@ async def select_removing_tracker(call: CallbackQuery):
 async def del_tracking_data(call: CallbackQuery, callback_data: TrackerCD):
     user_id = call.from_user.id
     tracker_id = callback_data.tracker_id
-    await delete_tracker(user_id=user_id, tracker_id=tracker_id)
-    markup = await menu_inline_kb(tracker_menu_buttons_stop)
-    await call.message.edit_text(text=delete_tracker_text, reply_markup=markup)
+    returning = await delete_tracker(user_id=user_id, tracker_id=tracker_id)
+    if returning:
+        markup = await menu_inline_kb(tracker_menu_buttons_start)
+        await call.message.edit_text(text=delete_tracker_text, reply_markup=markup)
+    else:
+        markup = await menu_inline_kb(tracker_menu_buttons_start)
+        await call.message.edit_text(text=already_delete_tracker_text, reply_markup=markup)

@@ -18,8 +18,12 @@ from tgbot.handlers.start import command_start_handler
 from tgbot.keyboards.buttons_names import exit_btn, cancel_btn
 from tgbot.utils.bot_commands import my_commands
 from aiogram.fsm.storage.redis import RedisStorage
-router = Router()
 
+router = Router()
+categories_router = Router()
+actions_router = Router()
+tracker_router = Router()
+report_router = Router()
 
 async def start_bot(tgbot):
     await my_commands(tgbot)
@@ -29,17 +33,18 @@ async def main() -> None:
     # Dispatcher is a root router
     dp = Dispatcher(storage=RedisStorage(redis=redis_client))
     await start_bot(bot)
-    dp.include_router(router)
+    # dp.include_router(router)
+    dp.include_routers(router, categories_router, actions_router, tracker_router, report_router)
     router.message.register(command_start_handler, Command("start"))
     router.message.register(command_cancel_handler, Command(commands=["cancel"]), any_state)
     router.callback_query.register(command_cancel_handler, F.data == cancel_btn, any_state)
     router.callback_query.register(exit_menu, F.data == exit_btn)
     router.message.register(command_help_handler, Command(commands=["help"]))
     router.message.register(command_settings_handler, Command(commands=["settings"]))
-    register_categories_handlers(router)
-    register_actions_handlers(router)
-    register_tracker_handlers(router)
-    register_report_handlers(router)
+    register_categories_handlers(categories_router)
+    register_actions_handlers(actions_router)
+    register_tracker_handlers(tracker_router)
+    register_report_handlers(report_router)
 
     try:
         await dp.start_polling(bot)
