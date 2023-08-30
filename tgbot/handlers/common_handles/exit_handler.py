@@ -8,7 +8,6 @@ from tgbot.utils.answer_text import options_text, launch_tracker_text
 
 
 async def exit_menu(call: CallbackQuery, state: FSMContext):
-    # await call.message.delete()
     user_id = call.from_user.id
     markup = await start_menu_inline_kb(start_menu_buttons)
     await state.clear()

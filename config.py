@@ -1,30 +1,47 @@
-from dotenv import dotenv_values
-from aiogram.enums import ParseMode
+from typing import Optional
 
-from aiogram import Bot
-
-
-def get_tg_bot(env_path='.env.tg.development'):
-    tg_env = dotenv_values(dotenv_path=env_path)
-    bot_token = tg_env['BOT_TOKEN']
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    my_bot = Bot(bot_token, parse_mode=ParseMode.HTML)
-    return my_bot
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-bot = get_tg_bot()
+class RedisSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env.redis.dev', env_file_encoding='utf-8')
+    redis_host: str
+    redis_port: int
+    redis_db: int
 
 
-def get_db_url(env_path='.env.db.development'):
-    db_env = dotenv_values(dotenv_path=env_path)
-    user = db_env["PGUSER"]
-    password = db_env["PGPASSWORD"]
-    host = db_env['PGHOST']
-    port = db_env['PGPORT']
-    dbname = db_env['DBNAME']
-
-    url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{dbname}"
-    return url
+class PostgresSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env.db.dev', env_file_encoding='utf-8')
+    pg_user: str
+    pg_password: str
+    pg_host: str
+    pg_port: int
+    db_name: str
 
 
-db_url = get_db_url()
+class TgBotSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env.tg.dev', env_file_encoding='utf-8')
+    bot_token: str
+    admin_id: int
+    chat_id: int
+    admin_tel: str
+
+
+class Logging(BaseSettings):
+    format: str
+    debug: bool
+
+
+class Webhooks(BaseSettings):
+    host: str
+    path: str
+    webapp_host: str
+    webapp_port: int
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict()
+    tgbot: TgBotSettings = TgBotSettings()
+    redis: RedisSettings = RedisSettings()
+    postgres: PostgresSettings = PostgresSettings()
+    webhooks: Optional[Webhooks] = None

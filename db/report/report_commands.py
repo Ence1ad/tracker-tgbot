@@ -1,13 +1,13 @@
 from sqlalchemy import Integer, Sequence, Date, Float
 from sqlalchemy import select, extract, cast, func, and_, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..actions.actions_models import ActionsModel
-from ..db_session import create_async_session
 from ..tracker.tracker_model import TrackerModel
 
 
-async def get_report(user_id: int) -> Sequence:
-    async with await create_async_session() as session:
+async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
+    async with db_session as session:
         async with session.begin():
             # Get last monday
             last_monday_subq = \

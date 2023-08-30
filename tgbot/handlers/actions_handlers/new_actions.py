@@ -1,5 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from settings import USER_ACTIONS_LIMIT
 from tgbot.keyboards.buttons_names import actions_menu_buttons, action_limit_btn
@@ -12,12 +13,15 @@ from db.actions.actions_db_commands import create_actions, select_category_actio
 from tgbot.utils.validators import valid_name
 
 
-async def new_action_reaction_handler(call: CallbackQuery, state: FSMContext) -> Message | None:
+async def new_action_reaction_handler(call: CallbackQuery,
+                                      state: FSMContext,
+                                      db_session: AsyncSession
+                                      ) -> Message | None:
     user_id = call.from_user.id
     state_data = await state.get_data()
     category_id = state_data['category_id']
     # Get user_actions from db
-    action_count: int = await select_action_count(user_id, category_id)
+    action_count: int = await select_action_count(user_id, category_id, db_session)
     if action_count >= USER_ACTIONS_LIMIT:
         markup = await menu_inline_kb(action_limit_btn)
         await state.clear()
@@ -27,7 +31,7 @@ async def new_action_reaction_handler(call: CallbackQuery, state: FSMContext) ->
         return await call.message.edit_text(text=new_action_text + char_limit)
 
 
-async def create_action_handler(message: Message, state: FSMContext) -> None:
+async def create_action_handler(message: Message, state: FSMContext, db_session: AsyncSession) -> None:
     user_id: int = message.from_user.id
     await state.update_data(action_name=message.text)
     state_data = await state.get_data()
@@ -38,10 +42,10 @@ async def create_action_handler(message: Message, state: FSMContext) -> None:
         await message.answer(text=f"{accept_only_text}")
     else:  # If message a text
         # Get user_actions from db
-        user_actions = await select_category_actions(user_id, category_id=category_id)
+        user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
         checking_name = await valid_name(user_actions, state_data['action_name'])
         if checking_name:
-            await create_actions(user_id, checking_name, category_id=category_id)
+            await create_actions(user_id, checking_name, category_id=category_id, db_session=db_session)
             markup = await menu_inline_kb(actions_menu_buttons)
             await message.answer(text=f"{added_new_action_text}: {checking_name}", reply_markup=markup)
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)

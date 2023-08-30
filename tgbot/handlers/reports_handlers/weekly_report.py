@@ -1,9 +1,10 @@
 from aiogram.types import CallbackQuery, FSInputFile
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import bot
 from data_preparation.pd_prepare import pd_data
-from data_preparation.prepare_data import adjust_data_main, get_headers
+
 from db.report.report_commands import get_report
+from settings import BOT
 from tgbot.keyboards.buttons_names import reports_buttons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import xlsx_title, send_report_text, empty_trackers_text
@@ -11,10 +12,10 @@ from data_preparation.create_report import create_bar
 # from data_preparation.prepare_data import adjust_data_main, get_headers
 
 
-async def get_weekly_report(call: CallbackQuery):
+async def get_weekly_report(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
-    report = await get_report(user_id)
-    report = list(report)
+    report = await get_report(user_id, db_session)
+    report = report
     markup = await menu_inline_kb(reports_buttons)
     if report:
         # max_row = await get_headers(report)
@@ -26,6 +27,7 @@ async def get_weekly_report(call: CallbackQuery):
         await call.answer(text=send_report_text)
         await call.message.delete()
         document = FSInputFile(xlsx_title)
-        return await bot.send_document(chat_id=call.from_user.id, document=document)
+
+        return await BOT.send_document(chat_id=call.from_user.id, document=document)
     else:
         return await call.message.edit_text(text=empty_trackers_text, reply_markup=markup)

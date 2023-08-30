@@ -4,16 +4,20 @@ from typing import Any
 
 from sqlalchemy import Sequence, Date
 from sqlalchemy import select, delete, update, func, cast
-
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..actions.actions_models import ActionsModel
 from ..categories.categories_model import CategoriesModel
-from ..db_session import create_async_session
 from .tracker_model import TrackerModel
 
 
-async def create_tracker(user_id: int, category_name: str, action_id: int, track_start: datetime) -> None:
-    async with await create_async_session() as session:
+async def create_tracker(user_id: int,
+                         category_name: str,
+                         action_id: int,
+                         track_start: datetime,
+                         db_session: AsyncSession
+                         ) -> None:
+    async with db_session as session:
         async with session.begin():
             new_tracker: TrackerModel = \
                 TrackerModel(category_name=category_name,
@@ -23,8 +27,8 @@ async def create_tracker(user_id: int, category_name: str, action_id: int, track
             session.add(new_tracker)
 
 
-async def select_trackers(user_id: int) -> Sequence:
-    async with await create_async_session() as session:
+async def select_trackers(user_id: int, db_session: AsyncSession) -> Sequence:
+    async with db_session as session:
         async with session.begin():
             stmt = \
                 select(TrackerModel.tracker_id,
@@ -38,8 +42,8 @@ async def select_trackers(user_id: int) -> Sequence:
             return res.fetchall()
 
 
-async def select_started_tracker(user_id: int) -> Any | None:
-    async with await create_async_session() as session:
+async def select_started_tracker(user_id: int, db_session: AsyncSession) -> Any | None:
+    async with db_session as session:
         async with session.begin():
             stmt = \
                 select(TrackerModel.tracker_id,
@@ -56,8 +60,8 @@ async def select_started_tracker(user_id: int) -> Any | None:
             return res.fetchall()
 
 
-async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime) -> None:
-    async with await create_async_session() as session:
+async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime, db_session: AsyncSession) -> None:
+    async with db_session as session:
         async with session.begin():
             udp_stmt = \
                 update(TrackerModel)\
@@ -75,8 +79,8 @@ async def update_tracker(user_id: int, tracker_id: int, call_datetime: datetime)
             await session.execute(udp_stmt1)
 
 
-async def delete_tracker(user_id: int, tracker_id: int) -> int | None:
-    async with await create_async_session() as session:
+async def delete_tracker(user_id: int, tracker_id: int, db_session: AsyncSession) -> int | None:
+    async with db_session as session:
         async with session.begin():
             stmt = \
                 delete(TrackerModel)\

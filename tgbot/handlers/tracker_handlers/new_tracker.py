@@ -3,6 +3,7 @@ import logging
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import redis_hmset_tracker_data
 from tgbot.utils.answer_text import new_tracker_text, not_enough_data_text
@@ -14,7 +15,7 @@ from tgbot.keyboards.buttons_names import tracker_menu_buttons_stop, tracker_men
 
 
 # TODO трекер должен автоматом останавливаться через нужное время
-async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state: FSMContext):
+async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state: FSMContext, db_session: AsyncSession):
     user_id = call.from_user.id
     start_time = call.message.date
     action_name = callback_data.action_name
@@ -26,11 +27,10 @@ async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state
         await redis_hmset_tracker_data(user_id, call_date=start_time, action_id=action_id, action_name=action_name,
                                        category_id=category_id, category_name=category_name)
         await create_tracker(user_id, category_name=category_name, action_id=action_id,
-                             track_start=start_time)
+                             track_start=start_time, db_session=db_session)
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
         await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)
     except IntegrityError as ex:
         logging.exception(ex)
         markup = await menu_inline_kb(tracker_menu_buttons_start)
         await call.message.edit_text(text=f"{not_enough_data_text}", reply_markup=markup)
-

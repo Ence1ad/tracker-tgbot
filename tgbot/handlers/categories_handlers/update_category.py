@@ -1,5 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.categories.categories_commands import update_category, select_categories
 from tgbot.utils.validators import valid_name
@@ -11,10 +12,9 @@ from tgbot.keyboards.callback_factories import CategoryOperation, CategoryCD
 from tgbot.utils.states import UpdateCategoryState
 
 
-async def select_update_category(call: CallbackQuery):
+async def select_update_category(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
-    # TODO прокинуть категории через state
-    categories = await select_categories(user_id)
+    categories = await select_categories(user_id, db_session)
     if categories:
         markup = await callback_factories_kb(categories, CategoryOperation.UDP)
         await call.message.edit_text(text=select_category_text, reply_markup=markup)
@@ -29,7 +29,7 @@ async def select_category(call: CallbackQuery, state: FSMContext, callback_data:
     await state.set_state(UpdateCategoryState.WAIT_CATEGORY_DATA)
 
 
-async def upd_category(message: Message, state: FSMContext):
+async def upd_category(message: Message, state: FSMContext, db_session: AsyncSession):
     await message.delete()
     await state.update_data(category_name=message.text)
     user_id: int = message.from_user.id
@@ -43,12 +43,12 @@ async def upd_category(message: Message, state: FSMContext):
         await message.answer(text=f"{accept_only_text}")
 
     else:  # If message a text
-        categories = await select_categories(user_id)
+        categories = await select_categories(user_id, db_session)
         check_name = await valid_name(categories, new_category_name)
         markup = await menu_inline_kb(category_menu_buttons)
         if check_name:
             await state.clear()
-            returning = await update_category(user_id, category_id, new_category_name)
+            returning = await update_category(user_id, category_id, new_category_name, db_session)
             if returning:
                 await message.answer(text=f"{upd_category_text} {category_old_name} -> {new_category_name}",
                                      reply_markup=markup)

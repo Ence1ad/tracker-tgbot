@@ -1,5 +1,5 @@
 from datetime import datetime as dt, timedelta
-from cache.redis_cache import redis_client
+from settings import redis_client
 from settings import TIME_ZONE_OFFSET
 
 
@@ -35,6 +35,7 @@ async def redis_hmset_tracker_data(
                                       "category_name": category_name
                                       })
 
+
 async def redis_hget_tracker_data(user_id: int, key='') -> str:
     return await redis_client.hget(name=f"{user_id}_tracker", key=key)
 
@@ -44,6 +45,7 @@ async def redis_is_tracker(user_id: int):
         return True
     else:
         return False
+
 
 async def redis_hget_start_time(user_id):
     start_time_str = (await redis_client.hget(name=f"{user_id}_tracker", key="start_time")

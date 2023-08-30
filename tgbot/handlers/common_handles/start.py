@@ -1,4 +1,5 @@
 from aiogram.types import Message
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import tracker_text, redis_is_tracker
 from db.users.user import NewUser
@@ -8,11 +9,12 @@ from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import user_in_db_text, new_user_text, launch_tracker_text
 
 
-async def command_start_handler(message: Message) -> None:
+async def command_start_handler(message: Message, db_session: AsyncSession) -> None:
     """
     Function react to tap on "/start" command. Function check if user exist in db,
     function just return some answer as message, else create user in db and return answer as message.
     :param message: Message
+    :param db_session: AsyncSession
     :return: Coroutine[Any]
     """
 
@@ -21,7 +23,7 @@ async def command_start_handler(message: Message) -> None:
     user_id: int = message.from_user.id
     await message.delete()
     user_obj: NewUser = await _get_sender_data(message)
-    user_from_db: str | None = await check_user_in_db(user_id)
+    user_from_db: str | None = await check_user_in_db(user_id, db_session)
     # Get keyboard
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
@@ -34,7 +36,7 @@ async def command_start_handler(message: Message) -> None:
             await message.answer(text=user_in_db_text, reply_markup=start_markup)
     else:
         # Create new user in DB
-        await create_user(user_obj)
+        await create_user(user_obj, db_session)
         await message.answer(text=new_user_text, reply_markup=start_markup)
 
 

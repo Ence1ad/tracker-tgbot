@@ -1,11 +1,11 @@
 from sqlalchemy import select, delete, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..db_session import create_async_session
 from .categories_model import CategoriesModel
 
 
-async def create_category(user_id, category_title: str) -> None:
-    async with await create_async_session() as session:
+async def create_category(user_id, category_title: str, db_session: AsyncSession) -> None:
+    async with db_session as session:
         async with session.begin():
             create_stmt: CategoriesModel = \
                 CategoriesModel(category_name=category_title,
@@ -14,8 +14,8 @@ async def create_category(user_id, category_title: str) -> None:
             session.add(create_stmt)
 
 
-async def select_categories(user_id: int):
-    async with await create_async_session() as session:
+async def select_categories(user_id: int, db_session: AsyncSession):
+    async with db_session as session:
         async with session.begin():
             stmt = \
                 select(CategoriesModel.category_id,
@@ -26,8 +26,8 @@ async def select_categories(user_id: int):
             return res.fetchall()
 
 
-async def update_category(user_id: int, category_id: int, new_category_name: str) -> None:
-    async with await create_async_session() as session:
+async def update_category(user_id: int, category_id: int, new_category_name: str, db_session: AsyncSession) -> None:
+    async with db_session as session:
         async with session.begin():
             udp_stmt = \
                 update(CategoriesModel) \
@@ -39,8 +39,8 @@ async def update_category(user_id: int, category_id: int, new_category_name: str
             return res.scalar_one_or_none()
 
 
-async def delete_category(user_id: int, category_id: int) -> int | None:
-    async with await create_async_session() as session:
+async def delete_category(user_id: int, category_id: int, db_session: AsyncSession) -> int | None:
+    async with db_session as session:
         async with session.begin():
             del_stmt = \
                 delete(CategoriesModel)\
@@ -51,8 +51,8 @@ async def delete_category(user_id: int, category_id: int) -> int | None:
             return returning.scalar_one_or_none()
 
 
-async def category_exists(user_id: int, category_id: int) -> int | None:
-    async with await create_async_session() as session:
+async def category_exists(user_id: int, category_id: int, db_session: AsyncSession) -> int | None:
+    async with db_session as session:
         async with session.begin():
             stmt = \
                 select(CategoriesModel.category_id)\

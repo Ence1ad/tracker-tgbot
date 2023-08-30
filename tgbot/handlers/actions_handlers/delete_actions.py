@@ -1,5 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import redis_hget_tracker_data, redis_delete_tracker
 from db.actions.actions_db_commands import delete_action, select_category_actions
@@ -11,11 +12,11 @@ from tgbot.utils.answer_text import empty_actions_text, rm_action_text, action_n
 from tgbot.keyboards.callback_factories import ActionOperation, ActionCD
 
 
-async def select_remove_action(call: CallbackQuery, state: FSMContext) -> None:
+async def select_remove_action(call: CallbackQuery, state: FSMContext, db_session: AsyncSession) -> None:
     user_id = call.from_user.id
     state_data = await state.get_data()
     category_id = state_data['category_id']
-    actions = await select_category_actions(user_id, category_id=category_id)
+    actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
     await call.message.delete()
     if actions:
         markup = await callback_factories_kb(actions, ActionOperation.DEL)
@@ -25,13 +26,12 @@ async def select_remove_action(call: CallbackQuery, state: FSMContext) -> None:
         await call.message.answer(text=empty_actions_text, reply_markup=markup)
 
 
-async def del_action(call: CallbackQuery, callback_data: ActionCD) -> None:
+async def del_action(call: CallbackQuery, callback_data: ActionCD, db_session: AsyncSession) -> None:
     user_id = call.from_user.id
     action_id = callback_data.action_id
     markup = await menu_inline_kb(actions_menu_buttons)
-    print(await redis_hget_tracker_data(user_id, key="action_id"))
     await redis_hget_tracker_data(user_id, key="action_id") and await redis_delete_tracker(user_id)
-    returning = await delete_action(user_id, action_id)
+    returning = await delete_action(user_id, action_id, db_session)
     if returning:
         await call.message.edit_text(text=f"{rm_action_text} {callback_data.action_name}", reply_markup=markup)
     else:

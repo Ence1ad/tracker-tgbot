@@ -1,4 +1,5 @@
 from aiogram.types import CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import tracker_text
 from db.tracker.tracker_db_command import select_started_tracker
@@ -8,9 +9,9 @@ from tgbot.utils.answer_text import not_launched_tracker_text, launch_tracker_te
     answer_stop_tracker_text
 
 
-async def select_launched_tracker(call: CallbackQuery):
+async def select_launched_tracker(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
-    started_tracker = await select_started_tracker(user_id)
+    started_tracker = await select_started_tracker(user_id, db_session)
     if started_tracker:
         track_text = await tracker_text(user_id)
         await call.message.delete()

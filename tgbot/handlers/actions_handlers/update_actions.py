@@ -1,5 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.actions.actions_db_commands import update_action, select_category_actions
 from tgbot.utils.validators import valid_name
@@ -17,12 +18,12 @@ async def select_action(call: CallbackQuery, state: FSMContext, callback_data: A
     await state.set_state(UpdateActionState.GET_NAME)
 
 
-async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext):
+async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext, db_session: AsyncSession):
     user_id = call.from_user.id
     state_data = await state.get_data()
     # Get category_id from cache
     category_id = state_data['category_id']
-    actions = await select_category_actions(user_id, category_id=category_id)
+    actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
     if actions:
         markup = await callback_factories_kb(actions, ActionOperation.UDP)
         await call.message.edit_text(text=to_update_action_text, reply_markup=markup)
@@ -32,7 +33,7 @@ async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext)
         await call.message.edit_text(text=empty_actions_text, reply_markup=markup)
 
 
-async def upd_action(message: Message, state: FSMContext):
+async def upd_action(message: Message, state: FSMContext, db_session: AsyncSession):
     await state.update_data(action_name=message.text)
     user_id = message.from_user.id
     state_data = await state.get_data()
@@ -48,10 +49,10 @@ async def upd_action(message: Message, state: FSMContext):
         state_data = await state.get_data()
         # Get category_id from cache
         category_id = state_data['category_id']
-        user_actions = await select_category_actions(user_id, category_id=category_id)
+        user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
         checking_availability = await valid_name(user_actions, new_action_name)
         if checking_availability:
-            returning = await update_action(user_id, action_id, checking_availability)
+            returning = await update_action(user_id, action_id, checking_availability, db_session=db_session)
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)
             markup = await menu_inline_kb(actions_menu_buttons)
             if returning:

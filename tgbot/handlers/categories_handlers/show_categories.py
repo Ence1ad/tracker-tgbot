@@ -1,4 +1,5 @@
 from aiogram.types import CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.categories.categories_commands import select_categories
 
@@ -7,10 +8,10 @@ from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import empty_categories_text, show_categories_text
 
 
-async def display_categories(call: CallbackQuery):
+async def display_categories(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
     await call.message.delete()
-    categories = await select_categories(user_id)
+    categories = await select_categories(user_id, db_session)
     if categories:
         cats_in_column = ''
         for idx, category in enumerate(categories, 1):

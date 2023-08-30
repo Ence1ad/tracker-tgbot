@@ -1,4 +1,5 @@
 from aiogram.types import CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.categories.categories_commands import delete_category, select_categories
 from tgbot.keyboards.buttons_names import category_menu_buttons, new_category_button
@@ -8,9 +9,9 @@ from tgbot.utils.answer_text import rm_category_text, select_category_text, empt
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation
 
 
-async def select_remove_category(call: CallbackQuery):
+async def select_remove_category(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
-    categories = await select_categories(user_id)
+    categories = await select_categories(user_id, db_session)
     if categories:
         markup = await callback_factories_kb(categories, CategoryOperation.DEL)
         await call.message.edit_text(text=select_category_text, reply_markup=markup)
@@ -19,12 +20,12 @@ async def select_remove_category(call: CallbackQuery):
         await call.message.edit_text(text=empty_categories_text, reply_markup=markup)
 
 
-async def del_category(call: CallbackQuery, callback_data: CategoryCD):
+async def del_category(call: CallbackQuery, callback_data: CategoryCD, db_session: AsyncSession):
     user_id = call.from_user.id
     category_id = callback_data.category_id
     category_name = callback_data.category_name
     markup = await menu_inline_kb(category_menu_buttons)
-    returning = await delete_category(user_id, category_id)
+    returning = await delete_category(user_id, category_id, db_session)
     if returning:
         await call.message.edit_text(text=f"{rm_category_text} {category_name}", reply_markup=markup)
     else:

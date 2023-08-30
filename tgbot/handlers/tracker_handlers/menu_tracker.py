@@ -1,4 +1,5 @@
 from aiogram.types import CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import tracker_text
 from db.tracker.tracker_db_command import select_started_tracker
@@ -7,10 +8,10 @@ from tgbot.utils.answer_text import options_text, launch_tracker_text
 from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
-async def get_tracker_options(call: CallbackQuery):
+async def get_tracker_options(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
     await call.message.delete()
-    tracker = await select_started_tracker(user_id)
+    tracker = await select_started_tracker(user_id, db_session)
     if tracker:
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
         track_text = await tracker_text(user_id)
