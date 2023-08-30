@@ -29,12 +29,21 @@ async def redis_hmset_tracker_data(
 ) -> None:
     await redis_client.hmset(name=f"{user_id}_tracker",
                              mapping={"start_time": str(call_date),
-                                      "action_id:": action_id,
+                                      "action_id": action_id,
                                       "action_name": action_name,
                                       "category_id": category_id,
                                       "category_name": category_name
                                       })
 
+async def redis_hget_tracker_data(user_id: int, key='') -> str:
+    return await redis_client.hget(name=f"{user_id}_tracker", key=key)
+
+
+async def redis_is_tracker(user_id: int):
+    if await redis_client.hexists(f'{user_id}_tracker', "start_time"):
+        return True
+    else:
+        return False
 
 async def redis_hget_start_time(user_id):
     start_time_str = (await redis_client.hget(name=f"{user_id}_tracker", key="start_time")
