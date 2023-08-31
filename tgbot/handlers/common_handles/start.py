@@ -18,8 +18,6 @@ async def command_start_handler(message: Message, db_session: AsyncSession) -> N
     :return: Coroutine[Any]
     """
 
-    # await message.answer(f"Hello, <b>{message.from_user.id}!</b>")
-
     user_id: int = message.from_user.id
     await message.delete()
     user_obj: NewUser = await _get_sender_data(message)
