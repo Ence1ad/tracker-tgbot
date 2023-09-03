@@ -16,15 +16,18 @@ async def create_tracker(user_id: int,
                          action_id: int,
                          track_start: datetime,
                          db_session: AsyncSession
-                         ) -> None:
+                         ) -> TrackerModel:
     async with db_session as session:
         async with session.begin():
-            new_tracker: TrackerModel = \
+            tracker_obj: TrackerModel = \
                 TrackerModel(category_name=category_name,
                              user_id=user_id,
                              action_id=action_id,
                              track_start=track_start)
-            session.add(new_tracker)
+            session.add(tracker_obj)
+            await session.flush()
+        await session.refresh(tracker_obj)
+        return tracker_obj
 
 
 async def select_trackers(user_id: int, db_session: AsyncSession) -> Sequence:

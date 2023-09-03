@@ -5,14 +5,17 @@ from ..categories.categories_model import CategoriesModel
 from .actions_models import ActionsModel
 
 
-async def create_actions(user_id: int, action_name: str, category_id: int, db_session: AsyncSession) -> None:
+async def create_actions(user_id: int, action_name: str, category_id: int, db_session: AsyncSession) -> ActionsModel:
     async with db_session as session:
         async with session.begin():
-            create_stmt: ActionsModel = \
+            action_obj: ActionsModel = \
                 ActionsModel(action_name=action_name,
                              category_id=category_id,
                              user_id=user_id)
-            session.add(create_stmt)
+            session.add(action_obj)
+            await session.flush()
+        await session.refresh(action_obj)
+        return action_obj
 
 
 async def select_category_actions(user_id: int, category_id: int, db_session: AsyncSession):

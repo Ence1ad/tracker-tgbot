@@ -23,7 +23,7 @@ async def start_bot(tgbot):
 
 async def main() -> None:
 
-    async_engine = create_async_engine(url=DB_URL, echo=False, pool_size=10, max_overflow=20)
+    async_engine = create_async_engine(url=DB_URL, echo=False, pool_size=10, max_overflow=10)
     async_session = await create_async_session(async_engine)
 
     # Dispatcher is a root router

@@ -4,14 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .categories_model import CategoriesModel
 
 
-async def create_category(user_id, category_title: str, db_session: AsyncSession) -> None:
+async def create_category(user_id, category_title: str, db_session: AsyncSession) -> CategoriesModel:
     async with db_session as session:
         async with session.begin():
-            create_stmt: CategoriesModel = \
-                CategoriesModel(category_name=category_title,
-                                user_id=user_id)
-
-            session.add(create_stmt)
+            category_obj: CategoriesModel = \
+                CategoriesModel(
+                    user_id=user_id,
+                    category_name=category_title
+                )
+            session.add(category_obj)
+            await session.flush()
+        await session.refresh(category_obj)
+        return category_obj
 
 
 async def select_categories(user_id: int, db_session: AsyncSession):

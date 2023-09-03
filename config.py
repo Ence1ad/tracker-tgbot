@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class RedisSettings(BaseSettings):
@@ -20,7 +21,7 @@ class PostgresSettings(BaseSettings):
 
 
 class TgBotSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env.tg.dev', env_file_encoding='utf-8')
+
     bot_token: str
     admin_id: int
     chat_id: int
@@ -45,3 +46,16 @@ class Settings(BaseSettings):
     redis: RedisSettings = RedisSettings()
     postgres: PostgresSettings = PostgresSettings()
     webhooks: Optional[Webhooks] = None
+
+    # @property
+    # def db_url(self):
+    #     return URL.create(
+    #         drivername=f"postgresql+asyncpg",
+    #         username=self.postgres.pg_user,
+    #         password=self.postgres.pg_password,
+    #         host=self.postgres.pg_host,
+    #         port=self.postgres.pg_port,
+    #         database=self.postgres.db_name
+    #         ).render_as_string()
+
+

@@ -17,6 +17,13 @@ from settings import TIME_ZONE_OFFSET
 #
 # async def redis_hget_category_id(user_id: int) -> int:
 #     return int(await redis_client.hget(name=user_id, key="category_id"))
+async def redis_create_user(user_id: int) -> int:
+    return int(await redis_client.set(name='users', value=user_id))
+
+
+async def redis_get_user(user_id: int) -> bool:
+    users = (await redis_client.get("users")).decode(encoding='utf-8')
+    return True if str(user_id) in users else False
 
 
 async def redis_hmset_tracker_data(
