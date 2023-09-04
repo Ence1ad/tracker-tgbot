@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -36,7 +38,7 @@ class TgBotSettings(BaseSettings):
 
 
 class Settings(TgBotSettings, PostgresSettings, RedisSettings, BaseSettings):
-    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='.dev.env', env_file_encoding='utf-8')
     TESTING: bool
 
     @property
@@ -50,3 +52,11 @@ class Settings(TgBotSettings, PostgresSettings, RedisSettings, BaseSettings):
             database=self.DB_NAME
         ).render_as_string(hide_password=False)
 
+
+@lru_cache()
+def get_settings():
+    return Settings()
+
+
+# Get data from .env
+settings = get_settings()

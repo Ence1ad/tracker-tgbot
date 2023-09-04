@@ -4,16 +4,8 @@ from aiogram import Bot
 from aiogram.fsm.storage import redis
 from redis.asyncio.client import Redis
 
-from configuration import Settings
+from configuration import settings
 
-
-@lru_cache()
-def get_settings():
-    return Settings()
-
-
-# Get data from .env
-settings = get_settings()
 # Initialize bot
 BOT = Bot(settings.BOT_TOKEN, parse_mode='HTML')
 

@@ -13,6 +13,8 @@ from db.users.users_commands import create_user
 
 import sqlalchemy as sa
 
+from configuration import settings
+
 USER_ID = 1111111111
 
 
@@ -33,11 +35,14 @@ def event_loop():
 
 @pytest.fixture(scope="package", autouse=True)
 def async_engine():
-    engine = create_async_engine(
-        url='postgresql+asyncpg://admin:asdfgh@localhost:5432/test_db'
-    )
-    yield engine
-    engine.sync_engine.dispose()
+
+    if settings.TESTING:
+        engine = create_async_engine(
+            # url='postgresql+asyncpg://admin:asdfgh@localhost:5432/test_db'
+            settings.db_url
+        )
+        yield engine
+        engine.sync_engine.dispose()
 
 
 @pytest_asyncio.fixture(scope="package")
