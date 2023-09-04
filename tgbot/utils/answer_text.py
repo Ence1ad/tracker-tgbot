@@ -1,8 +1,8 @@
-from settings import LENGTH_ACTION_NAME_LIMIT
+from settings import LENGTH_NAME_LIMIT
 
 # Common
 options_text = f"Select the button"
-char_limit = f"\n\rThe limit on the length of the name is {LENGTH_ACTION_NAME_LIMIT} characters"
+char_limit = f"\n\rThe limit on the length of the name is {LENGTH_NAME_LIMIT} characters"
 accept_only_text = "Please try again, I only accept text message"
 
 

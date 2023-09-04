@@ -11,11 +11,12 @@ from tgbot.keyboards.inline_kb import menu_inline_kb
 async def get_tracker_options(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
     await call.message.delete()
-    tracker = await select_started_tracker(user_id, db_session)
-    if tracker:
+    # tracker = await select_started_tracker(user_id, db_session)
+    started_tracker = await tracker_text(user_id)
+    if started_tracker:
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
-        track_text = await tracker_text(user_id)
-        await call.message.answer(text=launch_tracker_text + track_text, reply_markup=markup)
+        # track_text = await tracker_text(user_id)
+        await call.message.answer(text=launch_tracker_text + started_tracker, reply_markup=markup)
     else:
         markup = await menu_inline_kb(tracker_menu_buttons_start)
         await call.message.answer(text=options_text, reply_markup=markup)

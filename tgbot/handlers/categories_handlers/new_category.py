@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from settings import USER_ACTIONS_LIMIT
+from settings import USER_CATEGORIES_LIMIT
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import category_menu_buttons, category_limit_btn
 from tgbot.utils.answer_text import new_category_text, added_new_category_text, category_exists_text, \
@@ -17,7 +17,7 @@ async def new_category(call: CallbackQuery, state: FSMContext, db_session: Async
     user_id = call.from_user.id
     await call.message.edit_text(text=new_category_text)
     categories = await select_categories(user_id, db_session)
-    if categories and (len(categories) >= USER_ACTIONS_LIMIT):
+    if categories and (len(categories) >= USER_CATEGORIES_LIMIT):
         markup = await menu_inline_kb(category_limit_btn)
         await state.clear()
         return await call.message.edit_text(text=category_limit_text, reply_markup=markup)

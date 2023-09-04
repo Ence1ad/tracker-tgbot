@@ -19,6 +19,7 @@ async def command_start_handler(message: Message, db_session: AsyncSession) -> N
     user_id: int = message.from_user.id
     await message.delete()
     user_from_cache: bool = await redis_get_user(user_id)
+    print(user_from_cache)
     # Get keyboard
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB

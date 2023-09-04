@@ -25,8 +25,7 @@ pool = redis.ConnectionPool(
     db=settings.REDIS_DB
 )
 redis_client = Redis(connection_pool=pool)
-# CACHE = ...
 
-LENGTH_ACTION_NAME_LIMIT = 20
+LENGTH_NAME_LIMIT = 20
 USER_ACTIONS_LIMIT = 10
-TIME_ZONE_OFFSET = 3
+USER_CATEGORIES_LIMIT = 10

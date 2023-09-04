@@ -30,7 +30,8 @@ tracker_menu_buttons_start = dict(
 
 tracker_menu_buttons_stop = dict(
     launched_btn='⏹ Stop tracking',
-    delete_tracker_btn='🗑 Delete trackers',
+    update_tracker_btn='⏳ Get Duration',
+    delete_tracker_btn='🗑 Delete trackers'
 )
 
 # buttons for reports_kb.py

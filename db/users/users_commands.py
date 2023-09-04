@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .user import UserModel
+from .user_model import UserModel
 
 
 async def create_user(user_id: int,

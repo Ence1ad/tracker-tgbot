@@ -1,4 +1,4 @@
-from settings import LENGTH_ACTION_NAME_LIMIT
+from settings import LENGTH_NAME_LIMIT
 
 
 async def valid_name(db_data, name: str) -> str | None:
@@ -6,4 +6,4 @@ async def valid_name(db_data, name: str) -> str | None:
         if str(name) in data:
             return None
     else:
-        return name[:LENGTH_ACTION_NAME_LIMIT]
+        return name[:LENGTH_NAME_LIMIT]

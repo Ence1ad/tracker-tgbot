@@ -17,17 +17,21 @@ from tgbot.keyboards.buttons_names import tracker_menu_buttons_stop, tracker_men
 # TODO трекер должен автоматом останавливаться через нужное время
 async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state: FSMContext, db_session: AsyncSession):
     user_id = call.from_user.id
-    start_time = call.message.date
+    # start_time = call.message.date
     action_name = callback_data.action_name
     action_id = callback_data.action_id
     state_data = await state.get_data()
     category_id = state_data['category_id']
     category_name = state_data['category_name']
     try:
-        await redis_hmset_tracker_data(user_id, call_date=start_time, action_id=action_id, action_name=action_name,
+        await redis_hmset_tracker_data(user_id,
+                                       # call_date=start_time,
+                                       action_id=action_id, action_name=action_name,
                                        category_id=category_id, category_name=category_name)
-        await create_tracker(user_id, category_name=category_name, action_id=action_id,
-                             track_start=start_time, db_session=db_session)
+        await create_tracker(user_id, category_id=category_id, action_id=action_id,
+                             # track_start=start_time,
+                             db_session=db_session
+                             )
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
         await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)
     except IntegrityError as ex:

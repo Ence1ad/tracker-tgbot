@@ -17,7 +17,7 @@ async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
             cte_stmt = \
                 select(TrackerModel.action_id,
                        # func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
-                       func.to_char(TrackerModel.track_start, 'D').label("day_of_week"),
+                       func.to_char(TrackerModel.track_start, 'ID').label("day_of_week"),
                        cast(func.round((func.extract('epoch',
                                         func.sum(TrackerModel.duration))/3600), 2).label("duration_action"),
                             Float)

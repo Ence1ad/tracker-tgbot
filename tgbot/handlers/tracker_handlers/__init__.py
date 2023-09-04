@@ -15,7 +15,7 @@ def register_tracker_handlers() -> Router:
 
     router = Router()
 
-    router.callback_query.register(get_tracker_options, F.data == 'trackers_btn')
+    router.callback_query.register(get_tracker_options, (F.data == 'trackers_btn') | (F.data == 'update_tracker_btn'))
     router.callback_query.register(select_category_tracker, F.data == 'new_tracker_btn')
     router.callback_query.register(display_actions_tracker,
                                    CategoryCD.filter(F.operation == CategoryOperation.READ_TRACKER))
@@ -26,5 +26,6 @@ def register_tracker_handlers() -> Router:
     router.callback_query.register(no_btn_handler, F.data == 'no_btn')
     router.callback_query.register(select_removing_tracker, F.data == 'delete_tracker_btn')
     router.callback_query.register(del_tracking_data, TrackerCD.filter(F.operation == TrackerOperation.DEL))
+    # router.callback_query.register(select_removing_tracker, F.data == 'update_tracker_btn')
 
     return router
