@@ -2,13 +2,18 @@ from datetime import datetime as dt, timedelta
 from settings import redis_client
 
 
-async def redis_create_user(user_id: int) -> int:
-    return int(await redis_client.hset(name='users', key=user_id, value=1))
+async def redis_add_user_id(user_id: int) -> int:
+    return await redis_client.sadd('users', user_id)
 
 
-async def redis_get_user(user_id: int) -> bool | None:
-    user_exists = await redis_client.hexists(name="users", key=user_id)
+async def is_redis_have_user(user_id) -> bool | None:
+    user_exists = await redis_client.sismember(name="users", value=user_id)
     return True if user_exists else False
+
+
+async def redis_get_members() -> set | None:
+    members = await redis_client.smembers(name="users")
+    return members if members else None
 
 
 async def redis_hmset_tracker_data(
@@ -20,7 +25,7 @@ async def redis_hmset_tracker_data(
         category_name: str
 ) -> None:
     call_date: dt = dt.now()
-    await redis_client.hmset(
+    await redis_client.hset(
         name=f"{user_id}_tracker",
         mapping={
             "start_time": str(call_date),
@@ -36,9 +41,6 @@ async def redis_hmset_tracker_data(
 async def redis_hget_tracker_data(user_id: int, key='') -> bytes | None:
     res = await redis_client.hget(name=f"{user_id}_tracker", key=key)
     return res if res else None
-
-async def redis_hset_tracker_data(user_id: int, key='', value='') -> bytes | None:
-    await redis_client.hset(name=f"{user_id}_tracker", key=key, value=value)
 
 
 async def is_redis_tracker_exist(user_id: int):

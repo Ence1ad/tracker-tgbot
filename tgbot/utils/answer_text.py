@@ -1,4 +1,4 @@
-from settings import LENGTH_NAME_LIMIT
+from settings import LENGTH_NAME_LIMIT, MAX_HOURS_DURATION_TRACKER
 
 # Common
 options_text = f"Select the button"
@@ -56,7 +56,7 @@ delete_tracker_text = "You have deleted the tracker"
 just_one_tracker = "You have only one tracker running. Do you want to stop the tracker?"
 not_enough_data_text = "I can't create a tracker. The data is not defined."
 already_delete_tracker_text = "You have already deleted the tracker"
-
+too_long_tracker = "can't work longer than {} hours, so it has been stopped and removed.".format(MAX_HOURS_DURATION_TRACKER)
 
 # for reports handlers
 send_report_text = "This is your weekly report"
