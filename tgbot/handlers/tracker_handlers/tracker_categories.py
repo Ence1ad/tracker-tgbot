@@ -1,9 +1,8 @@
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from cache.redis_commands import tracker_text
+from cache.redis_commands import redis_started_tracker
 from db.categories.categories_commands import select_categories
-from db.tracker.tracker_db_command import select_started_tracker
 from tgbot.keyboards.buttons_names import choice_buttons, new_category_button
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 from tgbot.utils.answer_text import select_category_text, already_launch_tracker_text, \
@@ -14,8 +13,8 @@ from tgbot.keyboards.callback_factories import CategoryOperation
 async def select_category_tracker(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
     await call.message.delete()
-    tracker = await select_started_tracker(user_id, db_session)
-    if not tracker:
+    started_tracker = await redis_started_tracker(user_id)
+    if not started_tracker:
         categories = await select_categories(user_id, db_session)
         if categories:
             markup = await callback_factories_kb(categories, CategoryOperation.READ_TRACKER)
@@ -25,5 +24,4 @@ async def select_category_tracker(call: CallbackQuery, db_session: AsyncSession)
             await call.message.answer(text=empty_categories_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(choice_buttons)
-        track_text = await tracker_text(user_id)
-        await call.message.answer(text=already_launch_tracker_text + track_text, reply_markup=markup)
+        await call.message.answer(text=already_launch_tracker_text + started_tracker, reply_markup=markup)

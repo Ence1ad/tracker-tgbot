@@ -1,6 +1,7 @@
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from cache.redis_commands import redis_hget_tracker_data, redis_delete_tracker
 from db.categories.categories_commands import delete_category, select_categories
 from tgbot.keyboards.buttons_names import category_menu_buttons, new_category_button
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
@@ -25,6 +26,7 @@ async def del_category(call: CallbackQuery, callback_data: CategoryCD, db_sessio
     category_id = callback_data.category_id
     category_name = callback_data.category_name
     markup = await menu_inline_kb(category_menu_buttons)
+    await redis_hget_tracker_data(user_id, key="category_id") and await redis_delete_tracker(user_id)
     returning = await delete_category(user_id, category_id, db_session)
     if returning:
         await call.message.edit_text(text=f"{rm_category_text} {category_name}", reply_markup=markup)

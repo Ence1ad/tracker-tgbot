@@ -1,10 +1,8 @@
-from functools import lru_cache
-
 from aiogram import Bot
 from aiogram.fsm.storage import redis
 from redis.asyncio.client import Redis
 
-from configuration import settings
+from config import settings
 
 # Initialize bot
 BOT = Bot(settings.BOT_TOKEN, parse_mode='HTML')

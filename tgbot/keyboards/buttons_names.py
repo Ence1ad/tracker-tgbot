@@ -36,10 +36,7 @@ tracker_menu_buttons_stop = dict(
 
 # buttons for reports_kb.py
 reports_buttons = dict(
-    daily_report_btn='🗓 Daily report',
     weekly_report_btn='🗓 Weekly report',
-    monthly_report_btn='🗓 Monthly report',
-    annual_report_btn='🗓 Annual Report'
 )
 
 tracker_two_buttons = dict(

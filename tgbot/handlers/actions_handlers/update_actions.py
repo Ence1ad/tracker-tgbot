@@ -2,20 +2,33 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from cache.redis_commands import redis_hget_tracker_data, redis_started_tracker
 from db.actions.actions_db_commands import update_action, select_category_actions
 from tgbot.utils.validators import valid_name
-from tgbot.keyboards.buttons_names import actions_menu_buttons, new_action_button
+from tgbot.keyboards.buttons_names import actions_menu_buttons, new_action_button, choice_buttons
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 from tgbot.keyboards.callback_factories import ActionOperation, ActionCD
 from tgbot.utils.states import UpdateActionState, ActionState
 from tgbot.utils.answer_text import new_action_text, empty_actions_text, upd_action_text, \
-    accept_only_text, action_exists_text, action_not_exists_text, to_update_action_text
+    accept_only_text, action_exists_text, action_not_exists_text, to_update_action_text, launch_tracker_text, \
+    answer_stop_tracker_text
 
 
 async def select_action(call: CallbackQuery, state: FSMContext, callback_data: ActionCD):
+    user_id: int = call.from_user.id
     await call.message.edit_text(text=new_action_text)
-    await state.update_data(action_id=callback_data.action_id)
-    await state.set_state(UpdateActionState.GET_NAME)
+    action_id: int = callback_data.action_id
+    action_id_started_tracker: bytes = await redis_hget_tracker_data(user_id, 'action_id')
+    action_id_started_tracker: int = int(action_id_started_tracker.decode(encoding="utf-8"))
+    if action_id != action_id_started_tracker:
+        await state.update_data(action_id=callback_data.action_id)
+        await state.set_state(UpdateActionState.GET_NAME)
+    else:
+        started_tracker = await redis_started_tracker(user_id)
+        await call.message.delete()
+        markup = await menu_inline_kb(choice_buttons)
+        await call.message.answer(text=launch_tracker_text + started_tracker + answer_stop_tracker_text,
+                                  reply_markup=markup)
 
 
 async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext, db_session: AsyncSession):
@@ -56,9 +69,10 @@ async def upd_action(message: Message, state: FSMContext, db_session: AsyncSessi
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)
             markup = await menu_inline_kb(actions_menu_buttons)
             if returning:
-                return await message.answer(text=
-                                            f"{upd_action_text} - {new_action_name} for category - {category_name}",
-                                            reply_markup=markup)
+                return await message.answer(
+                    text=f"{upd_action_text} - {new_action_name} for category - {category_name}",
+                         reply_markup=markup
+                )
             else:
                 return await message.answer(text=f"{action_not_exists_text}", reply_markup=markup)
         else:

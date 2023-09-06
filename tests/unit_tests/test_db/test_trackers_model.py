@@ -5,8 +5,7 @@ from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db.report.report_commands import get_report
-from db.tracker.tracker_db_command import create_tracker, select_started_tracker, update_tracker, delete_tracker, \
-    select_stopped_trackers
+from db.tracker.tracker_db_command import create_tracker, stop_tracker, delete_tracker, select_stopped_trackers
 
 
 @pytest.mark.usefixtures('add_action')
@@ -46,24 +45,24 @@ class TestTrackers:
             # assert tracker_obj.track_end is None
             assert tracker_obj.duration is None
 
-    @pytest.mark.parametrize(
-        "user_id, expectation",
-        [
-            (1111111111, does_not_raise()),
-            (-1, pytest.raises(AssertionError)),
-            ('1', pytest.raises(ProgrammingError)),
-            (None, pytest.raises(AssertionError)),
-        ]
-             )
-    async def test_select_started_tracker(
-            self,
-            session: AsyncSession,
-            user_id: int,
-            expectation: does_not_raise,
-    ):
-        with expectation:
-            trackers_fetchall = await select_started_tracker(user_id, db_session=session)
-            assert len(trackers_fetchall) > 0
+    # @pytest.mark.parametrize(
+    #     "user_id, expectation",
+    #     [
+    #         (1111111111, does_not_raise()),
+    #         (-1, pytest.raises(AssertionError)),
+    #         ('1', pytest.raises(ProgrammingError)),
+    #         (None, pytest.raises(AssertionError)),
+    #     ]
+    #          )
+    # async def test_select_started_tracker(
+    #         self,
+    #         session: AsyncSession,
+    #         user_id: int,
+    #         expectation: does_not_raise,
+    # ):
+    #     with expectation:
+    #         trackers_scalar_one_or_none = await select_started_tracker(user_id, db_session=session)
+    #         assert trackers_scalar_one_or_none is not None
 
     @pytest.mark.parametrize(
         ['user_id', 'tracker_id', 'expectation'],
@@ -77,7 +76,7 @@ class TestTrackers:
             (None, 1, pytest.raises(AssertionError)),
         ]
              )
-    async def test_update_tracker(
+    async def test_stop_tracker(
             self,
             session: AsyncSession,
             user_id: int,
@@ -85,7 +84,7 @@ class TestTrackers:
             expectation: does_not_raise,
     ):
         with expectation:
-            duration_returning = await update_tracker(user_id, tracker_id, db_session=session)
+            duration_returning = await stop_tracker(user_id, tracker_id, db_session=session)
             assert duration_returning is not None
 
     @pytest.mark.parametrize(

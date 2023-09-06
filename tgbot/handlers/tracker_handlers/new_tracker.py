@@ -24,14 +24,14 @@ async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state
     category_id = state_data['category_id']
     category_name = state_data['category_name']
     try:
+        tracker_id = str(await create_tracker(user_id,
+                                              category_id=category_id,
+                                              action_id=action_id,
+                                              db_session=db_session))
         await redis_hmset_tracker_data(user_id,
-                                       # call_date=start_time,
+                                       tracker_id=tracker_id,
                                        action_id=action_id, action_name=action_name,
                                        category_id=category_id, category_name=category_name)
-        await create_tracker(user_id, category_id=category_id, action_id=action_id,
-                             # track_start=start_time,
-                             db_session=db_session
-                             )
         markup = await menu_inline_kb(tracker_menu_buttons_stop)
         await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)
     except IntegrityError as ex:

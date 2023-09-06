@@ -9,7 +9,7 @@ from db.categories.categories_model import CategoriesModel
 
 
 @pytest.mark.asyncio
-@pytest.mark.usefixtures('add_user', 'add_category')
+@pytest.mark.usefixtures('add_user')
 class TestCategories:
     @pytest.mark.parametrize(
         "user_id, category_name, expectation",

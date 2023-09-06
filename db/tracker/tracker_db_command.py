@@ -2,7 +2,7 @@
 from datetime import timedelta, datetime
 from typing import Any
 
-from sqlalchemy import Sequence, Date, Row
+from sqlalchemy import Sequence, Date, Row, desc
 from sqlalchemy import select, delete, update, func, cast
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,30 +40,30 @@ async def select_stopped_trackers(user_id: int, db_session: AsyncSession) -> Seq
                 .join(ActionsModel) \
                 .where(TrackerModel.user_id == user_id,
                        cast(TrackerModel.track_end, Date) == func.current_date(),
-                       TrackerModel.duration.is_not(None))
+                       TrackerModel.duration.is_not(None)).order_by(desc(TrackerModel.tracker_id)).limit(100)
             res = await session.execute(stmt)
             return res.fetchall()
 
 
-async def select_started_tracker(user_id: int, db_session: AsyncSession) -> Any | None:
-    async with db_session as session:
-        async with session.begin():
-            stmt = \
-                select(TrackerModel.tracker_id,
-                       TrackerModel.track_start,
-                       ActionsModel.action_name,
-                       ) \
-                .join_from(from_=TrackerModel,
-                           target=ActionsModel,
-                           onclause=TrackerModel.action_id == ActionsModel.action_id) \
-                .where(TrackerModel.user_id == user_id,
-                       TrackerModel.duration.is_(None))
-            res = await session.execute(stmt)
-            return res.fetchall()
+# async def select_started_tracker(user_id: int, db_session: AsyncSession) -> Any | None:
+#     async with db_session as session:
+#         async with session.begin():
+#             stmt = \
+#                 select(TrackerModel.tracker_id,
+#                        TrackerModel.track_start,
+#                        ActionsModel.action_name,
+#                        ) \
+#                 .join_from(from_=TrackerModel,
+#                            target=ActionsModel,
+#                            onclause=TrackerModel.action_id == ActionsModel.action_id) \
+#                 .where(TrackerModel.user_id == user_id,
+#                        TrackerModel.duration.is_(None))
+#             res = await session.execute(stmt)
+#             return res.scalar_one_or_none()
 
 
-async def update_tracker(user_id: int, tracker_id: int,
-                         db_session: AsyncSession) -> timedelta | None:
+async def stop_tracker(user_id: int, tracker_id: int,
+                       db_session: AsyncSession) -> timedelta | None:
     async with db_session as session:
         async with session.begin():
             udp_stmt = \

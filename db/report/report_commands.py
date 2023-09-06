@@ -34,6 +34,7 @@ async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
                           cast(TrackerModel.track_start, Date)
                           )\
                 .order_by(TrackerModel.tracker_id)\
+                .limit(100)\
                 .cte()
 
             stmt = \
@@ -44,7 +45,7 @@ async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
                 .select_from(cte_stmt)\
                 .join(ActionsModel)\
                 .group_by(ActionsModel.action_name,
-                          text("day_of_week"))
+                          text("day_of_week")).order_by(text("day_of_week"))
 
             report = await session.execute(stmt)
             return report.fetchall()

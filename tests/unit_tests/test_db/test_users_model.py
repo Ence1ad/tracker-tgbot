@@ -8,6 +8,8 @@ from db.users.user_model import UserModel
 from db.users.users_commands import create_user
 
 
+@pytest.mark.usefixtures('add_user')
+@pytest.mark.asyncio
 class TestUsers:
     @pytest.mark.parametrize(
         "user_id, first_name, last_name, username, expectation",
@@ -27,7 +29,6 @@ class TestUsers:
             (1000000010, 123, 123, 123, pytest.raises(DBAPIError)),
         ]
     )
-    @pytest.mark.asyncio
     async def test_create_user(
             self,
             session: AsyncSession,

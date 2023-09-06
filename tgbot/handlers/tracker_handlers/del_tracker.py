@@ -12,7 +12,6 @@ from tgbot.keyboards.callback_factories import TrackerOperation, TrackerCD
 async def select_removing_tracker(call: CallbackQuery, db_session: AsyncSession):
     user_id = call.from_user.id
     tracker = await select_stopped_trackers(user_id, db_session)
-    tracker = tracker
     if tracker:
         # await call.message.delete()
         markup = await callback_factories_kb(tracker, enum_val=TrackerOperation.DEL)

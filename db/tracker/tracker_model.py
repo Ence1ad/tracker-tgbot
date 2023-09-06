@@ -24,3 +24,5 @@ class TrackerModel(SqlAlchemyBase):
     # categories = relationship("CategoriesModel", back_populates="trackers", lazy='joined')
     # actions: Mapped["ActionsModel"] = relationship(backref="actions", lazy='joined')
 
+    def __str__(self):
+        return str(self.tracker_id)
