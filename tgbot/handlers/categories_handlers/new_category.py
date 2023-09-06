@@ -29,16 +29,16 @@ async def get_category_name_from_user(message: Message, state: FSMContext, db_se
     user_id: int = message.from_user.id
     await state.update_data(category_name=message.text)
     state_data = await state.get_data()
-    category_name = state_data['category_name']
+    new_category_name = state_data['category_name']
     user_categories = await select_categories(user_id, db_session)
-    checking_name = await valid_name(user_categories, category_name)
+    new_category_valid_name = await valid_name(user_categories, new_category_name)
 
-    if checking_name:
+    if new_category_valid_name:
         await state.clear()
-        await create_category(user_id, checking_name, db_session)
+        await create_category(user_id, new_category_valid_name, db_session)
         markup = await menu_inline_kb(category_menu_buttons)
         await message.answer(text=added_new_category_text, reply_markup=markup)
 
     else:
         await message.answer(
-            text=f"{category_name} {category_exists_text}")
+            text=f"{new_category_name} {category_exists_text}")

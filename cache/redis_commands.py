@@ -37,6 +37,9 @@ async def redis_hget_tracker_data(user_id: int, key='') -> bytes | None:
     res = await redis_client.hget(name=f"{user_id}_tracker", key=key)
     return res if res else None
 
+async def redis_hset_tracker_data(user_id: int, key='', value='') -> bytes | None:
+    await redis_client.hset(name=f"{user_id}_tracker", key=key, value=value)
+
 
 async def is_redis_tracker_exist(user_id: int):
     tracker_exists = await redis_client.hexists(f'{user_id}_tracker', "start_time")
@@ -59,3 +62,23 @@ async def redis_started_tracker(user_id: int) -> str:
         text.extend([category_name, action_name, duration])
         text = '\n\r'.join(text)
         return text
+
+
+async def redis_upd_tracker(
+        user_id: int,
+        tracker_id=None,
+        action_id=None,
+        action_name=None,
+        category_id=None,
+        category_name=None
+) -> None:
+    tracker_data = await redis_client.hgetall(f"{user_id}_tracker")
+    if tracker_data:
+        await redis_hmset_tracker_data(
+            user_id,
+            tracker_id=tracker_id or tracker_data[b'tracker_id'],
+            action_id=action_id or tracker_data[b'action_id'],
+            action_name=action_name or tracker_data[b'action_name'],
+            category_id=category_id or tracker_data[b'category_id'],
+            category_name=category_name or tracker_data[b'category_name']
+        )

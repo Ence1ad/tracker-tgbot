@@ -37,18 +37,19 @@ async def create_action_handler(message: Message, state: FSMContext, db_session:
     state_data = await state.get_data()
     # Get category_id from cache
     category_id = state_data['category_id']
+    new_action_name = state_data['action_name']
     # If message not a text message
-    if not state_data['action_name']:
+    if not new_action_name:
         await message.answer(text=f"{accept_only_text}")
     else:  # If message a text
         # Get user_actions from db
         user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
-        checking_name = await valid_name(user_actions, state_data['action_name'])
-        if checking_name:
-            await create_actions(user_id, checking_name, category_id=category_id, db_session=db_session)
+        new_action_valid_name = await valid_name(user_actions, new_action_name)
+        if new_action_valid_name:
+            await create_actions(user_id, new_action_valid_name, category_id=category_id, db_session=db_session)
             markup = await menu_inline_kb(actions_menu_buttons)
-            await message.answer(text=f"{added_new_action_text}: {checking_name}", reply_markup=markup)
+            await message.answer(text=f"{added_new_action_text}: {new_action_valid_name}", reply_markup=markup)
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)
         else:
             await message.answer(
-                text=f"{state_data['action_name']} {action_exists_text}")
+                text=f"{new_action_name} {action_exists_text}")
