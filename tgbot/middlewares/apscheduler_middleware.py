@@ -6,7 +6,7 @@ from apscheduler_di import ContextSchedulerDecorator
 
 
 class SchedulerMiddleware(BaseMiddleware):
-    def __init__(self, scheduler: ContextSchedulerDecorator):
+    def __init__(self, scheduler: ContextSchedulerDecorator) -> None:
         super().__init__()
         self.scheduler = scheduler
 

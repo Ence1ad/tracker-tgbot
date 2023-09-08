@@ -1,4 +1,5 @@
 from aiogram.types import Message
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import redis_started_tracker, is_redis_tracker_exist, redis_add_user_id, is_redis_have_user
@@ -8,29 +9,30 @@ from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import user_in_db_text, new_user_text, launch_tracker_text
 
 
-async def command_start_handler(message: Message, db_session: AsyncSession) -> None:
+async def command_start_handler(message: Message, db_session: AsyncSession, redis_client: Redis) -> None:
     """
     Function react to tap on "/start" command. Function check if user exist in db,
     function just return some answer as message, else create user in db and return answer as message.
     :param message: Message
     :param db_session: AsyncSession
+    :param redis_client: Redis
     :return: Coroutine[Any]
     """
     user_id: int = message.from_user.id
     await message.delete()
-    user_from_cache: bool = await is_redis_have_user(user_id)
+    user_from_cache: bool = await is_redis_have_user(user_id, redis_client)
     # Get keyboard
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
     if user_from_cache:
-        if await is_redis_tracker_exist(user_id):
-            started_text = await redis_started_tracker(user_id)
+        if await is_redis_tracker_exist(user_id, redis_client):
+            started_text = await redis_started_tracker(user_id, redis_client)
             await message.answer(text=launch_tracker_text + started_text, reply_markup=start_markup)
         else:
             await message.answer(text=user_in_db_text, reply_markup=start_markup)
     else:
         # Add a new user to the cache
-        await redis_add_user_id(user_id)
+        await redis_add_user_id(user_id, redis_client)
         # Add a new user to the database
         await create_user(
             user_id=user_id,

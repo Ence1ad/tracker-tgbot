@@ -1,2 +1,1 @@
-from tgbot.handlers import *
 

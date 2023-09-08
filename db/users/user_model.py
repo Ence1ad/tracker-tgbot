@@ -26,7 +26,7 @@ class UserModel(SqlAlchemyBase):
         # Index('title_content_index' 'title', 'content'),  # composite index on title and content
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.user_id)
 
 

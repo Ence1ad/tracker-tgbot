@@ -1,11 +1,12 @@
-from sqlalchemy import select, delete, update, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, delete, update, Sequence, Row
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from ..categories.categories_model import CategoriesModel
 from .actions_models import ActionsModel
 
 
-async def create_actions(user_id: int, action_name: str, category_id: int, db_session: AsyncSession) -> ActionsModel:
+async def create_actions(user_id: int, action_name: str, category_id: int,
+                         db_session: async_sessionmaker[AsyncSession]) -> ActionsModel:
     async with db_session as session:
         async with session.begin():
             action_obj: ActionsModel = \
@@ -18,7 +19,8 @@ async def create_actions(user_id: int, action_name: str, category_id: int, db_se
         return action_obj
 
 
-async def select_category_actions(user_id: int, category_id: int, db_session: AsyncSession):
+async def select_category_actions(user_id: int, category_id: int, db_session: async_sessionmaker[AsyncSession]
+                                  ) -> Sequence[Row[int, str]]:
     async with db_session as session:
         async with session.begin():
             stmt = \
@@ -34,7 +36,7 @@ async def select_category_actions(user_id: int, category_id: int, db_session: As
             return res.fetchall()
 
 
-async def delete_action(user_id: int, action_id: int, db_session: AsyncSession) -> int | None:
+async def delete_action(user_id: int, action_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
     async with db_session as session:
         async with session.begin():
             del_stmt = \
@@ -46,7 +48,8 @@ async def delete_action(user_id: int, action_id: int, db_session: AsyncSession) 
             return returning.scalar_one_or_none()
 
 
-async def update_action(user_id: int, action_id: int, new_action_name: str, db_session: AsyncSession) -> int | None:
+async def update_action(user_id: int, action_id: int, new_action_name: str,
+                        db_session: async_sessionmaker[AsyncSession]) -> int | None:
     async with db_session as session:
         async with session.begin():
             udp_stmt = \
@@ -59,13 +62,14 @@ async def update_action(user_id: int, action_id: int, new_action_name: str, db_s
             return returning.scalar_one_or_none()
 
 
-async def select_action_count(user_id: int, category_id: int, db_session: AsyncSession) -> int | None:
-    async with db_session as session:
-        async with session.begin():
-            stmt = \
-                select(func.count(ActionsModel.action_id))\
-                .where(ActionsModel.user_id == user_id,
-                       ActionsModel.category_id == category_id)
-
-            action_cnt = await session.execute(stmt)
-            return action_cnt.scalar_one_or_none()
+# async def select_action_count(user_id: int, category_id: int,
+#                               db_session: async_sessionmaker[AsyncSession]) -> int | None:
+#     async with db_session as session:
+#         async with session.begin():
+#             stmt = \
+#                 select(func.count(ActionsModel.action_id))\
+#                 .where(ActionsModel.user_id == user_id,
+#                        ActionsModel.category_id == category_id)
+#
+#             action_cnt = await session.execute(stmt)
+#             return action_cnt.scalar_one_or_none()

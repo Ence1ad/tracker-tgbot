@@ -13,3 +13,4 @@ pytest-dotenv==0.5.2
 pytest-async-sqlalchemy==0.2.0
 apscheduler==3.10.4
 apscheduler-di==0.1.0
+ruff==0.0.287

@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
@@ -118,7 +118,7 @@ class TestTrackers:
     async def test_get_report(
             self,
             user_id: int,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             expectation: does_not_raise
     ):
         with expectation:

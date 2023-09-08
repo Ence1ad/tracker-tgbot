@@ -1,10 +1,11 @@
 import logging
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from apscheduler_di import ContextSchedulerDecorator
+from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.redis_commands import redis_hmset_tracker_data
 from tgbot.schedule.schedule_jobs import delete_tracker_job
@@ -16,32 +17,26 @@ from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.buttons_names import tracker_menu_buttons_stop, tracker_menu_buttons_start
 
 
-async def create_new_tracker(call: CallbackQuery,
-                             callback_data: ActionCD,
-                             state: FSMContext,
-                             db_session: AsyncSession,
-                             apscheduler: ContextSchedulerDecorator):
+async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state: FSMContext,
+                             db_session: async_sessionmaker[AsyncSession], apscheduler: ContextSchedulerDecorator,
+                             redis_client: Redis
+                             ) -> Message:
     user_id = call.from_user.id
-    # start_time = call.message.date
     action_name = callback_data.action_name
     action_id = callback_data.action_id
     state_data = await state.get_data()
     category_id = state_data['category_id']
     category_name = state_data['category_name']
     try:
-        tracker_id = str(await create_tracker(user_id,
-                                              category_id=category_id,
-                                              action_id=action_id,
+        tracker_id = str(await create_tracker(user_id, category_id=category_id, action_id=action_id,
                                               db_session=db_session))
-        await redis_hmset_tracker_data(user_id,
-                                       tracker_id=tracker_id,
-                                       action_id=action_id, action_name=action_name,
-                                       category_id=category_id, category_name=category_name)
-        markup = await menu_inline_kb(tracker_menu_buttons_stop)
-        await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)
-        # If user did not stop the tracker will be deleted automaticly
+        await redis_hmset_tracker_data(user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
+                                       category_id=category_id, category_name=category_name, redis_client=redis_client)
+        # If user did not stop the tracker will be deleted automatically
         await delete_tracker_job(scheduler=apscheduler, call=call)
+        markup = await menu_inline_kb(tracker_menu_buttons_stop)
+        return await call.message.edit_text(text=f"{new_tracker_text} {action_name}", reply_markup=markup)
     except IntegrityError as ex:
         logging.exception(ex)
         markup = await menu_inline_kb(tracker_menu_buttons_start)
-        await call.message.edit_text(text=f"{not_enough_data_text}", reply_markup=markup)
+        return await call.message.edit_text(text=f"{not_enough_data_text}", reply_markup=markup)

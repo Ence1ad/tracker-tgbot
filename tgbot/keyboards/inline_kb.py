@@ -1,5 +1,9 @@
+from enum import Enum
+
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy import Sequence
 
 from tgbot.keyboards.buttons_names import exit_btn, cancel_btn
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
@@ -24,7 +28,7 @@ async def menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
     return kb_builder.as_markup()
 
 
-async def callback_factories_kb(data_from_db: list, enum_val) -> InlineKeyboardMarkup:
+async def callback_factories_kb(data_from_db: Sequence, enum_val: Enum) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
     get_kb = {

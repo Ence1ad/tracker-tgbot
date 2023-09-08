@@ -1,6 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from sqlalchemy.ext.asyncio import AsyncSession
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.redis_commands import redis_upd_tracker
 from db.categories.categories_commands import update_category, select_categories
@@ -13,25 +14,26 @@ from tgbot.keyboards.callback_factories import CategoryOperation, CategoryCD
 from tgbot.utils.states import UpdateCategoryState
 
 
-async def select_update_category(call: CallbackQuery, db_session: AsyncSession):
+async def select_update_category(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession]) -> Message:
     user_id = call.from_user.id
     categories = await select_categories(user_id, db_session)
     if categories:
         markup = await callback_factories_kb(categories, CategoryOperation.UDP)
-        await call.message.edit_text(text=select_category_text, reply_markup=markup)
+        return await call.message.edit_text(text=select_category_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(new_category_button)
-        await call.message.edit_text(text=empty_categories_text, reply_markup=markup)
+        return await call.message.edit_text(text=empty_categories_text, reply_markup=markup)
 
 
-async def select_category(call: CallbackQuery, state: FSMContext, callback_data: CategoryCD):
+async def select_category(call: CallbackQuery, state: FSMContext, callback_data: CategoryCD) -> None:
     await call.message.edit_text(text=new_category_text)
     category_id: int = callback_data.category_id
     await state.update_data(category_id=category_id, category_old_name=callback_data.category_name)
     await state.set_state(UpdateCategoryState.WAIT_CATEGORY_DATA)
 
 
-async def upd_category(message: Message, state: FSMContext, db_session: AsyncSession):
+async def upd_category(message: Message, state: FSMContext, db_session: async_sessionmaker[AsyncSession],
+                       redis_client: Redis) -> Message:
     await message.delete()
     await state.update_data(category_name=message.text)
     user_id: int = message.from_user.id
@@ -52,7 +54,7 @@ async def upd_category(message: Message, state: FSMContext, db_session: AsyncSes
             await state.clear()
             returning = await update_category(user_id, category_id, new_category_valid_name, db_session)
             if returning:
-                await redis_upd_tracker(user_id, category_name=new_category_valid_name)
+                await redis_upd_tracker(user_id, redis_client, category_name=new_category_valid_name)
                 await message.answer(text=f"{upd_category_text} {category_old_name} -> {new_category_valid_name}",
                                      reply_markup=markup)
             else:

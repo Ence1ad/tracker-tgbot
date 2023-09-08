@@ -1,6 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from db.actions.actions_db_commands import select_category_actions
 from tgbot.keyboards.callback_factories import CategoryCD
@@ -22,7 +22,7 @@ async def get_actions_options(call: CallbackQuery, callback_data: CategoryCD, st
     )
 
 
-async def display_actions(call: CallbackQuery, state: FSMContext, db_session: AsyncSession):
+async def display_actions(call: CallbackQuery, state: FSMContext, db_session: async_sessionmaker[AsyncSession]):
     user_id = call.from_user.id
     state_data = await state.get_data()
     category_id = state_data['category_id']

@@ -1,13 +1,13 @@
 from sqlalchemy import Integer, Sequence, Date, Float
 from sqlalchemy import select, extract, cast, func, and_, text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from settings import USER_WEEK_TRACKERS_LIMIT
+from config import settings
 from ..actions.actions_models import ActionsModel
 from ..tracker.tracker_model import TrackerModel
 
 
-async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
+async def get_report(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> Sequence:
     async with db_session as session:
         async with session.begin():
             # Get last monday
@@ -35,7 +35,7 @@ async def get_report(user_id: int, db_session: AsyncSession) -> Sequence:
                           cast(TrackerModel.track_start, Date)
                           )\
                 .order_by(TrackerModel.tracker_id)\
-                .limit(USER_WEEK_TRACKERS_LIMIT)\
+                .limit(settings.USER_WEEK_TRACKERS_LIMIT)\
                 .cte()
 
             stmt = \

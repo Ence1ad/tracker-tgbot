@@ -3,66 +3,73 @@ import logging
 
 from aiogram import Dispatcher, Bot
 from aiogram.fsm.storage.redis import RedisStorage
+from redis.asyncio import Redis
 
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler_di import ContextSchedulerDecorator
-
+from config import settings
 from db.db_session import create_async_session
-from settings import DB_URL, redis_client, BOT, scheduler_jobstores, LOGGING_LEVEL
-from tgbot import register_common_handlers, register_actions_handlers, register_categories_handlers, \
+from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
-from tgbot.middlewares.apschedulermiddleware import SchedulerMiddleware
-from tgbot.middlewares.dbmiddleware import DbSessionMiddleware
+from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware
+from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 
 from tgbot.utils.bot_commands import my_commands
 
 
-async def start_bot(tgbot):
-    await my_commands(tgbot)
+async def start_bot(bot):
+    await my_commands(bot)
 
 
 async def main() -> None:
-    async_engine = create_async_engine(url=DB_URL, echo=False, pool_size=10, max_overflow=10)
-    async_session = await create_async_session(async_engine)
-
+    # Initialize sqlalchemy
+    async_engine = create_async_engine(url=settings.db_url, echo=False, query_cache_size=1200, pool_size=10,
+                                       max_overflow=10)
+    async_session: async_sessionmaker[AsyncSession] = await create_async_session(async_engine)
+    # Initialize bot
+    bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='HTML')
+    # Initialize redis
+    redis_client: Redis = Redis(connection_pool=settings.create_redis_pool)
+    storage = RedisStorage(redis=redis_client)
     # Dispatcher is a root router
-    dp = Dispatcher(storage=RedisStorage(redis=redis_client))
+    dp = Dispatcher(storage=storage)
     # Get commands
-    await start_bot(BOT)
-
-    scheduler = ContextSchedulerDecorator(AsyncIOScheduler(jobstores=scheduler_jobstores))
-    scheduler.ctx.add_instance(BOT, declared_class=Bot)
+    await start_bot(bot)
+    # Initialize apscheduler
+    scheduler = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_client,
+                                      storage=storage,
+                                      async_session=async_session)
 
     await interval_sending_reports_job(scheduler=scheduler)
 
     # Register middlewares
     dp.update.middleware.register(DbSessionMiddleware(async_session))
-    dp.update.middleware.register(SchedulerMiddleware(scheduler))
+    dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
+    dp.update.middleware.register(CacheMiddleware(redis_client))
     # Register handlers
     common_handlers_router = register_common_handlers()
     actions_router = register_actions_handlers()
     categories_router = register_categories_handlers()
     tracker_router = register_tracker_handlers()
     report_router = register_report_handlers()
-
     dp.include_routers(common_handlers_router, categories_router, actions_router, tracker_router, report_router)
 
     try:
         scheduler.start()
-        await dp.start_polling(BOT)
+        await dp.start_polling(bot)
     except Exception as ex:
         logging.error(ex)
     finally:
         await dp.storage.close()
         await async_engine.dispose()
         scheduler.shutdown()
-        await BOT.session.close()
+        await bot.session.close()
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=LOGGING_LEVEL)
-    logging.getLogger('apscheduler').setLevel(LOGGING_LEVEL)
+    logging.basicConfig(level=settings.LEVEL,
+                        format=settings.FORMAT,
+                        )
+    logging.getLogger('apscheduler').setLevel(settings.LEVEL)
     asyncio.run(main())

@@ -21,7 +21,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - ./db_data:/var/lib/postgresql/data
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
   cache:
@@ -34,7 +34,7 @@ services:
       - '6378:6378'
     command: redis-server
     volumes:
-      - cache:/data
+      - ./cache:/data
 
   tgbot:
     build:

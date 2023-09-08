@@ -7,7 +7,7 @@ from data_preparation.datetime_data import new_sheet_name, current_week_data
 from tgbot.utils.answer_text import xlsx_title
 
 
-async def create_bar(sheet_name=xlsx_title, max_col=6, *, rows):
+async def create_bar(sheet_name: str = xlsx_title, max_col: int = 6, *, rows: list) -> None:
     wb = Workbook(write_only=True)
     ws = wb.create_sheet(title=f"week - {new_sheet_name}")
     for row in rows:
@@ -31,7 +31,7 @@ async def create_bar(sheet_name=xlsx_title, max_col=6, *, rows):
     wb.save(sheet_name)
 
 
-async def horizontal_bar_chart(chart1, ws):
+async def horizontal_bar_chart(chart1: BarChart, ws) -> None:
     chart2 = deepcopy(chart1)
     chart2.style = 10
     chart2.type = "bar"
@@ -40,7 +40,7 @@ async def horizontal_bar_chart(chart1, ws):
 
 
 #
-async def stacked_chart(chart1, ws):
+async def stacked_chart(chart1: BarChart, ws) -> None:
     chart3 = deepcopy(chart1)
     chart3.type = "col"
     chart3.style = 10
@@ -50,7 +50,7 @@ async def stacked_chart(chart1, ws):
     ws.add_chart(chart3, "A27")
 
 
-async def percent_stacked_hart(chart1, ws):
+async def percent_stacked_hart(chart1: BarChart, ws) -> None:
     chart4 = deepcopy(chart1)
     chart4.type = "bar"
     chart4.style = 10
