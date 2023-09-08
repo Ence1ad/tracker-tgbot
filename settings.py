@@ -14,7 +14,8 @@ DB_URL: str = settings.db_url
 pool: ConnectionPool = redis.ConnectionPool(
     host=settings.REDIS_HOST,
     port=settings.REDIS_PORT,
-    db=settings.REDIS_DB
+    db=settings.REDIS_DB,
+    max_connections=10
 )
 redis_client: Redis = Redis(connection_pool=pool)
 
@@ -28,8 +29,10 @@ scheduler_jobstores = {
     )
 }
 
+LOGGING_LEVEL = settings.LEVEL
 
 LENGTH_NAME_LIMIT: int = 20
 USER_ACTIONS_LIMIT: int = 10
 USER_CATEGORIES_LIMIT: int = 10
+USER_WEEK_TRACKERS_LIMIT: int = 100
 MAX_HOURS_DURATION_TRACKER: int = 1

@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 from apscheduler_di import ContextSchedulerDecorator
 
 from settings import MAX_HOURS_DURATION_TRACKER
-from tgbot.schedul.schedule_funcs import schedule_delete_tracker, schedule_weekly_report
+from tgbot.schedule.schedule_funcs import schedule_delete_tracker, schedule_weekly_report
 
 
 async def delete_tracker_job(

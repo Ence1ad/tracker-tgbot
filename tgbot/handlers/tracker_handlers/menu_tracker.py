@@ -1,5 +1,4 @@
 from aiogram.types import CallbackQuery
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import redis_started_tracker
 from tgbot.keyboards.buttons_names import tracker_menu_buttons_start, tracker_menu_buttons_stop

@@ -11,7 +11,7 @@ def register_tracker_handlers() -> Router:
     from .new_tracker import create_new_tracker
     from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, TrackerCD, \
         TrackerOperation, ActionCD, ActionOperation
-    from ...utils.states import TrackerState
+    from tgbot.utils.states import TrackerState
 
     router = Router()
 

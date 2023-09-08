@@ -8,14 +8,15 @@ class RedisSettings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_DB: int
+    REDIS_PASSWORD: str
 
 
 class PostgresSettings(BaseSettings):
-    PG_USER: str
-    PG_PASSWORD: str
-    PG_HOST: str
-    PG_PORT: int
-    DB_NAME: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
 
 
 class TgBotSettings(BaseSettings):
@@ -25,9 +26,9 @@ class TgBotSettings(BaseSettings):
     ADMIN_TEL: str
 
 
-# class Logging(BaseSettings):
-#     format: str = Field(env='')
-#     debug: bool = Field(env='')
+class LoggingSettings(BaseSettings):
+    LEVEL: int
+#     FORMAT: str
 #
 #
 # class Webhooks(BaseSettings):
@@ -37,19 +38,20 @@ class TgBotSettings(BaseSettings):
 #     webapp_port: int = Field(env='')
 
 
-class Settings(TgBotSettings, PostgresSettings, RedisSettings, BaseSettings):
-    model_config = SettingsConfigDict(env_file='.dev.env', env_file_encoding='utf-8')
+class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings,  BaseSettings):
+    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
     TESTING: bool
 
     @property
     def db_url(self):
         return URL.create(
             drivername=f"postgresql+asyncpg",
-            username=self.PG_USER,
-            password=self.PG_PASSWORD,
-            host=self.PG_HOST,
-            port=self.PG_PORT,
-            database=self.DB_NAME
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_HOST,
+            port=self.POSTGRES_PORT,
+            database=self.POSTGRES_DB
         ).render_as_string(hide_password=False)
 
 

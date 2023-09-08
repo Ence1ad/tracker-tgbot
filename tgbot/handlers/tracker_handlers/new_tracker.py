@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_commands import redis_hmset_tracker_data
-from tgbot.schedul.schedule_jobs import delete_tracker_job
+from tgbot.schedule.schedule_jobs import delete_tracker_job
 from tgbot.utils.answer_text import new_tracker_text, not_enough_data_text
 from tgbot.keyboards.callback_factories import ActionCD
 

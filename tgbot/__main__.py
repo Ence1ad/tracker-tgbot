@@ -2,22 +2,22 @@ import asyncio
 import logging
 
 from aiogram import Dispatcher, Bot
+from aiogram.fsm.storage.redis import RedisStorage
 
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from apscheduler_di import ContextSchedulerDecorator
+
 from db.db_session import create_async_session
-from settings import DB_URL, redis_client, BOT, scheduler_jobstores
+from settings import DB_URL, redis_client, BOT, scheduler_jobstores, LOGGING_LEVEL
 from tgbot import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 from tgbot.middlewares.apschedulermiddleware import SchedulerMiddleware
 from tgbot.middlewares.dbmiddleware import DbSessionMiddleware
-from tgbot.schedul.schedule_jobs import schedule_weekly_report, interval_sending_reports_job
+from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 
 from tgbot.utils.bot_commands import my_commands
-from aiogram.fsm.storage.redis import RedisStorage
 
 
 async def start_bot(tgbot):
@@ -63,6 +63,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger('apscheduler').setLevel(logging.DEBUG)
-    asyncio.run(main(), debug=True)
+    logging.basicConfig(level=LOGGING_LEVEL)
+    logging.getLogger('apscheduler').setLevel(LOGGING_LEVEL)
+    asyncio.run(main())

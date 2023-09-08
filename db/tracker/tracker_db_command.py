@@ -1,6 +1,5 @@
 
 from datetime import timedelta, datetime
-from typing import Any
 
 from sqlalchemy import Sequence, Date, Row, desc
 from sqlalchemy import select, delete, update, func, cast
