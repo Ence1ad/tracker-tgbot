@@ -2,12 +2,13 @@
 select = ["ANN", "E", "F"]
 ignore = [
     "E501",
-    "ANN101"
+    "ANN101",
+    "F401"
 ]
 line-length = 120
 
 extend-exclude = [
-        ".bzr",
+    ".bzr",
     ".direnv",
     ".eggs",
     ".git",
