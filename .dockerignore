@@ -246,5 +246,5 @@ pytest.ini
 .gitignore
 LICENSE
 README.md
-.flake8
+.ruff_cache
 data_preparation/prepare_data.py

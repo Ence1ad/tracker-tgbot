@@ -10,4 +10,3 @@ async def command_cancel_handler(event, state: FSMContext):
     elif isinstance(event, CallbackQuery):
         await event.answer(text="See you soon!")
         await event.message.delete()
-        # await event.message.answer(text="Canceled")

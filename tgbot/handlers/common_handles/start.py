@@ -1,6 +1,6 @@
 from aiogram.types import Message
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.redis_commands import redis_started_tracker, is_redis_tracker_exist, redis_add_user_id, is_redis_have_user
 from db.users.users_commands import create_user
@@ -9,7 +9,7 @@ from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import user_in_db_text, new_user_text, launch_tracker_text
 
 
-async def command_start_handler(message: Message, db_session: AsyncSession, redis_client: Redis) -> None:
+async def command_start_handler(message: Message, db_session: async_sessionmaker[AsyncSession], redis_client: Redis) -> None:
     """
     Function react to tap on "/start" command. Function check if user exist in db,
     function just return some answer as message, else create user in db and return answer as message.

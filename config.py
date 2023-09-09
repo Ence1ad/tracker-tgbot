@@ -21,6 +21,8 @@ class PostgresSettings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
+    DB_USER: str
+    DB_USER_PASS: str
 
 
 class TgBotSettings(BaseSettings):
@@ -50,16 +52,16 @@ class LoggingSettings(BaseSettings):
 
 
 class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, ProjectSettings, BaseSettings):
-    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
-    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
     TESTING: bool
 
     @property
     def db_url(self) -> str:
         return URL.create(
             drivername="postgresql+asyncpg",
-            username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
+            username=self.DB_USER,
+            password=self.DB_USER_PASS,
             host=self.POSTGRES_HOST,
             port=self.POSTGRES_PORT,
             database=self.POSTGRES_DB
