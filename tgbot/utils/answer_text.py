@@ -28,7 +28,7 @@ category_limit_text = "You have reached the limit of the number of categories fo
 
 # text for actions handlers
 new_action_text = "Write the name of the action below."
-show_action_text = "Your actions for the category: "
+show_action_text = "Your actions for the category "
 to_delete_action_text = "Select the action to delete"
 select_action_text = "Select the action"
 to_update_action_text = "Select the action to update"

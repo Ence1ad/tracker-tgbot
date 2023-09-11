@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from redis.asyncio import Redis
@@ -22,10 +24,9 @@ async def select_action(call: CallbackQuery, state: FSMContext, callback_data: A
 
 
 async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext,
-                                         db_session: async_sessionmaker[AsyncSession]):
+                                         db_session: async_sessionmaker[AsyncSession]) -> None:
     user_id = call.from_user.id
     state_data = await state.get_data()
-    # Get category_id from cache
     category_id = state_data['category_id']
     actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
     if actions:
@@ -43,8 +44,6 @@ async def upd_action(message: Message, state: FSMContext, db_session: async_sess
     user_id = message.from_user.id
     state_data = await state.get_data()
     new_action_name: str = state_data['action_name']
-    action_id = state_data['action_id']
-    category_name = state_data['category_name']
 
     # Is the text checking
     if not new_action_name:
@@ -52,21 +51,30 @@ async def upd_action(message: Message, state: FSMContext, db_session: async_sess
 
     else:  # If message a text
         state_data = await state.get_data()
-        # Get category_id from cache
         category_id = state_data['category_id']
         user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
         new_action_valid_name = await valid_name(user_actions, new_action_name)
         if new_action_valid_name:
-            returning = await update_action(user_id, action_id, new_action_valid_name, db_session=db_session)
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)
-            markup = await menu_inline_kb(actions_menu_buttons)
-            if returning:
-                await redis_upd_tracker(user_id, redis_client, action_name=new_action_valid_name)
-                return await message.answer(
-                    text=f"{upd_action_text} - {new_action_valid_name} for category - {category_name}",
-                         reply_markup=markup
-                )
-            else:
-                return await message.answer(text=f"{action_not_exists_text}", reply_markup=markup)
+            await _udp_action(message=message, redis_client=redis_client, state_data=state_data, db_session=db_session,
+                              new_action_name=new_action_valid_name)
         else:
             return await message.answer(text=f"{new_action_name} {action_exists_text}")
+
+
+async def _udp_action(message: Message, redis_client: Redis, state_data: dict[str: Any],
+                      db_session: async_sessionmaker[AsyncSession], new_action_name: str) -> Message:
+    user_id: int = message.from_user.id
+    action_id = state_data['action_id']
+    category_name = state_data['category_name']
+    returning = await update_action(user_id=user_id, action_id=action_id,
+                                    new_action_name=new_action_name, db_session=db_session)
+    markup = await menu_inline_kb(actions_menu_buttons)
+    if returning:
+        await redis_upd_tracker(user_id=user_id, redis_client=redis_client, action_name=new_action_name)
+        return await message.answer(
+            text=f"{upd_action_text} - {new_action_name} for category - {category_name}",
+            reply_markup=markup
+        )
+    else:
+        return await message.answer(text=f"{action_not_exists_text}", reply_markup=markup)

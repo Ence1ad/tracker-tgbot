@@ -33,9 +33,9 @@ class TgBotSettings(BaseSettings):
 
 
 class ProjectSettings(BaseSettings):
-    LENGTH_NAME_LIMIT: int = Field(default=10)
-    USER_ACTIONS_LIMIT: int = Field(default=2)
-    USER_CATEGORIES_LIMIT: int = Field(default=2)
+    LENGTH_NAME_LIMIT: int = Field(default=20)
+    USER_ACTIONS_LIMIT: int = Field(default=10)
+    USER_CATEGORIES_LIMIT: int = Field(default=10)
     USER_WEEK_TRACKERS_LIMIT: int = Field(default=100)
     MAX_HOURS_DURATION_TRACKER: int = Field(default=23)
 
@@ -52,8 +52,8 @@ class LoggingSettings(BaseSettings):
 
 
 class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, ProjectSettings, BaseSettings):
-    # model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
     TESTING: bool
 
     @property

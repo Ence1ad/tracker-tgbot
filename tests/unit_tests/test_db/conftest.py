@@ -59,8 +59,8 @@ async def session(async_engine, create_drop_models):
 async def add_user(session):
     user_id: int = USER_ID
     for i in range(3):
-        await create_user(user_id=user_id + i, first_name='', last_name='', username='',
-                                                db_session=session)
+        user_obj = await create_user(user_id=user_id + i, first_name='', last_name='', username='',
+                                     db_session=session)
     # yield user_obj
     # await session.execute(sa.delete(UserModel).where(UserModel.user_id == user_id))
 

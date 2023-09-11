@@ -2,12 +2,13 @@ import asyncio
 
 from aiogram import Bot
 from aiogram.types import FSInputFile
+from pandas import DataFrame
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.redis_commands import redis_delete_tracker, redis_hget_tracker_data, redis_get_members
-from data_preparation.create_report import create_bar
-from data_preparation.pd_prepare import pd_data
+from data_preparation.create_report import create_fig
+from data_preparation.pd_prepare import pd_action_data, pd_category_data
 from db.report.report_commands import get_report
 from db.tracker.tracker_db_command import delete_tracker
 from tgbot.utils.answer_text import too_long_tracker, xlsx_title
@@ -29,8 +30,9 @@ async def schedule_weekly_report(bot: Bot, redis_client: Redis, async_session: a
     for user_id in members:
         report = await get_report(int(user_id), db_session=async_session)
         if report:
-            data = await pd_data(report)
-            await create_bar(rows=data, max_col=len(data) + 1)
+            action_data: DataFrame = await pd_action_data(report)
+            category_data: DataFrame = await pd_category_data(report)
+            await create_fig(df_action=action_data, df_categories=category_data)
             await asyncio.sleep(3)
             document = FSInputFile(xlsx_title)
             await bot.send_document(chat_id=user_id, document=document)

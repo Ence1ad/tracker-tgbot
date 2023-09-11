@@ -123,6 +123,7 @@ class TestTrackers:
     ):
         with expectation:
             res_fetchall = await get_report(user_id, db_session=session)
+            print(res_fetchall)
             assert res_fetchall != []
 
     @pytest.mark.parametrize(

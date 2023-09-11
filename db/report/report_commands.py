@@ -3,6 +3,7 @@ from sqlalchemy import select, extract, cast, func, and_, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from config import settings
+from .. import CategoriesModel
 from ..actions.actions_models import ActionsModel
 from ..tracker.tracker_model import TrackerModel
 
@@ -17,8 +18,8 @@ async def get_report(user_id: int, db_session: async_sessionmaker[AsyncSession])
 
             cte_stmt = \
                 select(TrackerModel.action_id,
-                       # func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
-                       func.to_char(TrackerModel.track_start, 'ID').label("day_of_week"),
+                       func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
+                       # func.to_char(TrackerModel.track_start, 'ID').label("day_of_week"),
                        cast(func.round((func.extract('epoch',
                                         func.sum(TrackerModel.duration))/3600), 2).label("duration_action"),
                             Float)
@@ -40,12 +41,14 @@ async def get_report(user_id: int, db_session: async_sessionmaker[AsyncSession])
 
             stmt = \
                 select(ActionsModel.action_name,
+                       CategoriesModel.category_name,
                        text("day_of_week"),
                        func.sum(text("duration_action"))
                        )\
                 .select_from(cte_stmt)\
                 .join(ActionsModel)\
-                .group_by(ActionsModel.action_name,
+                .join(CategoriesModel)\
+                .group_by(ActionsModel.action_name, CategoriesModel.category_name,
                           text("day_of_week")).order_by(text("day_of_week"))
 
             report = await session.execute(stmt)

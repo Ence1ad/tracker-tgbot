@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from redis.asyncio import Redis
@@ -39,8 +41,6 @@ async def upd_category(message: Message, state: FSMContext, db_session: async_se
     user_id: int = message.from_user.id
     state_data = await state.get_data()
     new_category_name: str = state_data['category_name']
-    category_id: int = state_data['category_id']
-    category_old_name = state_data['category_old_name']
 
     # Is the text checking
     if not isinstance(new_category_name, str):
@@ -49,15 +49,25 @@ async def upd_category(message: Message, state: FSMContext, db_session: async_se
     else:  # If message a text
         categories = await select_categories(user_id, db_session)
         new_category_valid_name = await valid_name(categories, new_category_name)
-        markup = await menu_inline_kb(category_menu_buttons)
+
         if new_category_valid_name:
             await state.clear()
-            returning = await update_category(user_id, category_id, new_category_valid_name, db_session)
-            if returning:
-                await redis_upd_tracker(user_id, redis_client, category_name=new_category_valid_name)
-                await message.answer(text=f"{upd_category_text} {category_old_name} -> {new_category_valid_name}",
-                                     reply_markup=markup)
-            else:
-                return await message.answer(text=categories_is_fake_text, reply_markup=markup)
+            await _udp_category(message=message, db_session=db_session, redis_client=redis_client,
+                                new_category_name=new_category_valid_name, state_data=state_data)
         else:
             return await message.answer(text=f"{new_category_name} {category_exists_text}")
+
+
+async def _udp_category(message: Message, db_session: async_sessionmaker[AsyncSession],
+                        redis_client: Redis, new_category_name: str, state_data: dict[str: Any]) -> Message:
+    user_id = message.from_user.id
+    category_id: int = state_data['category_id']
+    category_old_name = state_data['category_old_name']
+    returning = await update_category(user_id, category_id, new_category_name, db_session)
+    markup = await menu_inline_kb(category_menu_buttons)
+    if returning:
+        await redis_upd_tracker(user_id, redis_client, category_name=new_category_name)
+        return await message.answer(text=f"{upd_category_text} {category_old_name} -> {new_category_name}",
+                                    reply_markup=markup)
+    else:
+        return await message.answer(text=categories_is_fake_text, reply_markup=markup)
