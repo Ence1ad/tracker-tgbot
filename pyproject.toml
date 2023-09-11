@@ -3,7 +3,8 @@ select = ["ANN", "E", "F"]
 ignore = [
     "E501",
     "ANN101",
-    "F401"
+    "F401",
+    "D100"
 ]
 line-length = 120
 

@@ -1,6 +1,5 @@
 from openpyxl.chart.marker import DataPoint
 from openpyxl.drawing.colors import SchemeColor
-from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame
 from copy import deepcopy

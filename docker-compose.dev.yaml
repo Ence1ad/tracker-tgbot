@@ -8,14 +8,22 @@ services:
     env_file: .env
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
-      timeout: 40s
-      interval: 5s
+      timeout: 5s
+      interval: 10s
       retries: 5
+      start_period: 10s
     ports:
       - "5433:5432"
     volumes:
       - ./db_data:/var/lib/postgresql/data
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    networks:
+      - postgres
 
   cache:
     image: redis:alpine
