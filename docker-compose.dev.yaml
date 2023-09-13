@@ -3,6 +3,7 @@ version: '3.9'
 services:
 
   db:
+    container_name: postgres_db
     image: postgres:alpine
     restart: unless-stopped
     env_file: .env
@@ -12,6 +13,14 @@ services:
       interval: 10s
       retries: 5
       start_period: 10s
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
     ports:
       - "5433:5432"
     volumes:
@@ -22,10 +31,51 @@ services:
         limits:
           cpus: '1'
           memory: 4G
-    networks:
-      - postgres
+
+  postgres_exporter:
+    container_name: exporter_container
+    image: prometheuscommunity/postgres-exporter
+    restart: unless-stopped
+    hostname: postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+    ports:
+      - "9187:9187"
+    links:
+      - db
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 500M
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus/
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    user: root
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    depends_on:
+      - prometheus
 
   cache:
+    container_name: redis_db
     image: redis:alpine
     restart: always
     env_file: .env
@@ -36,6 +86,7 @@ services:
       - ./cache:/data
 
   tgbot:
+    container_name: tgbot
     build:
       context: .
       dockerfile: bot.Dockerfile
@@ -48,8 +99,41 @@ services:
       - db
       - cache
 
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager
+    hostname: alertmanager
+    user: root
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+#      - --storage.path=/etc/alertmanager/data
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    ports:
+      - "9443:9443"
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
 volumes:
   db_data:
     driver: local
   cache:
+    driver: local
+  grafana:
+    driver: local
+  prometheus:
+    driver: local
+  alertmanager:
+    driver: local
+  data:
     driver: local
