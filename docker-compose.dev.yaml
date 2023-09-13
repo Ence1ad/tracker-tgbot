@@ -24,13 +24,16 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./db_data:/var/lib/postgresql/data
+      - ./containers_data/db_data:/var/lib/postgresql/data
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 4G
+    networks:
+      - monitoring
+      - bot_api
 
   postgres_exporter:
     container_name: exporter_container
@@ -41,7 +44,7 @@ services:
       DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
     ports:
       - "9187:9187"
-    links:
+    depends_on:
       - db
       - prometheus
     deploy:
@@ -49,17 +52,57 @@ services:
         limits:
           cpus: '0.2'
           memory: 500M
+    networks:
+      - monitoring
+      - bot_api
+
+  redis_exporter:
+    container_name: redis_exporter
+    image: oliver006/redis_exporter
+    env_file: .env
+    command: ["--redis.addr", "redis://${REDIS_PASSWORD}@redis:${REDIS_PORT}/${REDIS_DB}"]
+    ports:
+      - "9121:9121"
+    restart: unless-stopped
+    hostname: redis_exporter
+    depends_on:
+      - redis
+      - prometheus
+    networks:
+      - monitoring
+
+  init_prometheus:
+    container_name: init_container
+    image: prom/prometheus
+    user: root
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        chown -R 65534:65534 /prometheus_data
+    volumes:
+      - ./containers_data:/prometheus_data
+
 
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
     restart: unless-stopped
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus:/etc/prometheus/
+      - ./containers_data/prometheus_data:/prometheus
+    depends_on:
+      - init_prometheus
+    networks:
+      - monitoring
 
   grafana:
     container_name: grafana
@@ -69,21 +112,32 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./containers_data/grafana:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - monitoring
 
-  cache:
+  redis:
     container_name: redis_db
     image: redis:alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 5s
     restart: always
     env_file: .env
     ports:
-      - '6378:6378'
+      - '6379:6379'
     command: redis-server --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
     volumes:
-      - ./cache:/data
+      - ./containers_data/cache_data:/data
+    networks:
+      - monitoring
+      - bot_api
 
   tgbot:
     container_name: tgbot
@@ -97,7 +151,9 @@ services:
     env_file: .env
     depends_on:
       - db
-      - cache
+      - redis
+    networks:
+      - bot_api
 
   alertmanager:
     container_name: alertmanager
@@ -107,11 +163,13 @@ services:
     restart: unless-stopped
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
-#      - --storage.path=/etc/alertmanager/data
     ports:
       - "9093:9093"
     volumes:
       - ./alertmanager/:/etc/alertmanager/
+      - ./containers_data/alertmanager_data:/alertmanager/
+    networks:
+      - monitoring
 
   portainer:
     container_name: portainer
@@ -120,20 +178,34 @@ services:
     ports:
       - "9443:9443"
     volumes:
-      - data:/data
+      - ./containers_data/portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
 
 
 volumes:
-  db_data:
-    driver: local
-  cache:
-    driver: local
-  grafana:
-    driver: local
-  prometheus:
-    driver: local
-  alertmanager:
-    driver: local
-  data:
-    driver: local
+  containers_data:
+
+networks:
+  monitoring:
+    driver: bridge
+
+  bot_api:
+    driver: bridge

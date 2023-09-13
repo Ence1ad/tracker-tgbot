@@ -162,6 +162,5 @@ cython_debug/
 *.xlsx
 .ruff_cache
 .pytest_cache
-db_data
-cache/dump.rdb
-grafana
+
+containers_data/
