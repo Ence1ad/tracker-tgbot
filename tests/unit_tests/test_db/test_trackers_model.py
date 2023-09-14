@@ -27,7 +27,7 @@ class TestTrackers:
     )
     async def test_create_tracker(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             action_id: int,
             category_id: int,
@@ -78,7 +78,7 @@ class TestTrackers:
              )
     async def test_stop_tracker(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             tracker_id: int,
             expectation: does_not_raise,
@@ -99,7 +99,7 @@ class TestTrackers:
     async def test_select_stopped_trackers(
             self,
             user_id: int,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             expectation: does_not_raise
     ):
         with expectation:
@@ -140,7 +140,7 @@ class TestTrackers:
              )
     async def test_delete_tracker(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             tracker_id: int,
             expectation: does_not_raise,

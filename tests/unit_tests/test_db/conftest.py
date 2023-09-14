@@ -68,7 +68,7 @@ async def add_user(session):
 @pytest_asyncio.fixture(scope="class")
 async def add_category(session, add_user):
     category_name = 'best_category_ever'
-    await create_category(user_id=USER_ID, category_title=category_name, db_session=session)
+    await create_category(user_id=USER_ID, category_name=category_name, db_session=session)
     # yield category_obj
     # await delete_category(user_id=USER_ID, category_id=category_obj.category_id, db_session=session)
 

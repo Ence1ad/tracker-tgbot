@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
@@ -29,7 +29,7 @@ class TestCategories:
     )
     async def test_create_category(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             category_name: str,
             expectation: does_not_raise,
@@ -50,7 +50,7 @@ class TestCategories:
     )
     async def test_select_categories(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             expectation: does_not_raise,
     ):
@@ -76,7 +76,7 @@ class TestCategories:
     )
     async def test_update_category(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             category_id: int,
             new_category_name: str,
@@ -100,7 +100,7 @@ class TestCategories:
     )
     async def test_delete_category(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             category_id: int,
             expectation: does_not_raise,

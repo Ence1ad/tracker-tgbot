@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete, update, Sequence, Row
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from ..categories.categories_model import CategoriesModel
@@ -7,6 +7,14 @@ from .actions_models import ActionsModel
 
 async def create_actions(user_id: int, action_name: str, category_id: int,
                          db_session: async_sessionmaker[AsyncSession]) -> ActionsModel:
+    """
+    Create a record in the actions db table and return the obj
+    :param user_id: Telegram user_id derived from call or message
+    :param action_name: action_name written by user and checked with a validator
+    :param category_id: category_id derived from the FSM context state
+    :param db_session: AsyncSession derived from middleware
+    :return: ActionsModel object
+    """
     async with db_session as session:
         async with session.begin():
             action_obj: ActionsModel = \
@@ -20,7 +28,14 @@ async def create_actions(user_id: int, action_name: str, category_id: int,
 
 
 async def select_category_actions(user_id: int, category_id: int, db_session: async_sessionmaker[AsyncSession]
-                                  ) -> Sequence[Row[int, str]]:
+                                  ) -> list[tuple[int, str]]:
+    """
+    Select records from actions db table
+    :param user_id: Telegram user_id derived from call or message
+    :param category_id: category_id derived from the cache
+    :param db_session: AsyncSession derived from middleware
+    :return: list of rows from the table
+    """
     async with db_session as session:
         async with session.begin():
             stmt = \
@@ -36,20 +51,16 @@ async def select_category_actions(user_id: int, category_id: int, db_session: as
             return res.fetchall()
 
 
-async def delete_action(user_id: int, action_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
-    async with db_session as session:
-        async with session.begin():
-            del_stmt = \
-                delete(ActionsModel)\
-                .where(ActionsModel.user_id == user_id,
-                       ActionsModel.action_id == action_id).returning(ActionsModel.action_id)
-
-            returning = await session.execute(del_stmt)
-            return returning.scalar_one_or_none()
-
-
 async def update_action(user_id: int, action_id: int, new_action_name: str,
                         db_session: async_sessionmaker[AsyncSession]) -> int | None:
+    """
+    Update the action name in the actions table record
+    :param user_id: Telegram user_id derived from call or message
+    :param action_id: action_id derived from the cache
+    :param new_action_name: A new action name written by the user and verified using a validator
+    :param db_session: AsyncSession derived from middleware
+    :return: one if the update was successful, none if not
+    """
     async with db_session as session:
         async with session.begin():
             udp_stmt = \
@@ -62,14 +73,20 @@ async def update_action(user_id: int, action_id: int, new_action_name: str,
             return returning.scalar_one_or_none()
 
 
-# async def select_action_count(user_id: int, category_id: int,
-#                               db_session: async_sessionmaker[AsyncSession]) -> int | None:
-#     async with db_session as session:
-#         async with session.begin():
-#             stmt = \
-#                 select(func.count(ActionsModel.action_id))\
-#                 .where(ActionsModel.user_id == user_id,
-#                        ActionsModel.category_id == category_id)
-#
-#             action_cnt = await session.execute(stmt)
-#             return action_cnt.scalar_one_or_none()
+async def delete_action(user_id: int, action_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+    """
+    Delete the action record from the actions db table
+    :param user_id: Telegram user_id derived from call or message
+    :param action_id: action_id derived from the cache
+    :param db_session: AsyncSession derived from the middleware
+    :return: one if the delete operation was successful, none if not
+    """
+    async with db_session as session:
+        async with session.begin():
+            del_stmt = \
+                delete(ActionsModel)\
+                .where(ActionsModel.user_id == user_id,
+                       ActionsModel.action_id == action_id).returning(ActionsModel.action_id)
+
+            returning = await session.execute(del_stmt)
+            return returning.scalar_one_or_none()

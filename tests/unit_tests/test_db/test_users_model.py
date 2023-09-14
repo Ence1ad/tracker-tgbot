@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError
@@ -31,7 +31,7 @@ class TestUsers:
     )
     async def test_create_user(
             self,
-            session: AsyncSession,
+            session: async_sessionmaker[AsyncSession],
             user_id: int,
             first_name: str,
             last_name: str,

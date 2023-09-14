@@ -1,22 +1,35 @@
-from sqlalchemy import select, delete, update, Sequence, Row
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .categories_model import CategoriesModel
 
 
-async def create_category(user_id: int, category_title: str,
+async def create_category(user_id: int, category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> CategoriesModel:
+    """
+    Create a record in the categories db table and return the obj
+    :param user_id: Telegram user_id derived from call or message
+    :param category_name: Category name written by user and checked with a validator
+    :param db_session: AsyncSession derived from middleware
+    :return: CategoriesModel object
+    """
     async with db_session as session:
         async with session.begin():
             category_obj: CategoriesModel = \
-                CategoriesModel(user_id=user_id, category_name=category_title)
+                CategoriesModel(user_id=user_id, category_name=category_name)
             session.add(category_obj)
             await session.flush()
         await session.refresh(category_obj)
         return category_obj
 
 
-async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> Sequence[Row[int, str]]:
+async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[tuple[int, str]]:
+    """
+    Select records from categories db table
+    :param user_id: Telegram user_id derived from call or message
+    :param db_session: AsyncSession derived from middleware
+    :return: list of rows from the table
+    """
     async with db_session as session:
         async with session.begin():
             stmt = \
@@ -30,6 +43,14 @@ async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSe
 
 async def update_category(user_id: int, category_id: int, new_category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> None:
+    """
+    Update the category name in the categories table record
+    :param user_id: Telegram user_id derived from call or message
+    :param category_id: category_id derived from the cache
+    :param new_category_name: A new category name written by the user and verified using a validator
+    :param db_session: AsyncSession derived from middleware
+    :return: one if the update was successful, none if not
+    """
     async with db_session as session:
         async with session.begin():
             udp_stmt = \
@@ -44,6 +65,13 @@ async def update_category(user_id: int, category_id: int, new_category_name: str
 
 async def delete_category(user_id: int, category_id: int,
                           db_session: async_sessionmaker[AsyncSession]) -> int | None:
+    """
+    Delete the category record from the categories db table
+    :param user_id: Telegram user_id derived from call or message
+    :param category_id: category_id derived from the cache
+    :param db_session: AsyncSession derived from middleware
+    :return: one if the delete operation was successful, none if not
+    """
     async with db_session as session:
         async with session.begin():
             del_stmt = \

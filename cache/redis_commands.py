@@ -1,4 +1,4 @@
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
 
 from redis.asyncio import Redis
 
@@ -47,18 +47,8 @@ async def redis_delete_tracker(user_id: int, redis_client: Redis) -> None:
     await redis_client.delete(f"{user_id}_tracker")
 
 
-async def redis_started_tracker(user_id: int, redis_client: Redis) -> str:
-    text = []
-    tracker_data = await redis_client.hgetall(f"{user_id}_tracker")
-    if tracker_data:
-        category_name: str = "🗄:" + ' ' + tracker_data[b'category_name'].decode(encoding='utf-8')
-        action_name: str = "🎬:" + ' ' + tracker_data[b'action_name'].decode(encoding='utf-8')
-        launch_time: str = tracker_data[b'start_time'].decode(encoding='utf-8').split('.')[0]
-        launch_time: dt = dt.strptime(launch_time, "%Y-%m-%d %H:%M:%S")
-        duration: str = "⏱:" + ' ' + str((dt.now() - launch_time) - timedelta(seconds=0)).split('.')[0]
-        text.extend([category_name, action_name, duration])
-        text = '\n\r'.join(text)
-        return text
+async def redis_started_tracker(user_id: int, redis_client: Redis) -> dict[bytes:bytes] | None:
+    return await redis_client.hgetall(f"{user_id}_tracker")
 
 
 async def redis_upd_tracker(user_id: int, redis_client: Redis, tracker_id: int = None, action_id: int = None,

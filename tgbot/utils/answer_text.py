@@ -1,4 +1,8 @@
+from redis.asyncio import Redis
+
+from cache.redis_commands import redis_started_tracker
 from config import settings
+from datetime import datetime as dt, timedelta
 
 # Common
 options_text = "Select the button"
@@ -65,3 +69,18 @@ empty_trackers_text = "You don't have any trackers for this week"
 
 # for create_report.py
 xlsx_title = "Weekly Report.xlsx"
+
+
+async def started_tracker_text(user_id: int, redis_client: Redis) -> str:
+    text = []
+    tracker_data = await redis_started_tracker(user_id=user_id, redis_client=redis_client)
+    if tracker_data:
+        tracker_data = {key.decode(encoding='utf-8'): value.decode(encoding='utf-8') for key, value in tracker_data.items()}
+        category_name: str = "🗄:" + ' ' + tracker_data['category_name']
+        action_name: str = "🎬:" + ' ' + tracker_data['action_name']
+        launch_time: str = tracker_data['start_time'].split('.')[0]
+        launch_time: dt = dt.strptime(launch_time, "%Y-%m-%d %H:%M:%S")
+        duration: str = "⏱:" + ' ' + str((dt.now() - launch_time) - timedelta(seconds=0)).split('.')[0]
+        text.extend([category_name, action_name, duration])
+        text = '\n\r'.join(text)
+        return text
