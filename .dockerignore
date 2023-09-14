@@ -247,4 +247,6 @@ pytest.ini
 LICENSE
 README.md
 .ruff_cache
-containers_data/
+/metrics_containers_data
+/postgres_data
+/redis_data

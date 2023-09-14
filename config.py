@@ -29,7 +29,6 @@ class TgBotSettings(BaseSettings):
     BOT_TOKEN: str
     ADMIN_ID: int
     CHAT_ID: int
-    ALERT_MANAGER_BOT_TOKEN: str
 
 
 class ProjectSettings(BaseSettings):
@@ -52,8 +51,8 @@ class LoggingSettings(BaseSettings):
 
 
 class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, ProjectSettings, BaseSettings):
-    # model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
     TESTING: bool
 
     @property

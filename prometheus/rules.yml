@@ -1,227 +1,704 @@
 groups:
-- name: AllInstances
-  rules:
-  - alert: InstanceDown
-    # Condition for alerting
-    expr: up == 0
-    for: 5m
-    # Annotation - additional informational labels to store more information
-    annotations:
-      title: 'Instance {{ $labels.instance }} down'
-      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
-    # Labels - additional labels to be attached to the alert
-    labels:
-      severity: 'critical'
+  - name: postgres_exporter_alert
+    rules:
 
-  - alert: redis_missing_rdb_backup
-    expr: time() - redis_rdb_last_save_timestamp_seconds > 60 * 60
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      description: "Critical: Missing RDB-backup  on the host {{ $labels.instance }} for more than 5 minutes"
-      summary: "Missing RDB-backup"
+      ########## EXPORTER RULES ##########
+      - alert: PGExporterScrapeError
+        expr: pg_exporter_last_scrape_error > 0
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          summary: 'Postgres Exporter running on {{ $labels.job }} (instance: {{ $labels.instance }}) is encountering scrape errors processing queries. Error count: ( {{ $value }} )'
 
-  - alert: redis_memory_usage
-    expr: redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 40
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      description: "Warning: Redis high memory(>40%) usage on the host {{ $labels.instance }} for more than 5 minutes"
-      summary: "Redis memory usage {{ humanize $value}}% of the host memory"
 
-  - alert: redis_too_many_connections
-    expr: redis_connected_clients{instance!~"server1.mydomain.com.+"} > 50
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      description: "Warning: Redis has many connections on the host {{ $labels.instance }} for more than 5 minutes"
-      summary: "Redis number of connections {{ $value }}"
+      ########## POSTGRESQL RULES ##########
+      - alert: PGIsUp
+        expr: pg_up < 1
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          summary: 'postgres_exporter running on {{ $labels.job }} is unable to communicate with the configured database'
+      - alert: PGIdleTxn
+        expr: ccp_connection_stats_max_idle_in_txn_time > 300
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: '{{ $labels.job }} has at least one session idle in transaction for over 5 minutes.'
+          summary: 'PGSQL Instance idle transactions'
 
-  - alert: redis_too_many_connections_server1.mydomain.com
-    expr: redis_connected_clients{instance=~"server1.mydomain.com.+"} > 160
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      description: "Warning: Redis has many connections on the host {{ $labels.instance }} for more than 5 minutes"
-      summary: "Redis number of connections {{ $value }}"
+      - alert: PGIdleTxn
+        expr: ccp_connection_stats_max_idle_in_txn_time > 900
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: '{{ $labels.job }} has at least one session idle in transaction for over 15 minutes.'
+          summary: 'PGSQL Instance idle transactions'
 
-  - alert: redis_not_enough_connections
-    expr: redis_connected_clients{instance=~"server1.+|server2.+|server3.+"} < 5
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      description: "Warning: Redis has not enough connections on the host {{ $labels.instance }} for more than 5 minutes"
-      summary: "Redis number of connections {{ $value }}"
+      - alert: PGQueryTime
+        expr: ccp_connection_stats_max_query_time > 43200
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: '{{ $labels.job }} has at least one query running for over 12 hours.'
+          summary: 'PGSQL Max Query Runtime'
 
-  - alert: redis_rejected_connections
-    expr: increase(redis_rejected_connections_total[1m]) > 0
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      description: "Critical: Redis rejected connections on the host {{ $labels.instance }}"
-      summary: "Redis rejected connections are {{ $value }}"
+      - alert: PGQueryTime
+        expr: ccp_connection_stats_max_query_time > 86400
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: '{{ $labels.job }} has at least one query running for over 1 day.'
+          summary: 'PGSQL Max Query Runtime'
 
-  - alert: redis_evicted_keys
-    expr: increase(redis_evicted_keys_total[1m]) > 0
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      description: "Critical: Redis evicted keys on the host {{ $labels.instance }}"
-      summary: "Redis evicted keys are {{ $value }}"
+      - alert: PGConnPerc
+        expr: 100 * (ccp_connection_stats_total / ccp_connection_stats_max_connections) > 75
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: '{{ $labels.job }} is using 75% or more of available connections ({{ $value }}%)'
+          summary: 'PGSQL Instance connections'
 
-#==========CPU==================================================================
-  - alert: NodeCPUUsage
-    expr: (100 - (irate(node_cpu{mode="idle"}[5m]) * 100)) > 50
-    for: 2m
-    labels:
-      severity: page
-    annotations:
-      summary: High CPU usage detected CPU usage is above 75%
-# ==============Memory==========================================================
-  - alert: NodeSwapUsageSwap
-    expr: (((node_memory_SwapTotal-node_memory_SwapFree)/node_memory_SwapTotal)*100) > 30
-    for: 2m
-    labels:
-      severity: page
-    annotations:
-      summary: Swap usage detected Swap usage usage is above 50%
-  - alert: NodeMemoryUsageMemFree
-    expr: (((node_memory_MemTotal-node_memory_MemFree-node_memory_Cached)/(node_memory_MemTotal)*100)) > 30
-    for: 2m
-    labels:
-      severity: page
-    annotations:
-      summary: High memory usage detected, Memory usage is above 50%
-#==============Load=============================================================
+      - alert: PGConnPerc
+        expr: 100 * (ccp_connection_stats_total / ccp_connection_stats_max_connections) > 90
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: '{{ $labels.job }} is using 90% or more of available connections ({{ $value }}%)'
+          summary: 'PGSQL Instance connections'
 
-  - alert: nodeLoad1
-    expr: node_load1{job="<instance_address>"} > 0.7
-    for: 1m
-    labels:
-      severity: page
-    annotations:
-      summary: Load
-#================Disk space Used ================================================
-  - alert: diskSpaceUsed
-    expr: (100.0 - 100 * (node_filesystem_avail / node_filesystem_size)) > 80
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: Disk space userd 80
-#=============nodeContrack========================================
-  - alert: nodeContrack
-    expr: node_nf_conntrack_entries > 200
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: nodeContrack
-#=============nodeCntextSwitches ========================================
-  - alert: nodeCntextSwitches
-    expr: irate(node_context_switches[5m]) > 100
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: nodeCntextSwitches
-#=============Disk Utilization per Device ========================================
-  - alert: DiskUtilizationPerDevice
-    expr: irate(node_disk_io_time_ms[5m])/10 > 0.2
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: DiskUtilizationPerDevice
-#============Disk IOs per Device ========================================
-  - alert: DiskIOsPerDeviceRead
-    expr: irate(node_disk_reads_completed[5m]) >10
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: DiskIOsPerDevice
+      - alert: PGDBSize
+        expr: ccp_database_size_bytes > 1.073741824e+11
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} over 100GB in size: {{ $value }} bytes'
+          summary: 'PGSQL Instance size warning'
 
-  - alert: DiskIOsPerDeviceWrite
-    expr: irate(node_disk_writes_completed[5m]) > 10
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: DiskIOsPerDevice
-#===========Disk Throughput per Device========================================
-  - alert: DiskThroughputPerDeviceReads
-    expr: irate(node_disk_sectors_read[5m]) * 512 >10000000
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: DiskIOsPerDevice
-  - alert: DiskThroughputPerDeviceWrites
-    expr: irate(node_disk_sectors_written[5m]) * 512 > 10000000
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: DiskIOsPerDevice
-#===========Network Traffic========================================
-  - alert: NetworkTrafficReceive
-    expr: irate(node_network_receive_bytes[5m])*8 > 5000
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: NetworkTrafficReceive
-  - alert: NetworkTrafficTransmit
-    expr: irate(node_network_transmit_bytes[5m])*8 > 5000
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: NetworkTrafficTransmit
+      - alert: PGDBSize
+        expr: ccp_database_size_bytes > 2.68435456e+11
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} over 250GB in size: {{ $value }} bytes'
+          summary: 'PGSQL Instance size critical'
 
-#===========Netstat========================================
-  - alert: Netstat
-    expr: node_netstat_Tcp_CurrEstab > 20
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: Netstat
+      - alert: PGReplicationByteLag
+        expr: ccp_replication_lag_size_bytes > 5.24288e+07
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} has at least one replica lagging over 50MB behind.'
+          summary: 'PGSQL Instance replica lag warning'
 
-#===========UDP Stats============================
-  - alert: UDPStatsInDatagrams
-    expr: irate(node_netstat_Udp_InDatagrams[5m]) > 50
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: UDPStats
-  - alert: UDPStatsInErrors
-    expr: irate(node_netstat_Udp_InErrors[5m]) > 20
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: UDPStats
-  - alert: UDPStatsOutDatagrams
-    expr: irate(node_netstat_Udp_OutDatagrams[5m]) > 50
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: UDPStats
-  - alert: UDPStatsNoPorts
-    expr: irate(node_netstat_Udp_NoPorts[5m]) > 20
-    for: 5m
-    labels:
-      severity: page
-    annotations:
-      summary: UDPStats
+      - alert: PGReplicationByteLag
+        expr: ccp_replication_lag_size_bytes > 1.048576e+08
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} has at least one replica lagging over 100MB behind.'
+          summary: 'PGSQL Instance replica lag warning'
+
+      - alert: PGReplicationSlotsInactive
+        expr: ccp_replication_slots_active == 0
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} has one or more inactive replication slots'
+          summary: 'PGSQL Instance inactive replication slot'
+
+      - alert: PGXIDWraparound
+        expr: ccp_transaction_wraparound_percent_towards_wraparound > 50
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} is over 50% towards transaction id wraparound.'
+          summary: 'PGSQL Instance {{ $labels.job }} transaction id wraparound imminent'
+
+      - alert: PGXIDWraparound
+        expr: ccp_transaction_wraparound_percent_towards_wraparound > 75
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} is over 75% towards transaction id wraparound.'
+          summary: 'PGSQL Instance transaction id wraparound imminent'
+
+      - alert: PGEmergencyVacuum
+        expr: ccp_transaction_wraparound_percent_towards_emergency_autovac > 110
+        for: 60s
+        labels:
+          service: postgresql
+          severity: warning
+          severity_num: '200'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} is over 110% beyond autovacuum_freeze_max_age value. Autovacuum may need tuning to better keep up.'
+          summary: 'PGSQL Instance emergency vacuum imminent'
+
+      - alert: PGEmergencyVacuum
+        expr: ccp_transaction_wraparound_percent_towards_emergency_autovac > 125
+        for: 60s
+        labels:
+          service: postgresql
+          severity: critical
+          severity_num: '300'
+        annotations:
+          description: 'PGSQL Instance {{ $labels.job }} is over 125% beyond autovacuum_freeze_max_age value. Autovacuum needs tuning to better keep up.'
+          summary: 'PGSQL Instance emergency vacuum imminent'
+
+      - alert: PGArchiveCommandStatus
+        expr: ccp_archive_command_status_seconds_since_last_fail > 300
+        for: 60s
+        labels:
+            service: postgresql
+            severity: critical
+            severity_num: '300'
+        annotations:
+            description: 'PGSQL Instance {{ $labels.job }} has a recent failing archive command'
+            summary: 'Seconds since the last recorded failure of the archive_command'
+
+      - alert: PGSequenceExhaustion
+        expr: ccp_sequence_exhaustion_count > 0
+        for: 60s
+        labels:
+            service: postgresql
+            severity: critical
+            severity_num: '300'
+        annotations:
+            description: 'Count of sequences on instance {{ $labels.job }} at over 75% usage: {{ $value }}. Run following query to see full sequence status: SELECT * FROM monitor.sequence_status() WHERE percent >= 75'
+
+      - alert: PGSettingsPendingRestart
+        expr: ccp_settings_pending_restart_count > 0
+        for: 60s
+        labels:
+            service: postgresql
+            severity: critical
+            severity_num: '300'
+        annotations:
+            description: 'One or more settings in the pg_settings system catalog on system {{ $labels.job }} are in a pending_restart state. Check the system catalog for which settings are pending and review postgresql.conf for changes.'
+
+  - name: prometheus-alerts
+    rules:
+      - alert: PrometheusJobMissing
+        expr: absent(up{job="prometheus"})
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus job missing (instance {{ $labels.instance }})"
+          description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTargetMissing
+        expr: up == 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus target missing (instance {{ $labels.instance }})"
+          description: "A Prometheus target has disappeared. An exporter might be crashed.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusAllTargetsMissing
+        expr: count by (job) (up) == 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus all targets missing (instance {{ $labels.instance }})"
+          description: "A Prometheus job does not have living target anymore.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusAlertmanagerConfigurationReloadFailure
+        expr: alertmanager_config_last_reload_successful != 1
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "AlertManager configuration reload (instance {{ $labels.instance }})"
+          description: "AlertManager configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusAlertmanagerConfigNotSynced
+        expr: count(count_values("config_hash", alertmanager_config_hash)) > 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus AlertManager config not synced (instance {{ $labels.instance }})"
+          description: "Configurations of AlertManager cluster instances are out of sync\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTooManyRestarts
+        expr: changes(process_start_time_seconds{job=~"prometheus|pushgateway|alertmanager"}[15m]) > 2
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus too many restarts (instance {{ $labels.instance }})"
+          description: "Prometheus has restarted more than twice in the last 15 minutes. It might be crashlooping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+#      - alert: PrometheusAlertmanagerE2eDeadManSwitch
+#        expr: vector(1)
+#        for: 0m
+#        labels:
+#          severity: critical
+#        annotations:
+#          summary: "Prometheus AlertManager E2E dead man switch (instance {{ $labels.instance }})"
+#          description: "Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusNotConnectedToAlertmanager
+        expr: prometheus_notifications_alertmanagers_discovered < 1
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus not connected to alertmanager (instance {{ $labels.instance }})"
+          description: "Prometheus cannot connect the alertmanager\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ExporterDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Exporter down (instance {{ $labels.instance }})"
+          description: "Prometheus exporter down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusRuleEvaluationFailures
+        expr: increase(prometheus_rule_evaluation_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus rule evaluation failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} rule evaluation failures, leading to potentially ignored alerts.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTemplateTextExpansionFailures
+        expr: increase(prometheus_template_text_expansion_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus template text expansion failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} template text expansion failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusRuleEvaluationSlow
+        expr: prometheus_rule_group_last_duration_seconds > prometheus_rule_group_interval_seconds
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus rule evaluation slow (instance {{ $labels.instance }})"
+          description: "Prometheus rule evaluation took more time than the scheduled interval. I indicates a slower storage backend access or too complex query.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusNotificationsBacklog
+        expr: min_over_time(prometheus_notifications_queue_length[10m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus notifications backlog (instance {{ $labels.instance }})"
+          description: "The Prometheus notification queue has not been empty for 10 minutes\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusAlertmanagerNotificationFailing
+        expr: rate(alertmanager_notifications_failed_total[1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus AlertManager notification failing (instance {{ $labels.instance }})"
+          description: "Alertmanager is failing sending notifications\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTargetEmpty
+        expr: prometheus_sd_discovered_targets == 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus target empty (instance {{ $labels.instance }})"
+          description: "Prometheus has no target in service discovery\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTargetScrapingSlow
+        expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target scraping slow (instance {{ $labels.instance }})"
+          description: "Prometheus is scraping exporters slowly\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusLargeScrape
+        expr: increase(prometheus_target_scrapes_exceeded_sample_limit_total[10m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus large scrape (instance {{ $labels.instance }})"
+          description: "Prometheus has many scrapes that exceed the sample limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTargetScrapeDuplicate
+        expr: increase(prometheus_target_scrapes_sample_duplicate_timestamp_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target scrape duplicate (instance {{ $labels.instance }})"
+          description: "Prometheus has many samples rejected due to duplicate timestamps but different values\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbCheckpointCreationFailures
+        expr: increase(prometheus_tsdb_checkpoint_creations_failed_total[1m]) > 0
+        for: 0m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB checkpoint deletion failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} checkpoint deletion failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbCheckpointDeletionFailures
+        expr: increase(prometheus_tsdb_checkpoint_deletions_failed_total[1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus TSDB checkpoint deletion failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} checkpoint deletion failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbCompactionsFailed
+        expr: increase(prometheus_tsdb_compactions_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB compactions failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB compactions failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbHeadTruncationsFailed
+        expr: increase(prometheus_tsdb_head_truncations_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB head truncations failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB head truncation failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbReloadFailures
+        expr: increase(prometheus_tsdb_reloads_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB reload failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB reload failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbWalCorruptions
+        expr: increase(prometheus_tsdb_wal_corruptions_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB WAL corruptions (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB WAL corruptions\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTsdbWalTruncationsFailed
+        expr: increase(prometheus_tsdb_wal_truncations_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB WAL truncations failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB WAL truncation failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+  - name: redis_exporter_alerts
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis down (instance {{ $labels.instance }})
+          description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisDisconnectedSlaves
+        expr: count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis disconnected slaves (instance {{ $labels.instance }})
+          description: "Redis not replicating for all slaves. Consider reviewing the redis replication status.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisReplicationBroken
+        expr: delta(redis_connected_slaves[1m]) < 0
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis replication broken (instance {{ $labels.instance }})
+          description: "Redis instance lost a slave\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisClusterFlapping
+        expr: changes(redis_connected_slaves[1m]) > 1
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis cluster flapping (instance {{ $labels.instance }})
+          description: "Changes have been detected in Redis replica connection. This can occur when replica nodes lose connection to the master and reconnect (a.k.a flapping).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisMissingBackup
+        expr: time() - redis_rdb_last_save_timestamp_seconds > 60 * 60 * 24
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis missing backup (instance {{ $labels.instance }})
+          description: "Redis has not been backuped for 24 hours\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisOutOfSystemMemory
+        expr: redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis out of system memory (instance {{ $labels.instance }})
+          description: "Redis is running out of system memory (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisOutOfConfiguredMaxmemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis out of configured maxmemory (instance {{ $labels.instance }})
+          description: "Redis is running out of configured maxmemory (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisTooManyConnections
+        expr: redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis too many connections (instance {{ $labels.instance }})
+          description: "Redis instance has too many connections\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisNotEnoughConnections
+        expr: redis_connected_clients < 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis not enough connections (instance {{ $labels.instance }})
+          description: "Redis instance should have more connections (> 5)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisRejectedConnections
+        expr: increase(redis_rejected_connections_total[1m]) > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis rejected connections (instance {{ $labels.instance }})
+          description: "Some connections to Redis has been rejected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+  - name: node_exporter_alert
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Instance {{ .instance }} down"
+          description: "{{ .instance }} of job {{ .job }} has been down for more than 5 minutes."
+
+      #==========CPU==================================================================
+      - alert: NodeCPUUsage
+        expr: (100 - (irate(node_cpu{mode="idle"}[5m]) * 100)) > 50
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: High CPU usage detected CPU usage is above 75%
+      # ==============Memory==========================================================
+      - alert: NodeSwapUsageSwap
+        expr: (((node_memory_SwapTotal-node_memory_SwapFree)/node_memory_SwapTotal)*100) > 30
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: Swap usage detected Swap usage usage is above 50%
+
+      - alert: NodeMemoryUsageMemFree
+        expr: (((node_memory_MemTotal-node_memory_MemFree-node_memory_Cached)/(node_memory_MemTotal)*100)) > 30
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: High memory usage detected, Memory usage is above 50%
+      #==============Load=============================================================
+
+      - alert: nodeLoad1
+        expr: node_load1{job="<instance_address>"} > 0.7
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: Load
+      #================Disk space Used ================================================
+      - alert: diskSpaceUsed
+        expr: (100.0 - 100 * (node_filesystem_avail / node_filesystem_size)) > 80
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: Disk space userd 80
+      #=============nodeContrack========================================
+      - alert: nodeContrack
+        expr: node_nf_conntrack_entries > 200
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: nodeContrack
+      #=============nodeCntextSwitches ========================================
+      - alert: nodeCntextSwitches
+        expr: irate(node_context_switches[5m]) > 100
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: nodeCntextSwitches
+      #=============Disk Utilization per Device ========================================
+      - alert: DiskUtilizationPerDevice
+        expr: irate(node_disk_io_time_ms[5m])/10 > 0.2
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskUtilizationPerDevice
+      #============Disk IOs per Device ========================================
+      - alert: DiskIOsPerDeviceRead
+        expr: irate(node_disk_reads_completed[5m]) >10
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+
+      - alert: DiskIOsPerDeviceWrite
+        expr: irate(node_disk_writes_completed[5m]) > 10
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+      #===========Disk Throughput per Device========================================
+      - alert: DiskThroughputPerDeviceReads
+        expr: irate(node_disk_sectors_read[5m]) * 512 >10000000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+      - alert: DiskThroughputPerDeviceWrites
+        expr: irate(node_disk_sectors_written[5m]) * 512 > 10000000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+      #===========Network Traffic========================================
+      - alert: NetworkTrafficReceive
+        expr: irate(node_network_receive_bytes[5m])*8 > 5000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: NetworkTrafficReceive
+      - alert: NetworkTrafficTransmit
+        expr: irate(node_network_transmit_bytes[5m])*8 > 5000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: NetworkTrafficTransmit
+
+      #===========Netstat========================================
+      - alert: Netstat
+        expr: node_netstat_Tcp_CurrEstab > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Netstat
+
+      #===========UDP Stats============================
+      - alert: UDPStatsInDatagrams
+        expr: irate(node_netstat_Udp_InDatagrams[5m]) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+      - alert: UDPStatsInErrors
+        expr: irate(node_netstat_Udp_InErrors[5m]) > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+      - alert: UDPStatsOutDatagrams
+        expr: irate(node_netstat_Udp_OutDatagrams[5m]) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+      - alert: UDPStatsNoPorts
+        expr: irate(node_netstat_Udp_NoPorts[5m]) > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats

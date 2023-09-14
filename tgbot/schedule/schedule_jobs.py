@@ -11,7 +11,7 @@ async def delete_tracker_job(scheduler: ContextSchedulerDecorator, call: Callbac
                              func=schedule_delete_tracker) -> None:
     scheduler.add_job(
         func=func, trigger='date',
-        next_run_time=datetime.datetime.now() + datetime.timedelta(hours=settings.MAX_HOURS_DURATION_TRACKER),
+        run_date=datetime.datetime.now() + datetime.timedelta(hours=settings.MAX_HOURS_DURATION_TRACKER),
         kwargs={"user_id": call.from_user.id}
     )
 

@@ -24,8 +24,8 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./containers_data/db_data:/var/lib/postgresql/data
-      - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
     deploy:
       resources:
         limits:
@@ -60,7 +60,7 @@ services:
     container_name: redis_exporter
     image: oliver006/redis_exporter
     env_file: .env
-    command: ["--redis.addr", "redis://${REDIS_PASSWORD}@redis:${REDIS_PORT}/${REDIS_DB}"]
+    command: [ "--redis.addr", "redis://${REDIS_PASSWORD}@redis:${REDIS_PORT}/${REDIS_DB}" ]
     ports:
       - "9121:9121"
     restart: unless-stopped
@@ -71,23 +71,12 @@ services:
     networks:
       - monitoring
 
-  init_prometheus:
-    container_name: init_container
-    image: prom/prometheus
-    user: root
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        chown -R 65534:65534 /prometheus_data
-    volumes:
-      - ./containers_data:/prometheus_data
-
 
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
     restart: unless-stopped
+    user: root
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -98,9 +87,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus:/etc/prometheus/
-      - ./containers_data/prometheus_data:/prometheus
-    depends_on:
-      - init_prometheus
+      - ./metrics_containers_data/prometheus_data:/prometheus
     networks:
       - monitoring
 
@@ -112,8 +99,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - ./containers_data/grafana:/var/lib/grafana
+      - ./metrics_containers_data/grafana/provisioning/:/etc/grafana/provisioning/
+      - ./metrics_containers_data/grafana:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
@@ -132,9 +119,9 @@ services:
     env_file: .env
     ports:
       - '6379:6379'
-    command: redis-server --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
+    command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
     volumes:
-      - ./containers_data/cache_data:/data
+      - ./redis_data:/data
     networks:
       - monitoring
       - bot_api
@@ -167,7 +154,7 @@ services:
       - "9093:9093"
     volumes:
       - ./alertmanager/:/etc/alertmanager/
-      - ./containers_data/alertmanager_data:/alertmanager/
+      - ./metrics_containers_data/alertmanager_data:/alertmanager/
     networks:
       - monitoring
 
@@ -178,7 +165,7 @@ services:
     ports:
       - "9443:9443"
     volumes:
-      - ./containers_data/portainer_data:/data
+      - ./metrics_containers_data/portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
 
   node-exporter:
@@ -201,7 +188,12 @@ services:
 
 
 volumes:
-  containers_data:
+  metrics_containers_data:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
 
 networks:
   monitoring:
