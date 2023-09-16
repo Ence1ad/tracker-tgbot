@@ -24,5 +24,12 @@ class TrackerModel(AsyncSaBase):
     # categories = relationship("CategoriesModel", back_populates="trackers", lazy='joined')
     # actions: Mapped["ActionsModel"] = relationship(backref="actions", lazy='joined')
 
+    # __table_args__ = (
+        # PrimaryKeyConstraint('tracker_id', autoincrement=True),
+        # UniqueConstraint('username'),
+        # ForeignKeyConstraint(columns=['user_id'], refcolumns=['user_id'], table="users",  ondelete='cascade')
+        # Index(name='trackers_user_id_tracker_id_idx', expressions=['user_id', 'tracker_id']),  # composite index
+    # )
+
     def __str__(self) -> str:
         return str(self.tracker_id)

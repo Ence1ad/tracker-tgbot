@@ -18,7 +18,7 @@ async def create_tracker(user_id: int, category_id: int, action_id: int,
     :param category_id: Category id derived from the cache
     :param action_id: Action id derived from the cache
     :param db_session: AsyncSession derived from middleware
-    :return: TrackerModel object
+    :return: TrackerModel.tracker_id object
     """
     async with db_session as session:
         async with session.begin():

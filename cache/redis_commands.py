@@ -4,21 +4,34 @@ from datetime import datetime as dt, date, time
 from redis.asyncio import Redis
 
 
+async def _tracker_name(user_id: int) -> str:
+    return f"{user_id}_tracker"
+
 async def redis_incr_user_day_trackers(user_id: int, redis_client: Redis) -> int:
     return await redis_client.incr(name=str(user_id), amount=1)
 
 
 async def redis_decr_user_day_trackers(user_id: int, redis_client: Redis) -> int:
-    return await redis_client.decr(name=str(user_id), amount=1)
+    user_tracker_cnt = await redis_get_user_day_trackers(user_id, redis_client)
+    if user_tracker_cnt and (int(user_tracker_cnt) > 0):
+        return await redis_client.decr(name=str(user_id), amount=1)
 
 
-async def redis_expireat_today_midnight(user_id: int, redis_client: Redis, day_time: None | time = None) -> int:
+async def redis_get_user_day_trackers(user_id: int, redis_client: Redis) -> bytes | None:
+    return await redis_client.get(str(user_id))
+
+# async def redis_clean_daily_limit_trackers(user_id: int, redis_client):
+#     is_tracker = is_redis_tracker_exist(user_id)
+
+
+async def redis_expireat_midnight(user_id: int, redis_client: Redis, day_time: None | time = None) -> int:
     today = date.today()
     if not day_time:
-        midnight = time.max
+        # set midnight time
+        when_time = time.max
     else:
-        midnight = day_time
-    today_midnight = datetime.datetime.combine(today, midnight)
+        when_time = day_time
+    today_midnight = datetime.datetime.combine(today, when_time)
     return await redis_client.expireat(name=str(user_id), when=today_midnight)
 
 
@@ -53,26 +66,31 @@ async def redis_hmset_tracker_data(user_id: int, tracker_id: str, action_id: int
 
 
 async def redis_hget_tracker_data(user_id: int, redis_client: Redis, key: str) -> bytes | None:
-    res = await redis_client.hget(name=f"{user_id}_tracker", key=key)
+    tracker_name = await _tracker_name(user_id)
+    res = await redis_client.hget(name=tracker_name, key=key)
     return res if res else None
 
 
 async def is_redis_tracker_exist(user_id: int, redis_client: Redis) -> bool:
-    tracker_exists = await redis_client.hexists(f'{user_id}_tracker', "start_time")
+    tracker_name = await _tracker_name(user_id)
+    tracker_exists = await redis_client.hexists(tracker_name, "start_time")
     return True if tracker_exists else False
 
 
 async def redis_delete_tracker(user_id: int, redis_client: Redis) -> None:
-    await redis_client.delete(f"{user_id}_tracker")
+    tracker_name = await _tracker_name(user_id)
+    await redis_client.delete(tracker_name)
 
 
 async def redis_hgetall_started_tracker(user_id: int, redis_client: Redis) -> dict[bytes:bytes] | None:
-    return await redis_client.hgetall(f"{user_id}_tracker")
+    tracker_name = await _tracker_name(user_id)
+    return await redis_client.hgetall(tracker_name)
 
 
 async def redis_upd_tracker(user_id: int, redis_client: Redis, tracker_id: int = None, action_id: int = None,
                             action_name: str = None, category_id: int = None, category_name: str = None) -> None:
-    tracker_data = await redis_client.hgetall(f"{user_id}_tracker")
+    tracker_name = await _tracker_name(user_id)
+    tracker_data = await redis_client.hgetall(tracker_name)
     if tracker_data:
         await redis_hmset_tracker_data(
             user_id, redis_client=redis_client, tracker_id=tracker_id or tracker_data[b'tracker_id'],

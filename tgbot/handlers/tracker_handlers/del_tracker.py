@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import is_redis_tracker_exist
+from cache.redis_commands import is_redis_tracker_exist, redis_decr_user_day_trackers
 from db.tracker.tracker_db_command import select_stopped_trackers, delete_tracker
 from tgbot.keyboards.buttons_names import tracker_menu_buttons_start, tracker_menu_buttons_stop
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
@@ -11,8 +11,8 @@ from tgbot.utils.answer_text import daily_tracker_text, empty_tracker_text, dele
 from tgbot.keyboards.callback_factories import TrackerOperation, TrackerCD
 
 
-async def select_removing_tracker(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession]
-                                  ) -> Message:
+async def select_removing_tracker(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession],
+                                  redis_client: Redis) -> Message:
     user_id = call.from_user.id
     tracker = await select_stopped_trackers(user_id, db_session)
     if tracker:
@@ -20,7 +20,7 @@ async def select_removing_tracker(call: CallbackQuery, db_session: async_session
         return await call.message.edit_text(text=daily_tracker_text, reply_markup=markup)
     else:
         await call.message.delete()
-        markup = await menu_inline_kb(tracker_menu_buttons_start)
+        markup = await _get_right_tracker_menu_buttons(user_id, redis_client)
         return await call.message.answer(text=empty_tracker_text, reply_markup=markup)
 
 
@@ -31,6 +31,7 @@ async def del_tracking_data(call: CallbackQuery, callback_data: TrackerCD,
     returning = await delete_tracker(user_id=user_id, tracker_id=tracker_id, db_session=db_session)
     markup = await _get_right_tracker_menu_buttons(user_id, redis_client)
     if returning:
+        await redis_decr_user_day_trackers(user_id, redis_client)
         return await call.message.edit_text(text=delete_tracker_text, reply_markup=markup)
     else:
         return await call.message.edit_text(text=already_delete_tracker_text, reply_markup=markup)

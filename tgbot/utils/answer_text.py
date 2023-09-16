@@ -62,7 +62,7 @@ not_enough_data_text = "I can't create a tracker. The data is not defined."
 already_delete_tracker_text = "You have already deleted the tracker"
 too_long_tracker = f"can't work longer than {settings.MAX_HOURS_DURATION_TRACKER} hours, " \
                    f"so it has been stopped and removed."
-
+tracker_daily_limit_text = "You have reached the daily limit of the number of trackers"
 # for reports handlers
 send_report_text = "This is your weekly report"
 empty_trackers_text = "You don't have any trackers for this week"

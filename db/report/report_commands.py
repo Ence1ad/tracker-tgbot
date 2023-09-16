@@ -44,7 +44,7 @@ async def select_weekly_trackers(user_id: int, db_session: async_sessionmaker[As
                           cast(TrackerModel.track_start, Date)
                           )\
                 .order_by(TrackerModel.tracker_id)\
-                .limit(settings.USER_WEEK_TRACKERS_LIMIT)\
+                .limit(settings.USER_TRACKERS_WEEKLY_LIMIT)\
                 .cte()
 
             stmt = \

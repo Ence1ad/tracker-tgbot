@@ -35,8 +35,10 @@ class ProjectSettings(BaseSettings):
     LENGTH_NAME_LIMIT: int = Field(default=20)
     USER_ACTIONS_LIMIT: int = Field(default=10)
     USER_CATEGORIES_LIMIT: int = Field(default=10)
-    USER_WEEK_TRACKERS_LIMIT: int = Field(default=100)
-    MAX_HOURS_DURATION_TRACKER: int = Field(default=23)
+    USER_TRACKERS_DAILY_LIMIT: int = Field(default=2)
+    USER_TRACKERS_WEEKLY_LIMIT: int = Field(default=100)
+    # USER_TRACKER_HOURS_DURATION: int = Field(default=23)
+    MAX_HOURS_DURATION_TRACKER: int = Field(default=24)
 
 
 class LoggingSettings(BaseSettings):

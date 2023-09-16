@@ -6,7 +6,7 @@ from contextlib import nullcontext as does_not_raise
 from redis.asyncio import Redis
 
 from cache.redis_commands import redis_sadd_user_id, redis_incr_user_day_trackers, redis_decr_user_day_trackers, \
-    redis_expireat_today_midnight
+    redis_expireat_midnight
 from redis.exceptions import DataError
 
 USER_ID = 1111111111
@@ -65,10 +65,9 @@ async def test_redis_decr_user_day_trackers(user_id: int, expectation: does_not_
     ]
 )
 @pytest.mark.asyncio
-async def test_redis_expireat_today_midnight(user_id: int, expectation: does_not_raise, redis_cli: Redis):
+async def test_redis_expireat_midnight(user_id: int, expectation: does_not_raise, redis_cli: Redis):
     with expectation:
-        day_time = datetime.datetime.now() + datetime.timedelta(hours=1)
-        # print(day_time.time())
-        res = await redis_expireat_today_midnight(user_id, redis_cli, day_time=day_time.time())
+        day_time = datetime.datetime.now() + datetime.timedelta(microseconds=1)
+        res = await redis_expireat_midnight(user_id, redis_cli, day_time=day_time.time())
         assert res is True
 

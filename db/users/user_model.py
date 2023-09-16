@@ -20,7 +20,7 @@ class UserModel(AsyncSaBase):
     # actions: Mapped[list["ActionsModel"]] = relationship(back_populates='user', lazy='joined')
 
     __table_args__ = (
-        PrimaryKeyConstraint('user_id', name='user_pk'),
+        PrimaryKeyConstraint('user_id'),
         # UniqueConstraint('username'),
         # ForeignKeyConstraint(['user_id'], ['users.id']),
         # Index('title_content_index' 'title', 'content'),  # composite index on title and content
