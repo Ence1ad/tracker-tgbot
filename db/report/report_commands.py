@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Sequence, Date, Float
+from sqlalchemy import Integer, Date, Float
 from sqlalchemy import select, extract, cast, func, and_, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -8,7 +8,14 @@ from ..actions.actions_models import ActionsModel
 from ..tracker.tracker_model import TrackerModel
 
 
-async def get_report(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> Sequence:
+async def select_weekly_trackers(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[tuple[str, int]]:
+    """
+    Select the records for the current week from the trackers db table by user_id
+
+    :param user_id: Telegram user id derived from call or message
+    :param db_session: AsyncSession derived from middleware
+    :return: list of rows (action name, category name, day of the week, duration) from the table
+    """
     async with db_session as session:
         async with session.begin():
             # Get last monday
@@ -16,12 +23,13 @@ async def get_report(user_id: int, db_session: async_sessionmaker[AsyncSession])
                 (select(func.current_date() + cast(-6 - extract("dow", func.current_date()), Integer) % 7)
                  ).scalar_subquery()
 
+            # Create a cte and get sorted (by tracker_id) action_id, duration, from monday to today
+            # if the tracker was stopped. The limit restriction to obtain from the project settings.
             cte_stmt = \
                 select(TrackerModel.action_id,
                        func.to_char(TrackerModel.track_start, 'dy').label("day_of_week"),
-                       # func.to_char(TrackerModel.track_start, 'ID').label("day_of_week"),
-                       cast(func.round((func.extract('epoch',
-                                        func.sum(TrackerModel.duration))/3600), 2).label("duration_action"),
+                       cast(func.round(
+                           (func.extract('epoch', func.sum(TrackerModel.duration))/3600), 2).label("duration_action"),
                             Float)
                        ) \
                 .where(and_(TrackerModel.user_id == user_id,

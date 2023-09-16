@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Use when you don't use alembic
 # async def create_tables(engine):
-#     from db.base_model import SqlAlchemyBase
+#     from db.base_model import AsyncSaBase
 #     async with engine.begin() as conn:
-#         await conn.run_sync(SqlAlchemyBase.metadata.create_all)
+#         await conn.run_sync(AsyncSaBase.metadata.create_all)
 
 
 async def create_async_session(url: str, echo: bool = False) -> async_sessionmaker[AsyncSession]:

@@ -1,18 +1,37 @@
-from datetime import datetime as dt
+import datetime
+from datetime import datetime as dt, date, time
 
 from redis.asyncio import Redis
 
 
-async def redis_add_user_id(user_id: int, redis_client: Redis) -> int:
+async def redis_incr_user_day_trackers(user_id: int, redis_client: Redis) -> int:
+    return await redis_client.incr(name=str(user_id), amount=1)
+
+
+async def redis_decr_user_day_trackers(user_id: int, redis_client: Redis) -> int:
+    return await redis_client.decr(name=str(user_id), amount=1)
+
+
+async def redis_expireat_today_midnight(user_id: int, redis_client: Redis, day_time: None | time = None) -> int:
+    today = date.today()
+    if not day_time:
+        midnight = time.max
+    else:
+        midnight = day_time
+    today_midnight = datetime.datetime.combine(today, midnight)
+    return await redis_client.expireat(name=str(user_id), when=today_midnight)
+
+
+async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
     return await redis_client.sadd('users', user_id)
 
 
-async def is_redis_have_user(user_id: int, redis_client: Redis) -> bool | None:
+async def is_redis_sismember_user (user_id: int, redis_client: Redis) -> bool | None:
     user_exists = await redis_client.sismember(name="users", value=str(user_id))
     return True if user_exists else False
 
 
-async def redis_get_members(redis_client: Redis) -> set | None:
+async def redis_smembers_users(redis_client: Redis) -> set | None:
     members = await redis_client.smembers(name="users")
     return members if members else None
 
@@ -47,7 +66,7 @@ async def redis_delete_tracker(user_id: int, redis_client: Redis) -> None:
     await redis_client.delete(f"{user_id}_tracker")
 
 
-async def redis_started_tracker(user_id: int, redis_client: Redis) -> dict[bytes:bytes] | None:
+async def redis_hgetall_started_tracker(user_id: int, redis_client: Redis) -> dict[bytes:bytes] | None:
     return await redis_client.hgetall(f"{user_id}_tracker")
 
 

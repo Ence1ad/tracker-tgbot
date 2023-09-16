@@ -3,10 +3,10 @@ from sqlalchemy import Integer, String, Column, ForeignKey, BigInteger, UniqueCo
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import settings
-from ..base_model import SqlAlchemyBase
+from ..base_model import AsyncSaBase
 
 
-class ActionsModel(SqlAlchemyBase):
+class ActionsModel(AsyncSaBase):
     __tablename__ = 'actions'
     action_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     action_name: Mapped[str] = mapped_column(String(settings.LENGTH_NAME_LIMIT), nullable=False)

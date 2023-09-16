@@ -2,7 +2,7 @@ from aiogram.types import Message
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import is_redis_tracker_exist, redis_add_user_id, is_redis_have_user
+from cache.redis_commands import is_redis_tracker_exist, redis_sadd_user_id, is_redis_sismember_user
 from db.users.users_commands import create_user
 from tgbot.keyboards.buttons_names import start_menu_buttons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
@@ -20,7 +20,7 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
     """
     user_id: int = message.from_user.id
     await message.delete()
-    user_from_cache: bool = await is_redis_have_user(user_id, redis_client)
+    user_from_cache: bool = await is_redis_sismember_user (user_id, redis_client)
     # Get keyboard
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
@@ -32,7 +32,7 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
             await message.answer(text=user_in_db_text, reply_markup=start_markup)
     else:
         # Add a new user to the cache
-        await redis_add_user_id(user_id, redis_client)
+        await redis_sadd_user_id(user_id, redis_client)
         # Add a new user to the database
         await create_user(
             user_id=user_id,

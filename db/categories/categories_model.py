@@ -2,11 +2,11 @@ from sqlalchemy import String, ForeignKey, BigInteger, UniqueConstraint, CheckCo
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.base_model import SqlAlchemyBase
+from db.base_model import AsyncSaBase
 from config import settings
 
 
-class CategoriesModel(SqlAlchemyBase):
+class CategoriesModel(AsyncSaBase):
     __tablename__ = 'categories'
     category_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     category_name: Mapped[str] = mapped_column(String(settings.LENGTH_NAME_LIMIT), nullable=False)

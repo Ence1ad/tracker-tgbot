@@ -6,7 +6,7 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from db.actions.actions_db_commands import create_actions
-from db.base_model import SqlAlchemyBase
+from db.base_model import AsyncSaBase
 from db.categories.categories_commands import create_category
 from db.users.users_commands import create_user
 
@@ -15,19 +15,19 @@ from config import settings
 USER_ID = 1111111111
 
 
-@pytest.fixture(scope="package")
-def event_loop():
-    """
-    Creates an instance of the default event loop for the test session.
-    """
-    if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
-        # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
-        # https://github.com/encode/httpx/issues/914
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+# @pytest.fixture(scope="package")
+# def event_loop():
+#     """
+#     Creates an instance of the default event loop for the test session.
+#     """
+#     if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
+#         # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
+#         # https://github.com/encode/httpx/issues/914
+#         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#
+#     loop = asyncio.new_event_loop()
+#     yield loop
+#     loop.close()
 
 
 @pytest.fixture(scope="package")
@@ -43,10 +43,10 @@ def async_engine():
 @pytest_asyncio.fixture(scope="module")
 async def create_drop_models(async_engine):
     async with async_engine.begin() as conn:
-        await conn.run_sync(SqlAlchemyBase.metadata.create_all)
+        await conn.run_sync(AsyncSaBase.metadata.create_all)
     yield
     async with async_engine.begin() as conn:
-        await conn.run_sync(SqlAlchemyBase.metadata.drop_all)
+        await conn.run_sync(AsyncSaBase.metadata.drop_all)
 
 
 @pytest_asyncio.fixture(scope="class")

@@ -6,7 +6,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.redis_commands import redis_upd_tracker
-from db.actions.actions_db_commands import update_action, select_category_actions
+from db.actions.actions_db_commands import update_action_name, select_category_actions
 from tgbot.utils.validators import valid_name
 from tgbot.keyboards.buttons_names import actions_menu_buttons, new_action_button
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
@@ -67,7 +67,7 @@ async def _udp_action(message: Message, redis_client: Redis, state_data: dict[st
     user_id: int = message.from_user.id
     action_id = state_data['action_id']
     category_name = state_data['category_name']
-    returning = await update_action(user_id=user_id, action_id=action_id,
+    returning = await update_action_name(user_id=user_id, action_id=action_id,
                                     new_action_name=new_action_name, db_session=db_session)
     markup = await menu_inline_kb(actions_menu_buttons)
     if returning:

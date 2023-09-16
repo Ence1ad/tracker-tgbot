@@ -3,7 +3,7 @@ from pandas import DataFrame
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from data_preparation.pd_prepare import pd_action_data, pd_category_data
-from db.report.report_commands import get_report
+from db.report.report_commands import select_weekly_trackers
 from tgbot.keyboards.buttons_names import reports_buttons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import xlsx_title, send_report_text, empty_trackers_text
@@ -12,7 +12,7 @@ from data_preparation.create_report import create_fig
 
 async def get_weekly_report(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession]) -> Message:
     user_id = call.from_user.id
-    report = await get_report(user_id, db_session)
+    report = await select_weekly_trackers(user_id, db_session)
     markup = await menu_inline_kb(reports_buttons)
     if report:
         action_data: DataFrame = await pd_action_data(report)

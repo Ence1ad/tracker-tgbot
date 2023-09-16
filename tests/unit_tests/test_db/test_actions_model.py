@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
-from db.actions.actions_db_commands import create_actions, select_category_actions, delete_action, update_action
+from db.actions.actions_db_commands import create_actions, select_category_actions, delete_action, update_action_name
 
 
 @pytest.mark.asyncio
@@ -85,7 +85,7 @@ class TestActions:
             expectation: does_not_raise
     ):
         with expectation:
-            res_id_scalar_one_or_none = await update_action(user_id, action_id, new_action_name, session)
+            res_id_scalar_one_or_none = await update_action_name(user_id, action_id, new_action_name, session)
             assert res_id_scalar_one_or_none == 1
 
     @pytest.mark.parametrize(

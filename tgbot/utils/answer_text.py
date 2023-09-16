@@ -1,6 +1,6 @@
 from redis.asyncio import Redis
 
-from cache.redis_commands import redis_started_tracker
+from cache.redis_commands import redis_hgetall_started_tracker
 from config import settings
 from datetime import datetime as dt, timedelta
 
@@ -73,7 +73,7 @@ xlsx_title = "Weekly Report.xlsx"
 
 async def started_tracker_text(user_id: int, redis_client: Redis) -> str:
     text = []
-    tracker_data = await redis_started_tracker(user_id=user_id, redis_client=redis_client)
+    tracker_data = await redis_hgetall_started_tracker(user_id=user_id, redis_client=redis_client)
     if tracker_data:
         tracker_data = {key.decode(encoding='utf-8'): value.decode(encoding='utf-8') for key, value in tracker_data.items()}
         category_name: str = "🗄:" + ' ' + tracker_data['category_name']

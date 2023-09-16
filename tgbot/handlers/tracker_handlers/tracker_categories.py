@@ -15,7 +15,7 @@ async def select_category_tracker(call: CallbackQuery, db_session: async_session
                                   redis_client: Redis) -> Message:
     user_id = call.from_user.id
     await call.message.delete()
-    is_tracker = is_redis_tracker_exist(user_id, redis_client)
+    is_tracker = await is_redis_tracker_exist(user_id, redis_client)
     if not is_tracker:
         categories = await select_categories(user_id, db_session)
         if categories:

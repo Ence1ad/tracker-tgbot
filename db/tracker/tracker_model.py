@@ -4,10 +4,10 @@ from sqlalchemy import Integer, ForeignKey, DateTime
 
 from sqlalchemy.orm import mapped_column, Mapped
 
-from db.base_model import SqlAlchemyBase
+from db.base_model import AsyncSaBase
 
 
-class TrackerModel(SqlAlchemyBase):
+class TrackerModel(AsyncSaBase):
     __tablename__ = 'trackers'
     tracker_id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
     duration: Mapped[timedelta] = mapped_column(nullable=True)

@@ -4,10 +4,10 @@ from typing import Optional
 from sqlalchemy import String, PrimaryKeyConstraint, BigInteger
 from sqlalchemy.orm import mapped_column, Mapped
 
-from ..base_model import SqlAlchemyBase
+from ..base_model import AsyncSaBase
 
 
-class UserModel(SqlAlchemyBase):
+class UserModel(AsyncSaBase):
     __tablename__ = 'users'
     user_id: Mapped[int] = mapped_column(BigInteger, autoincrement=False)
     first_name: Mapped[Optional[str]] = mapped_column(String(64))
