@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from redis.asyncio import Redis
 
-from cache.redis_commands import is_redis_tracker_exist
+from cache.redis_tracker_commands import is_redis_tracker_exist
 from tgbot.keyboards.buttons_names import start_menu_buttons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import options_text, launch_tracker_text, started_tracker_text

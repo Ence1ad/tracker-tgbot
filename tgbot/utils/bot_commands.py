@@ -2,7 +2,7 @@ from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeDefault
 
 
-async def my_commands(bot: Bot):
+async def my_commands(bot: Bot) -> None:
     commands = [
         BotCommand(
             command='start',

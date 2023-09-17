@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery, Message
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import redis_hget_tracker_data, redis_delete_tracker
+from cache.redis_tracker_commands import redis_hget_tracker_data, redis_delete_tracker
 from db.categories.categories_commands import delete_category, select_categories
 from tgbot.keyboards.buttons_names import category_menu_buttons, new_category_button
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb

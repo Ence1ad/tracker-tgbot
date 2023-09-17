@@ -2,7 +2,8 @@ from aiogram.types import Message
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import is_redis_tracker_exist, redis_sadd_user_id, is_redis_sismember_user
+from cache.redis_tracker_commands import is_redis_tracker_exist
+from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_user
 from db.users.users_commands import create_user
 from tgbot.keyboards.buttons_names import start_menu_buttons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb

@@ -12,23 +12,6 @@ from db.users.users_commands import create_user
 
 from config import settings
 
-USER_ID = 1111111111
-
-
-# @pytest.fixture(scope="package")
-# def event_loop():
-#     """
-#     Creates an instance of the default event loop for the test session.
-#     """
-#     if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
-#         # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
-#         # https://github.com/encode/httpx/issues/914
-#         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-#
-#     loop = asyncio.new_event_loop()
-#     yield loop
-#     loop.close()
-
 
 @pytest.fixture(scope="package")
 def async_engine():
@@ -54,30 +37,31 @@ async def session(async_engine, create_drop_models):
     async with AsyncSession(async_engine) as db_session:
         yield db_session
 
-
+@pytest.mark.usefixtures('set_user_id')
 @pytest_asyncio.fixture(scope="class")
-async def add_user(session):
-    user_id: int = USER_ID
+async def add_user(session, set_user_id):
+    user_id: int = set_user_id
     for i in range(3):
         user_obj = await create_user(user_id=user_id + i, first_name='', last_name='', username='',
                                      db_session=session)
     # yield user_obj
     # await session.execute(sa.delete(UserModel).where(UserModel.user_id == user_id))
 
-
+@pytest.mark.usefixtures('set_user_id')
 @pytest_asyncio.fixture(scope="class")
-async def add_category(session, add_user):
+async def add_category(session, add_user, set_user_id):
     category_name = 'best_category_ever'
-    await create_category(user_id=USER_ID, category_name=category_name, db_session=session)
+    await create_category(user_id=set_user_id, category_name=category_name, db_session=session)
     # yield category_obj
     # await delete_category(user_id=USER_ID, category_id=category_obj.category_id, db_session=session)
 
 
+@pytest.mark.usefixtures('set_user_id')
 @pytest_asyncio.fixture(scope="class")
-async def add_action(session, add_category):
+async def add_action(session, add_category, set_user_id):
     action_name = 'my_action'
     category_id = 1
-    await create_actions(user_id=USER_ID, action_name=action_name, category_id=category_id,
-                                      db_session=session)
+    await create_actions(user_id=set_user_id, action_name=action_name, category_id=category_id,
+                         db_session=session)
     # yield action_obj
     # await delete_action(user_id=USER_ID, action_id=action_obj.action_id, db_session=session)

@@ -104,7 +104,7 @@ def create_pie_chart(*, df: DataFrame, wb: Workbook) -> None:
 
 def gradient_pie(pie: PieChart, ws: Worksheet) -> None:
     # Cut the first slice out of the pie and apply a gradient to it
-    slice = DataPoint(idx=0, explosion=20, spPr=GraphicalProperties(
+    slice_ = DataPoint(idx=0, explosion=20, spPr=GraphicalProperties(
         gradFill=GradientFillProperties(
             gsLst=(
                 GradientStop(
@@ -123,5 +123,5 @@ def gradient_pie(pie: PieChart, ws: Worksheet) -> None:
         )
     )
                       )
-    pie.series[0].data_points = [slice]
+    pie.series[0].data_points = [slice_]
     ws.add_chart(pie, "E1")

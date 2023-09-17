@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 
-async def command_cancel_handler(event, state: FSMContext):
+async def command_cancel_handler(event: Message | CallbackQuery, state: FSMContext) -> None:
     await state.clear()
     if isinstance(event, Message):
         await event.delete()

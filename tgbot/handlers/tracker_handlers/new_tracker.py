@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from aiogram.fsm.context import FSMContext
@@ -8,7 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import redis_hmset_tracker_data, redis_incr_user_day_trackers, redis_expireat_midnight
+from cache.redis_tracker_commands import redis_hmset_tracker_data, redis_incr_user_day_trackers, redis_expireat_midnight
 from tgbot.schedule.schedule_jobs import delete_tracker_job
 from tgbot.utils.answer_text import new_tracker_text, not_enough_data_text
 from tgbot.keyboards.callback_factories import ActionCD
@@ -39,8 +38,8 @@ async def create_new_tracker(call: CallbackQuery, callback_data: ActionCD, state
         await redis_hmset_tracker_data(user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
                                        category_id=category_id, category_name=category_name, redis_client=redis_client)
         await redis_incr_user_day_trackers(user_id, redis_client)
-        day_time = datetime.datetime.now() + datetime.timedelta(seconds=55)
-        await redis_expireat_midnight(user_id, redis_client, day_time=day_time.time())
+        # Set expire at every midnight for user trackers
+        await redis_expireat_midnight(user_id, redis_client)
         # If user not stop the tracker, it will be deleted automatically
         await delete_tracker_job(scheduler=apscheduler, call=call)
         markup = await menu_inline_kb(tracker_menu_buttons_stop)

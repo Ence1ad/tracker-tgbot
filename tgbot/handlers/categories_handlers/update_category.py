@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_commands import redis_upd_tracker
+from cache.redis_tracker_commands import redis_upd_tracker
 from db.categories.categories_commands import update_category, select_categories
 from tgbot.utils.validators import valid_name
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
