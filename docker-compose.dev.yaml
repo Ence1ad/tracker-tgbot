@@ -147,6 +147,7 @@ services:
     image: prom/alertmanager
     hostname: alertmanager
     user: root
+    env_file: .env
     restart: unless-stopped
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml

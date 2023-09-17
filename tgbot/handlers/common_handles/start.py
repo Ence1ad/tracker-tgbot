@@ -2,7 +2,7 @@ from aiogram.types import Message
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_tracker_commands import is_redis_tracker_exist
+from cache.redis_tracker_commands import is_redis_hexists_tracker
 from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_user
 from db.users.users_commands import create_user
 from tgbot.keyboards.buttons_names import start_menu_buttons
@@ -26,7 +26,7 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
     start_markup = await start_menu_inline_kb(start_menu_buttons)
     # Check if sender already in DB
     if user_from_cache:
-        if await is_redis_tracker_exist(user_id, redis_client):
+        if await is_redis_hexists_tracker(user_id, redis_client):
             started_text = await started_tracker_text(user_id, redis_client)
             await message.answer(text=launch_tracker_text + started_text, reply_markup=start_markup)
         else:

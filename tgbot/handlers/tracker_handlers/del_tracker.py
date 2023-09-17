@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_tracker_commands import is_redis_tracker_exist, redis_decr_user_day_trackers
+from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_decr_user_day_trackers
 from db.tracker.tracker_db_command import select_stopped_trackers, delete_tracker
 from tgbot.keyboards.buttons_names import tracker_menu_buttons_start, tracker_menu_buttons_stop
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
@@ -38,7 +38,7 @@ async def del_tracking_data(call: CallbackQuery, callback_data: TrackerCD,
 
 
 async def _get_right_tracker_menu_buttons(user_id: int, redis_client: Redis) -> InlineKeyboardMarkup:
-    is_started_tracker: bool = await is_redis_tracker_exist(user_id, redis_client)
+    is_started_tracker: bool = await is_redis_hexists_tracker(user_id, redis_client)
     start_tracker_menu_buttons = await menu_inline_kb(tracker_menu_buttons_start)
     stop_tracker_menu_buttons = await menu_inline_kb(tracker_menu_buttons_stop)
     if not is_started_tracker:

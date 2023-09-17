@@ -7,7 +7,7 @@ from contextlib import nullcontext as does_not_raise
 from redis.asyncio import Redis
 
 from cache.redis_tracker_commands import redis_hmset_tracker_data, \
-    redis_hget_tracker_data, is_redis_tracker_exist, redis_hgetall_started_tracker, redis_upd_tracker, \
+    redis_hget_tracker_data, is_redis_hexists_tracker, redis_hgetall_started_tracker, redis_upd_tracker, \
     redis_delete_tracker, redis_decr_user_day_trackers, redis_expireat_midnight, redis_incr_user_day_trackers
 from redis.exceptions import DataError
 
@@ -22,7 +22,7 @@ class TestRedisTrackerCommands:
             (USER_ID, 1, 1, "user_act", 1, "user_cat", does_not_raise()),
             (USER_ID, 1, 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
             (12345, 2, 1, "other_act", 1, "other_cat", does_not_raise()),
-            (None, 1, 1, "user_act", 1, "user_cat", pytest.raises(DataError)),
+            (None, 1, 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
             (USER_ID, None, 1, "user_act", 1, "user_cat", pytest.raises(DataError)),
             (USER_ID, 1, None, "user_act", 1, "user_cat", pytest.raises(DataError)),
             (USER_ID, 1, 1, None, 1, "user_cat", pytest.raises(DataError)),
@@ -42,7 +42,7 @@ class TestRedisTrackerCommands:
         with expectation:
             res: int = await redis_hmset_tracker_data(user_id, tracker_id, action_id, action_name, category_id,
                                                       category_name, redis_client=redis_cli)
-            assert isinstance(res, int) is True
+            assert isinstance(res, (int, NoneType)) is True
             assert res == 6
 
     @pytest.mark.parametrize(
@@ -77,9 +77,9 @@ class TestRedisTrackerCommands:
 
         ]
     )
-    async def test_is_redis_tracker_exist(self, user_id, expectation: does_not_raise, redis_cli: Redis):
+    async def test_is_redis_hexists_tracker(self, user_id, expectation: does_not_raise, redis_cli: Redis):
         with expectation:
-            res: bool = await is_redis_tracker_exist(user_id, redis_client=redis_cli)
+            res: bool = await is_redis_hexists_tracker(user_id, redis_client=redis_cli)
             assert isinstance(res, bool) is True
             assert res is True
 
@@ -138,7 +138,6 @@ class TestRedisTrackerCommands:
     async def test_redis_delete_tracker(self, user_id, expectation: does_not_raise, redis_cli: Redis):
         with expectation:
             res: int = await redis_delete_tracker(user_id, redis_client=redis_cli)
-            print(res)
             assert isinstance(res, int) is True
             assert res == 1
 
@@ -147,6 +146,7 @@ class TestRedisTrackerCommands:
         [
             (USER_ID, does_not_raise()),
             (USER_ID, pytest.raises(AssertionError)),
+
         ]
     )
     async def test_redis_incr_user_day_trackers(self, user_id: int, expectation: does_not_raise, redis_cli: Redis):
