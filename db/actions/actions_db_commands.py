@@ -1,20 +1,23 @@
 from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
-from ..categories.categories_model import CategoriesModel
+from sqlalchemy.engine.row import Row
 from .actions_models import ActionsModel
 
 
 async def create_actions(user_id: int, action_name: str, category_id: int,
                          db_session: async_sessionmaker[AsyncSession]) -> ActionsModel:
     """
-    Create a record in the actions db table and return the obj
+    The create_actions function creates a new action in the database.
+        Args:
+            user_id (int): The id of the user who created this action.
+            action_name (str): The name of the new action to be created.
+            category_id (int): The id of the category that this new
 
-    :param user_id: Telegram user id derived from call or message
-    :param action_name: Action name written by user
-    :param category_id: Category id derived from the FSM context state
-    :param db_session: AsyncSession derived from middleware
-    :return: ActionsModel object
+    :param user_id: int: Identify the user who is creating the action
+    :param action_name: str: Create the action name
+    :param category_id: int: Create a new action
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: The ActionsModel object
     """
     async with db_session as session:
         async with session.begin():
@@ -30,24 +33,26 @@ async def create_actions(user_id: int, action_name: str, category_id: int,
 
 
 async def select_category_actions(user_id: int, category_id: int, db_session: async_sessionmaker[AsyncSession]
-                                  ) -> list[tuple[int, str]]:
-    """
-    Select the records from the actions db table
+                                  ) -> list[Row[int, str]]:
 
-    :param user_id: Telegram user id derived from call or message
-    :param category_id: Category id derived from the cache
-    :param db_session: AsyncSession derived from middleware
-    :return: list of sorted (by action_name) rows (action_id, action_name,
-     category_id, category_name from the actions table
+    """
+    The select_category_actions function is used to select all actions associated with a given category.
+        The function takes in the user_id and category_id of the user and category respectively, as well as an
+        async session object. It then uses these parameters to query the database for all actions that are associated
+        with this particular user's account and this particular category. The results are returned in a list of rows
+        (tuples), where each row contains two elements: (action_id, action_name). If no results are found, empty list
+         will be returned instead.
+
+    :param user_id: int: Identify the user
+    :param category_id: int: Filter the actions by category_id
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: A list of rows(tuples) with the action_id and action_name
     """
     async with db_session as session:
         async with session.begin():
             stmt = \
                 select(ActionsModel.action_id,
-                       ActionsModel.action_name,
-                       CategoriesModel.category_id,
-                       CategoriesModel.category_name)\
-                .join(CategoriesModel) \
+                       ActionsModel.action_name)\
                 .where(ActionsModel.user_id == user_id,
                        ActionsModel.category_id == category_id)\
                 .order_by(ActionsModel.action_name)
@@ -58,14 +63,15 @@ async def select_category_actions(user_id: int, category_id: int, db_session: as
 
 async def update_action_name(user_id: int, action_id: int, new_action_name: str,
                              db_session: async_sessionmaker[AsyncSession]) -> int | None:
-    """
-    Update the action name in the actions table record
 
-    :param user_id: Telegram user id derived from call or message
-    :param action_id: Action id derived from the cache
-    :param new_action_name: New action name, written by the user, required for updating
-    :param db_session: AsyncSession derived from middleware
-    :return: one if the update operation was successful, none if not
+    """
+    The update_action_name function updates the action_name of an existing action.
+
+    :param user_id: int: Identify the user who is updating an action
+    :param action_id: int: Identify the action to be updated
+    :param new_action_name: str: Pass in the new action name
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: one if the update row was successful, none if not
     """
     async with db_session as session:
         async with session.begin():
@@ -82,12 +88,12 @@ async def update_action_name(user_id: int, action_id: int, new_action_name: str,
 
 async def delete_action(user_id: int, action_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
     """
-    Delete the action record from the actions db table
+    The delete_action function deletes an action from the database.
 
-    :param user_id: Telegram user id derived from call or message
-    :param action_id: Action id derived from the cache
-    :param db_session: AsyncSession derived from the middleware
-    :return: one if the delete operation was successful, none if not
+    :param user_id: int: Identify the user who is deleting an action
+    :param action_id: int: Specify the action_id of the action to be deleted
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: one if the deleted action or none if no action was deleted
     """
     async with db_session as session:
         async with session.begin():

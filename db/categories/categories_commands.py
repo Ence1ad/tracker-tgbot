@@ -1,18 +1,18 @@
 from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
+from sqlalchemy.engine.row import Row
 from .categories_model import CategoriesModel
 
 
 async def create_category(user_id: int, category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> CategoriesModel:
     """
-    Create a record in the categories db table and return the obj
+    The create_category function creates a new category for the user.
 
-    :param user_id: Telegram user id derived from call or message
-    :param category_name: Category name written by user and checked with a validator
-    :param db_session: AsyncSession derived from middleware
-    :return: CategoriesModel object
+    :param user_id: int: Identify the user that created the category
+    :param category_name: str: Create a new category
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: A CategoriesModel object
     """
     async with db_session as session:
         async with session.begin():
@@ -25,13 +25,16 @@ async def create_category(user_id: int, category_name: str,
         return category_obj
 
 
-async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[tuple[int, str]]:
-    """
-    Select the records from the categories db table
+async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[Row[int, str]]:
 
-    :param user_id: Telegram user id derived from call or message
-    :param db_session: AsyncSession derived from middleware
-    :return: list of sorted (by category_name) rows (category_id, category_name, user_id) from the categories table
+    """
+    The select_categories function returns a list of rows(tuples) containing the category_id and category_name
+    of all categories belonging to the user with id = user_id. If no results are found, empty list will be returned
+    instead.
+
+    :param user_id: int: Select the categories for a specific user
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: A list of rows(tuples) with the category_id and category_name
     """
     async with db_session as session:
         async with session.begin():
@@ -47,15 +50,22 @@ async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSe
 
 async def update_category(user_id: int, category_id: int, new_category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> None:
-    """
-    Update the category name in the categories table record
 
-    :param user_id: Telegram user id derived from call or message
-    :param category_id: Category id derived from the cache
-    :param new_category_name: New category name, written by the user, required for updating
-    :param db_session: AsyncSession derived from middleware
+    """
+    The update_category function updates the category name of a given user's category.
+
+        Args:
+            user_id (int): The id of the user whose category is to be updated.
+            category_id (int): The id of the specific category that is to be updated.
+            new_category_name (str): The new name for this particular category.
+
+    :param user_id: int: Identify the user
+    :param category_id: int: Identify the category to be updated
+    :param new_category_name: str: Update the category name
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
     :return: one if the update operation was successful, none if not
     """
+
     async with db_session as session:
         async with session.begin():
             udp_stmt = \
@@ -72,11 +82,11 @@ async def update_category(user_id: int, category_id: int, new_category_name: str
 async def delete_category(user_id: int, category_id: int,
                           db_session: async_sessionmaker[AsyncSession]) -> int | None:
     """
-    Delete the category record from the categories db table
+    The delete_category function deletes of a given user's category from the database.
 
-    :param user_id: Telegram user_id derived from call or message
-    :param category_id: Category id derived from the cache
-    :param db_session: AsyncSession derived from middleware
+    :param user_id: int: Identify the user that is deleting a category
+    :param category_id: int: Specify the category to delete
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
     :return: one if the delete operation was successful, none if not
     """
     async with db_session as session:

@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from db.actions.actions_db_commands import select_category_actions
-from tgbot.keyboards.buttons_names import new_action_button
+from tgbot.keyboards.buttons_names import ActionsButtons
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 from tgbot.utils.answer_text import empty_actions_text, select_action_text
 from tgbot.keyboards.callback_factories import CategoryCD, ActionOperation
@@ -24,5 +24,5 @@ async def display_actions_tracker(call: CallbackQuery, callback_data: CategoryCD
     else:
         await state.update_data(category_id=callback_data.category_id, category_name=callback_data.category_name)
         await state.set_state(ActionState.WAIT_CATEGORY_DATA)
-        markup = await menu_inline_kb(new_action_button)
+        markup = await menu_inline_kb(await ActionsButtons.new_action())
         await call.message.edit_text(text=empty_actions_text, reply_markup=markup)

@@ -9,7 +9,7 @@ from cache.redis_tracker_commands import redis_upd_tracker
 from db.categories.categories_commands import update_category, select_categories
 from tgbot.utils.validators import valid_name
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
-from tgbot.keyboards.buttons_names import category_menu_buttons, new_category_button
+from tgbot.keyboards.buttons_names import CategoriesButtons
 from tgbot.utils.answer_text import upd_category_text, new_category_text, select_category_text, empty_categories_text, \
     categories_is_fake_text, accept_only_text, category_exists_text
 from tgbot.keyboards.callback_factories import CategoryOperation, CategoryCD
@@ -23,7 +23,7 @@ async def select_update_category(call: CallbackQuery, db_session: async_sessionm
         markup = await callback_factories_kb(categories, CategoryOperation.UDP)
         return await call.message.edit_text(text=select_category_text, reply_markup=markup)
     else:
-        markup = await menu_inline_kb(new_category_button)
+        markup = await menu_inline_kb(await CategoriesButtons.new_category())
         return await call.message.edit_text(text=empty_categories_text, reply_markup=markup)
 
 
@@ -64,7 +64,7 @@ async def _udp_category(message: Message, db_session: async_sessionmaker[AsyncSe
     category_id: int = state_data['category_id']
     category_old_name = state_data['category_old_name']
     returning = await update_category(user_id, category_id, new_category_name, db_session)
-    markup = await menu_inline_kb(category_menu_buttons)
+    markup = await menu_inline_kb(await CategoriesButtons.category_menu_buttons())
     if returning:
         await redis_upd_tracker(user_id, redis_client, category_name=new_category_name)
         return await message.answer(text=f"{upd_category_text} {category_old_name} -> {new_category_name}",

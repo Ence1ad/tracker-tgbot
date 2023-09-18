@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from config import settings
-from tgbot.keyboards.buttons_names import actions_menu_buttons, action_limit_btn
+from tgbot.keyboards.buttons_names import CustomButtons, ActionsButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.answer_text import new_action_text, added_new_action_text, action_limit_text, \
     action_exists_text, char_limit, accept_only_text
@@ -22,7 +22,7 @@ async def new_action_reaction_handler(call: CallbackQuery, state: FSMContext,
     # action_count: int = await select_action_count(user_id, category_id, db_session)
     action_count: int = len(await select_category_actions(user_id, category_id, db_session))
     if action_count >= settings.USER_ACTIONS_LIMIT:
-        markup = await menu_inline_kb(action_limit_btn)
+        markup = await menu_inline_kb(await CustomButtons.action_limit_menu())
         return await call.message.edit_text(text=action_limit_text, reply_markup=markup)
     else:
         await state.set_state(ActionState.GET_NAME)
@@ -46,7 +46,7 @@ async def create_action_handler(message: Message, state: FSMContext,
         new_action_valid_name = await valid_name(user_actions, new_action_name)
         if new_action_valid_name:
             await create_actions(user_id, new_action_valid_name, category_id=category_id, db_session=db_session)
-            markup = await menu_inline_kb(actions_menu_buttons)
+            markup = await menu_inline_kb(await ActionsButtons.action_menu_buttons())
             await message.answer(text=f"{added_new_action_text}: {new_action_valid_name}", reply_markup=markup)
             await state.set_state(ActionState.WAIT_CATEGORY_DATA)
         else:

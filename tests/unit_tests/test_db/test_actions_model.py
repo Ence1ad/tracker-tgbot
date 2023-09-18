@@ -58,7 +58,8 @@ class TestActions:
     ):
         with expectation:
             actions_fetchall = await select_category_actions(user_id, category_id, db_session=session)
-            assert len(actions_fetchall) > 0
+            print(actions_fetchall)
+            assert actions_fetchall != []
 
     @pytest.mark.parametrize(
         "user_id, action_id, new_action_name, expectation",

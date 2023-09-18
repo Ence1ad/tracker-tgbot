@@ -54,7 +54,7 @@ async def main() -> None:
 
     try:
         scheduler.start()
-        await dp.start_polling(bot)
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     except Exception as ex:
         logging.error(ex)
     finally:

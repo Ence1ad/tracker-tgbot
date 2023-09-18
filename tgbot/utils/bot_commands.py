@@ -6,7 +6,7 @@ async def my_commands(bot: Bot) -> None:
     commands = [
         BotCommand(
             command='start',
-            description='Start work'
+            description='Start bot'
         ),
         BotCommand(
             command='help',
@@ -14,11 +14,11 @@ async def my_commands(bot: Bot) -> None:
         ),
         BotCommand(
             command='settings',
-            description='Adjust bot'
+            description='Set bot parameters'
         ),
         BotCommand(
             command='cancel',
-            description='Canceling'
+            description='Cancellation of the action'
         )
     ]
 

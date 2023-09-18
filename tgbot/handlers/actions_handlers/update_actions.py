@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.redis_tracker_commands import redis_upd_tracker
 from db.actions.actions_db_commands import update_action_name, select_category_actions
 from tgbot.utils.validators import valid_name
-from tgbot.keyboards.buttons_names import actions_menu_buttons, new_action_button
+from tgbot.keyboards.buttons_names import ActionsButtons
 from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 from tgbot.keyboards.callback_factories import ActionOperation, ActionCD
 from tgbot.utils.states import UpdateActionState, ActionState
@@ -34,7 +34,7 @@ async def update_action_reaction_handler(call: CallbackQuery, state: FSMContext,
         await call.message.edit_text(text=to_update_action_text, reply_markup=markup)
         await state.set_state(UpdateActionState.GET_NAME)
     else:
-        markup = await menu_inline_kb(new_action_button)
+        markup = await menu_inline_kb(await ActionsButtons.new_action())
         await call.message.edit_text(text=empty_actions_text, reply_markup=markup)
 
 
@@ -69,7 +69,7 @@ async def _udp_action(message: Message, redis_client: Redis, state_data: dict[st
     category_name = state_data['category_name']
     returning = await update_action_name(user_id=user_id, action_id=action_id,
                                          new_action_name=new_action_name, db_session=db_session)
-    markup = await menu_inline_kb(actions_menu_buttons)
+    markup = await menu_inline_kb(await ActionsButtons.action_menu_buttons())
     if returning:
         await redis_upd_tracker(user_id=user_id, redis_client=redis_client, action_name=new_action_name)
         return await message.answer(

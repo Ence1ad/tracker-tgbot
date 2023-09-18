@@ -17,4 +17,4 @@ async def delete_tracker_job(scheduler: ContextSchedulerDecorator, call: Callbac
 
 
 async def interval_sending_reports_job(scheduler: ContextSchedulerDecorator, func=schedule_weekly_report) -> None:
-    scheduler.add_job(func=func, trigger='cron', day_of_week='sun', hour=23, minute=50)
+    scheduler.add_job(func=func, trigger='cron', day_of_week='sun', hour=23, minute=56)

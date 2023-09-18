@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_user
 from db.users.users_commands import create_user
-from tgbot.keyboards.buttons_names import start_menu_buttons
+from tgbot.keyboards.buttons_names import CustomButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import user_in_db_text, new_user_text, launch_tracker_text, started_tracker_text
 
 
-async def command_start_handler(message: Message, db_session: async_sessionmaker[AsyncSession], redis_client: Redis) -> None:
+async def command_start_handler(message: Message, db_session: async_sessionmaker[AsyncSession], redis_client: Redis,) -> None:
     """
     Function react to tap on "/start" command. Function check if user exist in db,
     function just return some answer as message, else create user in db and return answer as message.
@@ -23,7 +23,7 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
     await message.delete()
     user_from_cache: bool = await is_redis_sismember_user (user_id, redis_client)
     # Get keyboard
-    start_markup = await start_menu_inline_kb(start_menu_buttons)
+    start_markup = await start_menu_inline_kb(await CustomButtons.main_menu_buttons())
     # Check if sender already in DB
     if user_from_cache:
         if await is_redis_hexists_tracker(user_id, redis_client):

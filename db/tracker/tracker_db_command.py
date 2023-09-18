@@ -1,10 +1,11 @@
 
 from datetime import timedelta, datetime
-
+from sqlalchemy.engine.row import Row
 from sqlalchemy import Date, desc
 from sqlalchemy import select, delete, update, func, cast
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from config import settings
 from ..actions.actions_models import ActionsModel
 from .tracker_model import TrackerModel
 
@@ -32,13 +33,14 @@ async def create_tracker(user_id: int, category_id: int, action_id: int,
 
 
 async def select_stopped_trackers(user_id: int, db_session: async_sessionmaker[AsyncSession]
-                                  ) -> list[tuple[int, datetime, str]]:
+                                  ) -> list[Row[int, datetime, str]]:
     """
-    Select the trackers that have already been stopped
+    The select_stopped_trackers function is used to select the last USER_TRACKERS_WEEKLY_LIMIT trackers that have been
+    stopped by a user. The function takes in two arguments:
 
-    :param user_id: Telegram user id derived from call or message
-    :param db_session: AsyncSession derived from middleware
-    :return: list of rows from the table
+    :param user_id: int: Identify the user
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: A list of rows(tuples)
     """
     async with db_session as session:
         async with session.begin():
@@ -51,7 +53,7 @@ async def select_stopped_trackers(user_id: int, db_session: async_sessionmaker[A
                        cast(TrackerModel.track_end, Date) == func.current_date(),
                        TrackerModel.duration.is_not(None))\
                 .order_by(desc(TrackerModel.tracker_id))\
-                .limit(100)
+                .limit(settings.USER_TRACKERS_WEEKLY_LIMIT)
 
             res = await session.execute(stmt)
             return res.fetchall()
@@ -59,13 +61,14 @@ async def select_stopped_trackers(user_id: int, db_session: async_sessionmaker[A
 
 async def select_tracker_duration(user_id: int, tracker_id: int,
                                   db_session: async_sessionmaker[AsyncSession]) -> timedelta | None:
-    """
-    Auto update track_end and select the tracker duration from the trackers db table
 
-    :param user_id: Telegram user id derived from call or message
-    :param tracker_id: Tracker id derived from the cache
-    :param db_session: AsyncSession derived from middleware
-    :return: Duration if the update operation was successful, none if not
+    """
+    The select_tracker_duration function is used to select the duration of a tracker.
+
+    :param user_id: int: Identify the user
+    :param tracker_id: int: Identify the tracker that is being updated
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: Duration (a timedelta object) if the update operation was successful, none if not
     """
     async with db_session as session:
         async with session.begin():
@@ -88,13 +91,14 @@ async def select_tracker_duration(user_id: int, tracker_id: int,
 
 
 async def delete_tracker(user_id: int, tracker_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
-    """
-    Delete the tracker record from the trackers db table
 
-    :param user_id:
-    :param tracker_id:
-    :param db_session:
-    :return: one if the delete operation was successful, none if not
+    """
+    The delete_tracker function deletes a tracker from the database.
+
+    :param user_id: int: Specify the user_id of the tracker to be deleted
+    :param tracker_id: int: Specify which tracker to delete
+    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :return: one if the deleted row or none if no rows were deleted
     """
     async with db_session as session:
         async with session.begin():
