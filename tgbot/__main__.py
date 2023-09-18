@@ -11,7 +11,9 @@ from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
+from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware
+from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 
@@ -39,11 +41,13 @@ async def main() -> None:
                                       storage=storage, async_session=async_session)
 
     await interval_sending_reports_job(scheduler=scheduler)
-
+    # Initialize apscheduler
+    buttons = AppButtons()
     # Register middlewares
     dp.update.middleware.register(DbSessionMiddleware(async_session))
-    dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(CacheMiddleware(redis_client))
+    dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
+    dp.update.middleware.register(ButtonsMiddleware(buttons))
     # Register handlers
     common_handlers_router = register_common_handlers()
     actions_router = register_actions_handlers()

@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.state import any_state
 
-from tgbot.keyboards.buttons_names import CustomButtons
+from tgbot.keyboards.app_buttons import AppButtons
 
 
 def register_common_handlers() -> Router:
@@ -16,9 +16,8 @@ def register_common_handlers() -> Router:
 
     router.message.register(command_start_handler, Command("start"))
     router.message.register(command_cancel_handler, Command(commands=["cancel"]), any_state)
-    router.callback_query.register(command_cancel_handler, F.data == CustomButtons.cancel_btn, any_state)
-    router.callback_query.register(exit_menu, F.data == CustomButtons.exit_btn)
+    router.callback_query.register(command_cancel_handler, F.data == AppButtons.cancel_btn, any_state)
+    router.callback_query.register(exit_menu, F.data == AppButtons.exit_btn)
     router.message.register(command_help_handler, Command(commands=["help"]))
     router.message.register(command_settings_handler, Command(commands=["settings"]))
-
     return router

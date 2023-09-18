@@ -3,14 +3,14 @@ from aiogram.types import CallbackQuery, Message
 from redis.asyncio import Redis
 
 from cache.redis_tracker_commands import is_redis_hexists_tracker
-from tgbot.keyboards.buttons_names import CustomButtons
+from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import options_text, launch_tracker_text, started_tracker_text
 
 
-async def exit_menu(call: CallbackQuery, state: FSMContext, redis_client: Redis) -> Message:
+async def exit_menu(call: CallbackQuery, state: FSMContext, redis_client: Redis, buttons: AppButtons) -> Message:
     user_id = call.from_user.id
-    markup = await start_menu_inline_kb(await CustomButtons.main_menu_buttons())
+    markup = await start_menu_inline_kb(await buttons.main_menu_buttons())
     await state.clear()
     if await is_redis_hexists_tracker(user_id, redis_client):
         started_text = await started_tracker_text(user_id, redis_client)

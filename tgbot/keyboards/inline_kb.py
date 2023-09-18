@@ -3,7 +3,7 @@ from enum import Enum
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tgbot.keyboards.buttons_names import CustomButtons
+from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
     TrackerOperation, TrackerCD
 
@@ -13,7 +13,7 @@ async def start_menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
     for data, txt in buttons.items():
         kb_builder.button(text=txt, callback_data=data)
     kb_builder.adjust(2, 2, 1)
-    kb_builder.row(InlineKeyboardButton(text=CustomButtons.cancel_btn, callback_data=CustomButtons.cancel_btn))
+    kb_builder.row(InlineKeyboardButton(text=AppButtons.cancel_btn, callback_data=AppButtons.cancel_btn))
     return kb_builder.as_markup()
 
 
@@ -22,7 +22,7 @@ async def menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
     for data, txt in buttons.items():
         kb_builder.button(text=txt, callback_data=data)
     kb_builder.adjust(2, 2, 1)
-    kb_builder.row(InlineKeyboardButton(text=CustomButtons.exit_btn, callback_data=CustomButtons.exit_btn))
+    kb_builder.row(InlineKeyboardButton(text=AppButtons.exit_btn, callback_data=AppButtons.exit_btn))
     return kb_builder.as_markup()
 
 
@@ -47,7 +47,7 @@ async def callback_factories_kb(data_from_db: list, enum_val: Enum) -> InlineKey
     kb_builder = await get_kb[enum_val.__class__](data_from_db, callback_class=callback_class, builder=kb_builder,
                                                   operation=enum_val)
 
-    kb_builder.row(InlineKeyboardButton(text=CustomButtons.exit_btn, callback_data=CustomButtons.exit_btn))
+    kb_builder.row(InlineKeyboardButton(text=AppButtons.exit_btn, callback_data=AppButtons.exit_btn))
     return kb_builder.as_markup()
 
 

@@ -5,6 +5,8 @@ from config import settings
 from datetime import datetime as dt, timedelta
 
 # Common
+canceling_text = "Your action has been canceled"
+exit_text = "See you soon!"
 options_text = "Select the button"
 char_limit = f"\n\rThe limit on the length of the name is {settings.LENGTH_NAME_LIMIT} characters"
 accept_only_text = "Please try again, I only accept text message"
