@@ -6,9 +6,9 @@ from tgbot.keyboards.app_buttons import AppButtons
 
 
 def register_common_handlers() -> Router:
-    from .start import command_start_handler
-    from .cancel import command_cancel_handler
-    from .exit_handler import exit_menu
+    from .start_handler import command_start_handler
+    from .cancel_handler import command_cancel_handler
+    from .exit_handler import exit_menu_handler
     from .help_handler import command_help_handler
     from .settings_handler import command_settings_handler
 
@@ -16,8 +16,8 @@ def register_common_handlers() -> Router:
 
     router.message.register(command_start_handler, Command("start"))
     router.message.register(command_cancel_handler, Command(commands=["cancel"]), any_state)
-    router.callback_query.register(command_cancel_handler, F.data == AppButtons.cancel_btn, any_state)
-    router.callback_query.register(exit_menu, F.data == AppButtons.exit_btn)
+    router.callback_query.register(command_cancel_handler, F.data == AppButtons.general_data.CANCEL_BTN.name, any_state)
+    router.callback_query.register(exit_menu_handler, F.data == AppButtons.general_data.EXIT_BTN.name)
     router.message.register(command_help_handler, Command(commands=["help"]))
     router.message.register(command_settings_handler, Command(commands=["settings"]))
     return router

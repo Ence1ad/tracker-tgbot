@@ -13,8 +13,8 @@ from db.categories.categories_commands import create_category, select_categories
 from tgbot.utils.validators import valid_name
 
 
-async def new_category(call: CallbackQuery, state: FSMContext, db_session: async_sessionmaker[AsyncSession],
-                       buttons: AppButtons) -> Message | None:
+async def prompt_new_category_handler(call: CallbackQuery, state: FSMContext, db_session: async_sessionmaker[AsyncSession],
+                                      buttons: AppButtons) -> Message | FSMContext:
     user_id = call.from_user.id
     await call.message.edit_text(text=new_category_text)
     categories = await select_categories(user_id, db_session)
@@ -24,10 +24,11 @@ async def new_category(call: CallbackQuery, state: FSMContext, db_session: async
         return await call.message.edit_text(text=category_limit_text, reply_markup=markup)
     else:
         await state.set_state(CategoryState.GET_NAME)
+        return state
 
 
-async def get_category_name_from_user(message: Message, state: FSMContext,
-                                      db_session: async_sessionmaker[AsyncSession], buttons: AppButtons) -> Message:
+async def create_category_handler(message: Message, state: FSMContext,
+                                  db_session: async_sessionmaker[AsyncSession], buttons: AppButtons) -> Message:
     user_id: int = message.from_user.id
     await state.update_data(category_name=message.text)
     state_data = await state.get_data()

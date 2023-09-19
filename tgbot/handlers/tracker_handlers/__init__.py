@@ -1,5 +1,7 @@
 from aiogram import F, Router
 
+from tgbot.keyboards.app_buttons import AppButtons
+
 
 def register_tracker_handlers() -> Router:
     from .del_tracker import del_tracking_data, select_removing_tracker
@@ -15,17 +17,19 @@ def register_tracker_handlers() -> Router:
 
     router = Router()
 
-    router.callback_query.register(get_tracker_options, (F.data == 'trackers_btn') | (F.data == 'update_tracker_btn'))
-    router.callback_query.register(select_category_tracker, F.data == 'new_tracker_btn')
+    router.callback_query.register(get_tracker_options, (F.data == AppButtons.general_data.TRACKERS_BTN.name)
+                                   | (F.data == AppButtons.trackers_data.DURATION_TRACKER_BTN.name))
+    router.callback_query.register(select_category_tracker,
+                                   F.data == AppButtons.trackers_data.START_TRACKER_BTN.name)
     router.callback_query.register(display_actions_tracker,
                                    CategoryCD.filter(F.operation == CategoryOperation.READ_TRACKER))
     router.callback_query.register(create_new_tracker, ActionCD.filter(F.operation == ActionOperation.READ_TRACKER),
                                    TrackerState.WAIT_CATEGORY_DATA)
-    router.callback_query.register(select_launched_tracker, F.data == 'launched_btn')
-    router.callback_query.register(stop_tracker_handler, F.data == 'yes_btn')
-    router.callback_query.register(no_btn_handler, F.data == 'no_btn')
-    router.callback_query.register(select_removing_tracker, F.data == 'delete_tracker_btn')
+    router.callback_query.register(select_launched_tracker,
+                                   F.data == AppButtons.trackers_data.STOP_TRACKER_BTN.name)
+    router.callback_query.register(stop_tracker_handler, F.data == AppButtons.general_data.YES_BTN.name)
+    router.callback_query.register(no_btn_handler, F.data == AppButtons.general_data.NO_BTN.name)
+    router.callback_query.register(select_removing_tracker, F.data == AppButtons.trackers_data.DELETE_TRACKER_BTN.name)
     router.callback_query.register(del_tracking_data, TrackerCD.filter(F.operation == TrackerOperation.DEL))
-    # router.callback_query.register(select_removing_tracker, F.data == 'update_tracker_btn')
 
     return router

@@ -32,6 +32,7 @@ class TgBotSettings(BaseSettings):
 
 
 class ProjectSettings(BaseSettings):
+    WEEKLY_XLSX_FILE_NAME: str = Field(default='Weekly Report.xlsx')
     LENGTH_NAME_LIMIT: int = Field(default=20)
     USER_ACTIONS_LIMIT: int = Field(default=10)
     USER_CATEGORIES_LIMIT: int = Field(default=10)

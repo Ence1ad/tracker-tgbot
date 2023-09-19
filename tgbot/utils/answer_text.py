@@ -4,13 +4,15 @@ from cache.redis_tracker_commands import redis_hgetall_started_tracker
 from config import settings
 from datetime import datetime as dt, timedelta
 
+from tgbot.utils.jinja_engine import render_template
+
 # Common
 canceling_text = "Your action has been canceled"
 exit_text = "See you soon!"
 options_text = "Select the button"
 char_limit = f"\n\rThe limit on the length of the name is {settings.LENGTH_NAME_LIMIT} characters"
 accept_only_text = "Please try again, I only accept text message"
-
+help_handler_text = "Not implemented"
 
 # for command_start_handler func
 user_in_db_text = "Hello friend! I'm glad to see you again!"
@@ -52,7 +54,6 @@ added_new_action_text = 'You successfully added new action'
 # text for tracker handlers
 new_tracker_text = "You have started tracking action: \n\r"
 not_launched_tracker_text = "You don't have any launched tracker yet!"
-launch_tracker_text = "Started tracker:\n\r"
 already_launch_tracker_text = "You already have a running tracker:\n\r"
 answer_stop_tracker_text = "\n\nDo you want to stop tracker?"
 stop_tracker_text = "Tracker stopped:\n\r"
@@ -69,20 +70,23 @@ tracker_daily_limit_text = "You have reached the daily limit of the number of tr
 send_report_text = "This is your weekly report"
 empty_trackers_text = "You don't have any trackers for this week"
 
-# for create_report.py
-xlsx_title = "Weekly Report.xlsx"
+class AppText:
+    pass
 
-
-async def started_tracker_text(user_id: int, redis_client: Redis) -> str:
-    text = []
+async def _prepare_tracker_data(user_id: int, redis_client: Redis) -> dict:
     tracker_data = await redis_hgetall_started_tracker(user_id=user_id, redis_client=redis_client)
     if tracker_data:
         tracker_data = {key.decode(encoding='utf-8'): value.decode(encoding='utf-8') for key, value in tracker_data.items()}
-        category_name: str = "🗄:" + ' ' + tracker_data['category_name']
-        action_name: str = "🎬:" + ' ' + tracker_data['action_name']
         launch_time: str = tracker_data['start_time'].split('.')[0]
         launch_time: dt = dt.strptime(launch_time, "%Y-%m-%d %H:%M:%S")
-        duration: str = "⏱:" + ' ' + str((dt.now() - launch_time) - timedelta(seconds=0)).split('.')[0]
-        text.extend([category_name, action_name, duration])
-        text = '\n\r'.join(text)
-        return text
+        tracker_data['duration'] = str((dt.now() - launch_time) - timedelta(seconds=0)).split('.')[0]
+        return tracker_data
+
+
+async def started_tracker_text(user_id: int, redis_client: Redis) -> str:
+    tracker_data: dict[str: str] = await _prepare_tracker_data(user_id, redis_client)
+    row_title = {'category_title': '🗄 Selected category',
+                 'action_title': '🎬 Selected action',
+                 'tracker_duration': '⏱ Tracker duration'}
+    text = render_template('started_tracker.html', values=tracker_data, kwargs=row_title)
+    return text

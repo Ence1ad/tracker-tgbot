@@ -7,7 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_tracker_commands import redis_hmset_tracker_data, redis_incr_user_day_trackers, redis_expireat_midnight
+from cache.redis_tracker_commands import redis_hmset_create_tracker, redis_incr_user_day_trackers, redis_expireat_midnight
 from tgbot.schedule.schedule_jobs import delete_tracker_job
 from tgbot.utils.answer_text import new_tracker_text, not_enough_data_text
 from tgbot.keyboards.callback_factories import ActionCD
@@ -35,7 +35,7 @@ async def create_new_tracker(
         markup = await menu_inline_kb(await buttons.tracker_menu_start())
         return await call.message.edit_text(text=f"{not_enough_data_text}", reply_markup=markup)
     else:
-        await redis_hmset_tracker_data(user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
+        await redis_hmset_create_tracker(user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
                                        category_id=category_id, category_name=category_name, redis_client=redis_client)
         await redis_incr_user_day_trackers(user_id, redis_client)
         # Set expire at every midnight for user trackers

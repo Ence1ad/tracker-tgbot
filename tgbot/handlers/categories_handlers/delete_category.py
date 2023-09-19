@@ -11,8 +11,8 @@ from tgbot.utils.answer_text import rm_category_text, select_category_text, empt
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation
 
 
-async def select_remove_category(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession],
-                                 buttons: AppButtons) -> Message:
+async def pick_removing_category_handler(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession],
+                                         buttons: AppButtons) -> Message:
     user_id = call.from_user.id
     categories = await select_categories(user_id, db_session)
     if categories:

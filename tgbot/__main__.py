@@ -28,7 +28,7 @@ async def main() -> None:
     # Initialize sqlalchemy session
     async_session: async_sessionmaker[AsyncSession] = await create_async_session(url=settings.db_url, echo=False)
     # Initialize bot
-    bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='HTML')
+    bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='html')
     # Initialize redis
     redis_client: Redis = Redis(connection_pool=settings.create_redis_pool)
     storage = RedisStorage(redis=redis_client)

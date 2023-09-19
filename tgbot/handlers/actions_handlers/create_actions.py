@@ -13,7 +13,7 @@ from db.actions.actions_db_commands import create_actions, select_category_actio
 from tgbot.utils.validators import valid_name
 
 
-async def new_action_reaction_handler(call: CallbackQuery, state: FSMContext,
+async def prompt_new_action_handler(call: CallbackQuery, state: FSMContext,
                                       db_session: async_sessionmaker[AsyncSession], buttons: AppButtons
                                       ) -> Message | None:
     user_id = call.from_user.id

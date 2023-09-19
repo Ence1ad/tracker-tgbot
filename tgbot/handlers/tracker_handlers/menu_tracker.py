@@ -3,7 +3,7 @@ from redis.asyncio import Redis
 
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from tgbot.keyboards.app_buttons import AppButtons
-from tgbot.utils.answer_text import options_text, launch_tracker_text, started_tracker_text
+from tgbot.utils.answer_text import options_text, started_tracker_text
 from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
@@ -14,7 +14,7 @@ async def get_tracker_options(call: CallbackQuery, redis_client: Redis, buttons:
     if is_tracker:
         started_tracker = await started_tracker_text(user_id, redis_client)
         markup = await menu_inline_kb(await buttons.tracker_menu_stop())
-        await call.message.answer(text=launch_tracker_text + started_tracker, reply_markup=markup)
+        await call.message.answer(text=started_tracker, reply_markup=markup)
     else:
         markup = await menu_inline_kb(await buttons.tracker_menu_start())
         await call.message.answer(text=options_text, reply_markup=markup)

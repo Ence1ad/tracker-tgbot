@@ -7,31 +7,34 @@ from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_
 from db.users.users_commands import create_user
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
-from tgbot.utils.answer_text import user_in_db_text, new_user_text, launch_tracker_text, started_tracker_text
+from tgbot.utils.answer_text import user_in_db_text, new_user_text, started_tracker_text
 
 
 async def command_start_handler(message: Message, db_session: async_sessionmaker[AsyncSession], redis_client: Redis,
-                                buttons: AppButtons) -> None:
+                                buttons: AppButtons) -> Message:
     """
-    Function react to tap on "/start" command. Function check if user exist in db,
-    function just return some answer as message, else create user in db and return answer as message.
-    :param message: Message
-    :param db_session: AsyncSession
-    :param redis_client: Redis
-    :return: Coroutine[Any]
+    The command_start_handler function is the first function that a user interacts with when they start using the bot.
+    It checks if a user is already in the database and cache, and if not it adds them to both. It also checks whether or not
+    the user has started tracking their time, and returns an appropriate message based on this.
+
+    :param message: Message: Get the user id and username
+    :param db_session: async_sessionmaker[AsyncSession]: Access the database
+    :param redis_client: Redis: Access the redis database
+    :param buttons: AppButtons: Get the buttons from the middleware
+    :return: The message text and the keyboard
     """
     user_id: int = message.from_user.id
     await message.delete()
-    user_from_cache: bool = await is_redis_sismember_user (user_id, redis_client)
+    user_from_cache: bool = await is_redis_sismember_user(user_id, redis_client)
     # Get keyboard
-    start_markup = await start_menu_inline_kb(await buttons.main_menu_buttons())
+    markup = await start_menu_inline_kb(await buttons.main_menu_buttons())
     # Check if sender already in DB
     if user_from_cache:
         if await is_redis_hexists_tracker(user_id, redis_client):
             started_text = await started_tracker_text(user_id, redis_client)
-            await message.answer(text=launch_tracker_text + started_text, reply_markup=start_markup)
+            return await message.answer(text=started_text, reply_markup=markup)
         else:
-            await message.answer(text=user_in_db_text, reply_markup=start_markup)
+            return await message.answer(text=user_in_db_text, reply_markup=markup)
     else:
         # Add a new user to the cache
         await redis_sadd_user_id(user_id, redis_client)
@@ -43,4 +46,4 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
             username=message.from_user.username,
             db_session=db_session
         )
-        await message.answer(text=new_user_text, reply_markup=start_markup)
+        return await message.answer(text=new_user_text, reply_markup=markup)

@@ -4,18 +4,19 @@ from datetime import datetime as dt, time, date
 from redis.asyncio import Redis
 
 
-async def _tracker_name(user_id: int) -> str:
+async def _tracker_name(user_id: int) -> str | None:
     """
     Auxiliary function that set up tracker name for redis hashes
 
     :param user_id: Telegram user id derived from call or message
     :return: Tracker name based on user_id
     """
-    return f"{user_id}_tracker"
+    name = f"{user_id}_tracker"
+    return name
 
 
-async def redis_hmset_tracker_data(user_id: int, tracker_id: str, action_id: int, action_name: str, category_id: int,
-                                   category_name: str, redis_client: Redis) -> int | None:
+async def redis_hmset_create_tracker(user_id: int, tracker_id: int, action_id: int, action_name: str, category_id: int,
+                                     category_name: str, redis_client: Redis) -> int | None:
     """
     Insert user tracker data into redis hashes
 
@@ -98,7 +99,7 @@ async def redis_upd_tracker(user_id: int, redis_client: Redis, action_name: str 
     tracker_name: str = await _tracker_name(user_id)
     tracker_data = await redis_client.hgetall(tracker_name)
     if tracker_data:
-        res = await redis_hmset_tracker_data(
+        res = await redis_hmset_create_tracker(
             user_id, redis_client=redis_client,
             tracker_id=tracker_data[b'tracker_id'],
             action_id=tracker_data[b'action_id'],

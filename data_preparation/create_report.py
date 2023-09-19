@@ -11,11 +11,12 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.chart.shapes import GraphicalProperties
 from openpyxl.drawing.fill import GradientFillProperties, GradientStop
 
-from data_preparation.datetime_data import new_sheet_name, current_week_data
-from tgbot.utils.answer_text import xlsx_title
+from config import settings
+from data_preparation.chart_date_title import DateTitle
 
 
-async def create_fig(df_action: DataFrame, df_categories: DataFrame, sheet_name: str = xlsx_title) -> None:
+async def create_fig(df_action: DataFrame, df_categories: DataFrame,
+                     sheet_name: str = settings.WEEKLY_XLSX_FILE_NAME) -> None:
     wb: Workbook = Workbook()
     create_bar_charts(df=df_action, wb=wb)
     create_pie_chart(df=df_categories, wb=wb)
@@ -24,7 +25,7 @@ async def create_fig(df_action: DataFrame, df_categories: DataFrame, sheet_name:
 
 def create_bar_charts(*, df: DataFrame, wb: Workbook) -> None:
     ws: Worksheet = wb.active
-    ws.title = f"bars(week - {new_sheet_name})"
+    ws.title = f"bars(week - {DateTitle.week})"
     for row in dataframe_to_rows(df, index=True, header=True):
         ws.append(row)
     ws.delete_rows(2)
@@ -52,7 +53,7 @@ def simple_stack_chart(chart: BarChart, ws: Worksheet) -> None:
     chart1 = deepcopy(chart)
     chart1.type = "col"
     chart1.style = 10
-    chart1.title = current_week_data
+    chart1.title = DateTitle.get_current_dow()
     ws.add_chart(chart1, "A10")
 
 
@@ -60,7 +61,7 @@ def horizontal_bar_chart(chart: BarChart, ws: Worksheet) -> None:
     chart2 = deepcopy(chart)
     chart2.style = 10
     chart2.type = "bar"
-    chart2.title = current_week_data
+    chart2.title = DateTitle.get_current_dow()
     ws.add_chart(chart2, "K10")
 
 
@@ -71,7 +72,7 @@ def stacked_chart(chart: BarChart, ws: Worksheet) -> None:
     chart3.style = 10
     chart3.grouping = "stacked"
     chart3.overlap = 100
-    chart3.title = current_week_data
+    chart3.title = DateTitle.get_current_dow()
     ws.add_chart(chart3, "A27")
 
 
@@ -81,12 +82,12 @@ def percent_stacked_chart(chart: BarChart, ws: Worksheet) -> None:
     chart4.style = 10
     chart4.grouping = "percentStacked"
     chart4.overlap = 100
-    chart4.title = current_week_data
+    chart4.title = DateTitle.get_current_dow()
     ws.add_chart(chart4, "K27")
 
 
 def create_pie_chart(*, df: DataFrame, wb: Workbook) -> None:
-    ws: Worksheet = wb.create_sheet(title=f"pie(week - {new_sheet_name})")
+    ws: Worksheet = wb.create_sheet(title=f"pie(week - {DateTitle.week})")
     for row in dataframe_to_rows(df, index=True, header=True):
         ws.append(row)
     ws.delete_rows(2)
