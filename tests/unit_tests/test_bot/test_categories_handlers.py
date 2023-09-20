@@ -15,7 +15,7 @@ from tests.unit_tests.mocked_bot import MockedBot
 from tests.unit_tests.test_bot.utils import TEST_USER, get_update, get_callback_query, get_message
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
-from tgbot.utils.answer_text import new_user_text, empty_categories_text, added_new_category_text, select_category_text
+
 
 
 @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ async def test_prompt_new_category_handler(user_id: int, answer_text: str, data:
 @pytest.mark.parametrize(
     "user_id, data, text, expectation",
     [
-        (TEST_USER.id, 'categories_btn', empty_categories_text, does_not_raise()),
+        (TEST_USER.id, 'categories_btn', 'empty_categories_text', does_not_raise()),
     ]
 )
 @pytest.mark.asyncio
@@ -53,7 +53,7 @@ async def test_display_categories(user_id: int, text: str, data: str, expectatio
 @pytest.mark.parametrize(
     "user_id, new_category_name, answer_text, expectation",
     [
-        (TEST_USER.id, 'Anki_category', added_new_category_text, does_not_raise()),
+        (TEST_USER.id, 'Anki_category', 'added_new_category_text', does_not_raise()),
     ]
 )
 @pytest.mark.asyncio
@@ -78,7 +78,7 @@ async def test_create_category_handler(
     "user_id, data, answer_text, expectation",
     [
         (TEST_USER.id, AppButtons.categories_data.DELETE_CATEGORIES.name, select_category_text, does_not_raise()),
-        (123, 'delete_categories', empty_categories_text, does_not_raise()),
+        (123, 'delete_categories', 'empty_categories_text', does_not_raise()),
     ]
 )
 @pytest.mark.asyncio

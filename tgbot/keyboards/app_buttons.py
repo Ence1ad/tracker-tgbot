@@ -35,7 +35,15 @@ class TrackersButtonsData(Enum):
 
 
 class ReportsButtonsData(Enum):
-    WEEKLY_REPORT_BTN = '🗓 Weekly report'
+    WEEKLY_REPORT_BTN: str = '🗓 Weekly report'
+
+
+class SettingsButtonsData(Enum):
+    LANGUAGE: str = '🌏 Language'
+    RUSSIA: str = '🇷🇺 Russian'
+    X_RUSSIA: str = '[X] 🇷🇺 Russian'
+    ENGLISH: str = '🇬🇧 English'
+    X_ENGLISH: str = '[X] 🇬🇧 English'
 
 
 @dataclass
@@ -45,6 +53,7 @@ class AppButtons:
     actions_data: ActionsButtonsData = ActionsButtonsData
     trackers_data: TrackersButtonsData = TrackersButtonsData
     reports_data: ReportsButtonsData = ReportsButtonsData
+    settings_data: SettingsButtonsData = SettingsButtonsData
 
     @classmethod
     async def action_menu_buttons(cls) -> dict[str:str]:
@@ -125,4 +134,21 @@ class AppButtons:
     @classmethod
     async def report_menu(cls) -> dict[str:str]:
         buttons_data = {cls.reports_data.WEEKLY_REPORT_BTN.name: cls.reports_data.WEEKLY_REPORT_BTN.value}
+        return buttons_data
+
+    @classmethod
+    async def settings_menu(cls) -> dict[str:str]:
+        buttons_data = {cls.settings_data.LANGUAGE.name: cls.settings_data.LANGUAGE.value}
+        return buttons_data
+
+    @classmethod
+    async def en_language_menu(cls) -> dict[str:str]:
+        buttons_data = {cls.settings_data.RUSSIA.name: cls.settings_data.RUSSIA.value,
+                        cls.settings_data.X_ENGLISH.name: cls.settings_data.ENGLISH.value}
+        return buttons_data
+
+    @classmethod
+    async def ru_language_menu(cls) -> dict[str:str]:
+        buttons_data = {cls.settings_data.X_RUSSIA.name: cls.settings_data.RUSSIA.value,
+                        cls.settings_data.ENGLISH.name: cls.settings_data.ENGLISH.value}
         return buttons_data

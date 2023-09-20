@@ -15,7 +15,7 @@ async def _tracker_name(user_id: int) -> str | None:
     return name
 
 
-async def redis_hmset_create_tracker(user_id: int, tracker_id: int, action_id: int, action_name: str, category_id: int,
+async def redis_hmset_create_tracker(user_id: int, tracker_id: str, action_id: int, action_name: str, category_id: int,
                                      category_name: str, redis_client: Redis) -> int | None:
     """
     Insert user tracker data into redis hashes

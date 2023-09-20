@@ -3,14 +3,14 @@ from datetime import datetime
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 USER_ID = 1111111111
-
+LANG_CODE = "en"
 TEST_USER = User(
     id=USER_ID,
     is_bot=False,
     first_name='Test',
     last_name='Bot',
     username='testbot',
-    language_code='ru-RU',
+    language_code=LANG_CODE,
     is_premium=True,
     added_to_attachment_menu=None,
     can_join_groups=None,

@@ -2,28 +2,29 @@ from enum import Enum
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from fluentogram import TranslatorRunner
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, ActionOperation, ActionCD, \
     TrackerOperation, TrackerCD
 
 
-async def start_menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
+async def start_menu_inline_kb(buttons: dict, i18n: TranslatorRunner) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
     for data, txt in buttons.items():
-        kb_builder.button(text=txt, callback_data=data)
+        kb_builder.button(text=i18n.get(str(data)), callback_data=data)
     kb_builder.adjust(2, 2, 1)
-    kb_builder.row(InlineKeyboardButton(text=AppButtons.general_data.CANCEL_BTN.value,
+    kb_builder.row(InlineKeyboardButton(text=i18n.get(str(AppButtons.general_data.CANCEL_BTN.name)),
                                         callback_data=AppButtons.general_data.CANCEL_BTN.name))
     return kb_builder.as_markup()
 
 
-async def menu_inline_kb(buttons: dict) -> InlineKeyboardMarkup:
+async def menu_inline_kb(buttons: dict, i18n: TranslatorRunner) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
     for data, txt in buttons.items():
-        kb_builder.button(text=txt, callback_data=data)
+        kb_builder.button(text=i18n.get(str(data)), callback_data=data)
     kb_builder.adjust(2, 2, 1)
-    kb_builder.row(InlineKeyboardButton(text=AppButtons.general_data.EXIT_BTN.value,
+    kb_builder.row(InlineKeyboardButton(text=i18n.get(str(AppButtons.general_data.EXIT_BTN.name)),
                                         callback_data=AppButtons.general_data.EXIT_BTN.name))
     return kb_builder.as_markup()
 

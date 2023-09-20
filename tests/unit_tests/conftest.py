@@ -18,8 +18,10 @@ from tests.unit_tests.test_bot.utils import get_callback_query, get_update, get_
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons
+from tgbot.localization.localize import Translator
 from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware, SchedulerMiddleware
 from tgbot.middlewares.button_middleware import ButtonsMiddleware
+from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 
 
 @pytest.fixture(scope="session")
@@ -87,20 +89,25 @@ def set_user_id():
 def bot():
     return MockedBot()
 
+@pytest.fixture()
+def i18n():
+    hub = Translator()
+    return hub.t_hub.get_translator_by_locale('en')
 
 @pytest_asyncio.fixture()
 def buttons():
     return AppButtons()
 
 @pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, bot_db_session, buttons):
+async def dispatcher(bot, redis_cli, bot_db_session, buttons, i18n):
     storage = RedisStorage(redis=redis_cli)
     dp = Dispatcher(storage=storage)
-
+    translator = Translator()
     dp.update.middleware.register(DbSessionMiddleware(bot_db_session))
     dp.update.middleware.register(CacheMiddleware(redis_cli))
     # dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
+    dp.update.middleware.register(TranslatorRunnerMiddleware(translator.t_hub))
 
     common_handlers_router = register_common_handlers()
     actions_router = register_actions_handlers()

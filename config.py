@@ -32,6 +32,8 @@ class TgBotSettings(BaseSettings):
 
 
 class ProjectSettings(BaseSettings):
+    RU_LANG_CODE: str = Field(default='ru')
+    EN_LANG_CODE: str = Field(default='en')
     WEEKLY_XLSX_FILE_NAME: str = Field(default='Weekly Report.xlsx')
     LENGTH_NAME_LIMIT: int = Field(default=20)
     USER_ACTIONS_LIMIT: int = Field(default=10)
