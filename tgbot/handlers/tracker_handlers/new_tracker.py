@@ -33,6 +33,7 @@ async def create_new_tracker(
     except IntegrityError as ex:
         logging.exception(ex)
         markup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        await state.clear()
         return await call.message.edit_text(text=f"{i18n.get('not_enough_data_text')}", reply_markup=markup)
     else:
         await redis_hmset_create_tracker(
@@ -42,7 +43,14 @@ async def create_new_tracker(
         await redis_incr_user_day_trackers(user_id, redis_client)
         # Set expire at every midnight for user trackers
         await redis_expireat_midnight(user_id, redis_client)
+        await state.clear()
         # If user not stop the tracker, it will be deleted automatically
-        await delete_tracker_job(scheduler=apscheduler, call=call)
+        await _setup_duration_schedule_checker(scheduler=apscheduler, user_id=user_id, i18n=i18n)
         markup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
         return await call.message.edit_text(text=f"{i18n.get('new_tracker_text')} {action_name}", reply_markup=markup)
+
+
+async def _setup_duration_schedule_checker(scheduler: ContextSchedulerDecorator, user_id: int,
+                                           i18n: TranslatorRunner) -> None:
+    msg_text = i18n.get("too_long_tracker")
+    await delete_tracker_job(scheduler=scheduler, user_id=user_id, msg_text=msg_text)

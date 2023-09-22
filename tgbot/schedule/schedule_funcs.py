@@ -2,7 +2,6 @@ import asyncio
 
 from aiogram import Bot
 from aiogram.types import FSInputFile
-from fluentogram import TranslatorRunner
 from pandas import DataFrame
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -17,14 +16,14 @@ from db.tracker.tracker_db_command import delete_tracker
 
 
 async def schedule_delete_tracker(bot: Bot, user_id: int, redis_client: Redis,
-                                  async_session: async_sessionmaker[AsyncSession], i18n: TranslatorRunner) -> None:
+                                  async_session: async_sessionmaker[AsyncSession], msg_text: str) -> None:
     tracker_id = await redis_hget_tracker_data(user_id, redis_client, 'tracker_id')
     if tracker_id:
         action_name = (await redis_hget_tracker_data(user_id, redis_client, 'action_name')).decode(encoding='utf-8')
         await delete_tracker(user_id, tracker_id=int(tracker_id), db_session=async_session)
         await redis_delete_tracker(user_id, redis_client)
         await redis_decr_user_day_trackers(user_id, redis_client)
-        await bot.send_message(chat_id=user_id, text=f'The tracker - {action_name} {i18n.get("too_long_tracker")}')
+        await bot.send_message(chat_id=user_id, text=f'{action_name} -> {msg_text}')
 
 
 async def schedule_weekly_report(

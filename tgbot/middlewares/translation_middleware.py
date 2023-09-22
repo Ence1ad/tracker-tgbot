@@ -3,7 +3,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import Update
 
-from fluentogram import TranslatorHub
+from fluentogram import TranslatorHub, TranslatorRunner
 from redis.asyncio import Redis
 
 from cache.redis_language_commands import redis_hget_lang
@@ -34,6 +34,6 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         else:
             local = settings.EN_LANG_CODE
         hub: TranslatorHub = self.translator
-        data['i18n'] = hub.get_translator_by_locale(local)
+        data['i18n']: TranslatorRunner = hub.get_translator_by_locale(local)
         return await handler(event, data)
 

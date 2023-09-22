@@ -39,14 +39,16 @@ async def main() -> None:
     # Get commands
     await start_bot(bot)
     # Initialize apscheduler
+    translator = Translator()
     scheduler = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_client,
-                                      storage=storage, async_session=async_session)
+                                      storage=storage, async_session=async_session,
+                                      # t_hub=translator.t_hub
+                                      )
 
     await interval_sending_reports_job(scheduler=scheduler)
     # Initialize apscheduler
     buttons = AppButtons()
 
-    translator = Translator()
     # Register middlewares
     dp.update.middleware.register(DbSessionMiddleware(async_session))
     dp.update.middleware.register(CacheMiddleware(redis_client))

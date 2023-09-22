@@ -2,7 +2,7 @@ canceling_text = Your action has been canceled
 exit_text = See you soon!
 options_text = Select the button
 select_lang_text = Select a language
-set_lang_text = The language is set ->
+set_lang_text = The language is ->
 accept_only_text = Please try again, I only accept text message
 
 # for command_start_handler func
@@ -50,25 +50,25 @@ new_tracker_text = You have started tracking action:
 not_launched_tracker_text = You don't have any launched tracker yet!
 already_launch_tracker_text = You already have a running tracker:
 
-answer_stop_tracker_text = \n\nDo you want to stop the tracker?
-stop_tracker_text = The tracker was stopped:\n\r
+answer_stop_tracker_text = Do you want to stop the tracker?
+stop_tracker_text = The tracker was stopped:
 daily_tracker_text = Delete daily tracker
 empty_tracker_text = You don't have any trackers yet
 delete_tracker_text = You have deleted the tracker
 just_one_tracker = You can't run more than one tracker at a time. Do you want to stop the tracker?
 not_enough_data_text = I can't create a tracker. The data is not defined.
 already_delete_tracker_text = You have already deleted the tracker
-too_long_tracker = The tracker can't work longer than 23 hours, so it has been stopped and removed.
+too_long_tracker = the tracker for this action was automatically stopped and deleted! The tracker can't work longer than 23 hours!
 tracker_daily_limit_text = You have reached the daily limit of the number of trackers
 # for reports handlers
 send_report_text = This is your weekly report
 empty_trackers_text = You don't have any trackers for this week
 
 # for started_tracker_text function
-common_title = Started tracker:
+started_tracker_title = Started tracker:
 category_title = 🗄 Selected category
 action_title = 🎬 Selected action
-action_duration = ⏱ Tracker duration
+action_duration = ⏱ Duration
 
 # keyboards:
 # ActionsButtonsData

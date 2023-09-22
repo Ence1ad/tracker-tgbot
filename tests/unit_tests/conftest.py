@@ -10,6 +10,8 @@ from aiogram.types import User
 from redis.asyncio import Redis
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+
+from cache.redis_language_commands import LANG_CODE
 from db.base_model import AsyncSaBase
 
 from config import settings
@@ -19,7 +21,7 @@ from tgbot.handlers import register_common_handlers, register_actions_handlers, 
     register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware, SchedulerMiddleware
+from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware
 from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 
@@ -37,6 +39,7 @@ def event_loop():
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
+
 
 @pytest.fixture(scope="package")
 def async_engine():
@@ -89,14 +92,17 @@ def set_user_id():
 def bot():
     return MockedBot()
 
+
 @pytest.fixture()
 def i18n():
     hub = Translator()
-    return hub.t_hub.get_translator_by_locale('en')
+    return hub.t_hub.get_translator_by_locale(LANG_CODE)
+
 
 @pytest_asyncio.fixture()
 def buttons():
     return AppButtons()
+
 
 @pytest_asyncio.fixture()
 async def dispatcher(bot, redis_cli, bot_db_session, buttons, i18n):
@@ -131,6 +137,7 @@ async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher)
             update=get_update(callback_query=get_callback_query(data=data, from_user=user)))
         return res
     return get_handler_result
+
 
 @pytest_asyncio.fixture()
 async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher):
