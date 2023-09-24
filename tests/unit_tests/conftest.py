@@ -3,27 +3,65 @@ import sys
 
 import pytest
 import pytest_asyncio
-from aiogram import Dispatcher
+import redis.asyncio as redis
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import User
-
 from redis.asyncio import Redis
+
+from sqlalchemy import text, make_url, URL
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
-from cache.redis_language_commands import LANG_CODE
 from db.base_model import AsyncSaBase
 
-from config import settings
-from tests.unit_tests.mocked_bot import MockedBot
-from tests.unit_tests.test_bot.utils import get_callback_query, get_update, get_message
-from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
-    register_tracker_handlers, register_report_handlers
-from tgbot.keyboards.app_buttons import AppButtons
-from tgbot.localization.localize import Translator
-from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware
-from tgbot.middlewares.button_middleware import ButtonsMiddleware
-from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--db-url",
+        action="store",
+        default="",
+        help="Use the given Postgres URL and skip Postgres container booting",
+    )
+
+    parser.addoption(
+        "--redis",
+        default=None,
+        help="run tests which require redis connection")
+
+@pytest.fixture(scope="session")
+def redis_url(request):
+    url = request.config.getoption("redis")
+    if url:
+        return url
+    else:
+        try:
+            return request.getfixturevalue("_redis_url")
+        except pytest.FixtureLookupError:
+            pytest.exit(
+                'Redis URL not given. Define a "_redis_url" session fixture or '
+                'use the "--redis" in the command line.',
+                returncode=1,
+            )
+@pytest.fixture(scope="session")
+def _redis_url():
+    url = "redis://localhost:6379/11?protocol=3"
+    return url
+
+
+@pytest.fixture(scope="session")
+def database_url(request):
+    url = request.config.getoption("db_url")
+    if url:
+        return url
+    else:
+        try:
+            return request.getfixturevalue("_database_url")
+        except pytest.FixtureLookupError:
+            pytest.exit(
+                'Database URL not given. Define a "_database_url" session fixture or '
+                'use the "--db-url" in the command line.',
+                returncode=1,
+            )
+# Запускается первой
 
 
 @pytest.fixture(scope="session")
@@ -41,44 +79,69 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="package")
-def async_engine():
-    if settings.TESTING:
-        engine = create_async_engine(
-            settings.db_url
-        )
+POSTGRES_DEFAULT_DB = "postgres"
+
+
+@pytest_asyncio.fixture(scope='session')
+async def redis_cli(redis_url):
+    redis_client: Redis = redis.from_url(redis_url)
+    # async with Redis(connection_pool=r.connection_pool) as conn:
+    async with redis_client as conn:
+        yield conn
+        await conn.flushdb()
+        # await conn.connection.disconnect()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def _database_url():
+    url = URL.create(
+        drivername="postgresql+asyncpg",
+        username='postgres',
+        # password=settings.DB_USER_PASS,
+        host='localhost',
+        port=5432,
+        database='new'
+    ).render_as_string()
+    return url
+# 'postgresql+asyncpg://postgres@localhost:5432/new'
+
+
+# Запускается второй
+@pytest_asyncio.fixture(scope="session")
+async def setup_database(database_url, event_loop):
+    await create_database(database_url)
+    try:
+        yield database_url
+    finally:
+        await drop_database(database_url)
+
+
+# Запускается третьей
+@pytest_asyncio.fixture(scope="session")
+async def async_sqlalchemy_engine(setup_database):
+    engine = create_async_engine(setup_database)
+    try:
         yield engine
-        engine.sync_engine.dispose()
+    finally:
+        await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="module")
-async def create_drop_models(async_engine):
-    async with async_engine.begin() as conn:
+@pytest_asyncio.fixture(scope="module", autouse=True)
+async def create_drop_models(async_sqlalchemy_engine):
+    async with async_sqlalchemy_engine.begin() as conn:
         await conn.run_sync(AsyncSaBase.metadata.create_all)
     yield
-    async with async_engine.begin() as conn:
+    async with async_sqlalchemy_engine.begin() as conn:
         await conn.run_sync(AsyncSaBase.metadata.drop_all)
 
-
-@pytest_asyncio.fixture(scope="class")
-async def session(async_engine, create_drop_models):
-    async with AsyncSession(async_engine) as db_session:
-        yield db_session
-
-
-@pytest_asyncio.fixture(scope="class")
-async def bot_db_session(async_engine, create_drop_models):
-    async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(async_engine, expire_on_commit=False,)
-    yield async_session
-
-
-@pytest_asyncio.fixture(scope='module')
-async def redis_cli():
-    if settings.TESTING:
-        async with Redis(connection_pool=settings.create_redis_pool) as conn:
-            yield conn
-            await conn.flushdb()
-        await conn.connection_pool.disconnect()
+# Запускается четвертой
+@pytest_asyncio.fixture(scope='class')
+async def db_session(async_sqlalchemy_engine):
+    async with async_sqlalchemy_engine.begin() as conn:
+        async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
+            async_sqlalchemy_engine, class_=AsyncSession, expire_on_commit=False)
+        async with async_session() as db_session:
+            yield db_session
 
 
 @pytest_asyncio.fixture(scope="package")
@@ -88,63 +151,42 @@ def set_user_id():
     del user_id
 
 
-@pytest.fixture()
-def bot():
-    return MockedBot()
+async def create_database(url: str):
+    url_object = make_url(url)
+    database_name = url_object.database
+    dbms_url = url_object.set(database=POSTGRES_DEFAULT_DB)
+    engine = create_async_engine(dbms_url, isolation_level="AUTOCOMMIT")
+
+    async with engine.connect() as conn:
+        c = await conn.execute(
+            text(f"SELECT 1 FROM pg_database WHERE datname='{database_name}'")
+        )
+        database_exists = c.scalar() == 1
+
+    if database_exists:
+        await drop_database(url_object)
+
+    async with engine.connect() as conn:
+        await conn.execute(
+            text(f'CREATE DATABASE "{database_name}"')
+        )
+    await engine.dispose()
 
 
-@pytest.fixture()
-def i18n():
-    hub = Translator()
-    return hub.t_hub.get_translator_by_locale(LANG_CODE)
+async def drop_database(url: URL):
+    url_object = make_url(url)
+    dbms_url = url_object.set(database=POSTGRES_DEFAULT_DB)
+    engine = create_async_engine(dbms_url, isolation_level="AUTOCOMMIT")
+    async with engine.connect() as conn:
+        disconnect_users = """
+        SELECT pg_terminate_backend(pg_stat_activity.%(pid_column)s)
+        FROM pg_stat_activity
+        WHERE pg_stat_activity.datname = '%(database)s'
+          AND %(pid_column)s <> pg_backend_pid();
+        """ % {
+            "pid_column": "pid",
+            "database": url_object.database,
+        }
+        await conn.execute(text(disconnect_users))
 
-
-@pytest_asyncio.fixture()
-def buttons():
-    return AppButtons()
-
-
-@pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, bot_db_session, buttons, i18n):
-    storage = RedisStorage(redis=redis_cli)
-    dp = Dispatcher(storage=storage)
-    translator = Translator()
-    dp.update.middleware.register(DbSessionMiddleware(bot_db_session))
-    dp.update.middleware.register(CacheMiddleware(redis_cli))
-    # dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
-    dp.update.middleware.register(ButtonsMiddleware(buttons))
-    dp.update.middleware.register(TranslatorRunnerMiddleware(translator.t_hub))
-
-    common_handlers_router = register_common_handlers()
-    actions_router = register_actions_handlers()
-    categories_router = register_categories_handlers()
-    tracker_router = register_tracker_handlers()
-    report_router = register_report_handlers()
-    dp.include_routers(common_handlers_router, categories_router, actions_router, tracker_router, report_router)
-    await dp.emit_startup()
-    try:
-        yield dp
-    finally:
-        await dp.emit_shutdown()
-
-
-@pytest_asyncio.fixture()
-async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher):
-    async def get_handler_result(user_id: int, data):
-        user: User = User(id=user_id, first_name='test_user', is_bot=False)
-        res = await dispatcher.feed_update(
-            bot=bot,
-            update=get_update(callback_query=get_callback_query(data=data, from_user=user)))
-        return res
-    return get_handler_result
-
-
-@pytest_asyncio.fixture()
-async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher):
-    async def get_handler_result(user_id: int, command):
-        user: User = User(id=user_id, first_name='test_user', is_bot=False)
-        res = await dispatcher.feed_update(
-            bot=bot,
-            update=get_update(message=get_message(text=command, from_user=user)))
-        return res
-    return get_handler_result
+        await conn.execute(text(f'DROP DATABASE "{url_object.database}"'))

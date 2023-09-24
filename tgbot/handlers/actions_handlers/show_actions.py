@@ -53,5 +53,5 @@ async def display_actions(call: CallbackQuery, state: FSMContext, db_session: as
 
 
 async def _actions_list(model: list[Row]) -> str:
-    act_in_column = ''.join([f"{idx}. {action.action_name}\n\r" for idx, action in enumerate(model, 1)])
-    return act_in_column
+    act_column = ''.join([f"{idx}. {action.action_name}\n\r" for idx, action in enumerate(model, 1)])
+    return act_column

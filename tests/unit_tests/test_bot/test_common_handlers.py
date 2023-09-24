@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from pytest_asyncio.plugin import SimpleFixtureFunction, FactoryFixtureFunction
 from redis.asyncio import Redis
 import sqlalchemy as sa
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_language_commands import redis_hget_lang
 from cache.redis_schedule_command import is_redis_sismember_user
@@ -41,9 +41,9 @@ class TestCommonHandlers:
     async def test_command_start_handler(
             self, get_tracker: SimpleFixtureFunction, user_id: int, answer_text: str, command: str,
             expectation: does_not_raise, redis_cli: Redis, buttons: AppButtons, i18n: TranslatorRunner,
-            execute_message_handler: FactoryFixtureFunction, bot_db_session: async_sessionmaker[AsyncSession],
+            execute_message_handler: FactoryFixtureFunction, db_session: AsyncSession,
     ):
-        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, command=command)
+        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
 
         if answer_text is None:
             result_text = await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
@@ -56,10 +56,10 @@ class TestCommonHandlers:
             assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
             user_in_cache = await is_redis_sismember_user(user_id, redis_client=redis_cli)
             assert user_in_cache is True
-            async with bot_db_session() as session:
-                async with session.begin():
+            async with db_session as db_session:
+                async with db_session.begin():
                     stmt = sa.select(UserModel.user_id).where(UserModel.user_id == user_id)
-                    user_in_db = await session.execute(stmt)
+                    user_in_db = await db_session.execute(stmt)
             assert user_in_db.scalar_one_or_none() == user_id
 
     @pytest.mark.parametrize(
@@ -78,9 +78,9 @@ class TestCommonHandlers:
         ]
     )
     async def test_exit_menu_handler(
-            self, get_tracker: SimpleFixtureFunction, execute_callback_query_handler: FactoryFixtureFunction,
+            self, get_tracker, execute_callback_query_handler, buttons: AppButtons, i18n: TranslatorRunner,
             redis_cli: Redis, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
-            buttons: AppButtons, i18n: TranslatorRunner
+
     ):
         handler_returns: EditMessageText = await execute_callback_query_handler(user_id, data)
         if answer_text is None:
@@ -92,8 +92,6 @@ class TestCommonHandlers:
             assert isinstance(handler_returns, EditMessageText)
             assert handler_returns.text == result_text
             assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
-            # user_in_cache = await is_redis_sismember_user(user_id, redis_client=redis_cli)
-            # assert user_in_cache is True
 
     @pytest.mark.parametrize(
         "user_id, command, answer_text, expectation",
@@ -108,7 +106,7 @@ class TestCommonHandlers:
             self, execute_message_handler: FactoryFixtureFunction, user_id: int, command: str, answer_text: str,
             expectation: does_not_raise, i18n: TranslatorRunner
     ):
-        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, command=command)
+        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
         with expectation:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.text == i18n.get(answer_text)
@@ -138,16 +136,14 @@ class TestCommonHandlers:
         [
             (USER_ID, '/' + CommandName.HELP.name, does_not_raise()),
             (44444, '/' + CommandName.HELP.name, does_not_raise()),
-            # (44444, '/' + CommandName.HELP.name, '', pytest.raises(AssertionError)),
             (USER_ID, 'pass not correct command', pytest.raises(AssertionError)),
-            # (USER_ID, '/' + CommandName.HELP.name, 'pass not correct text', pytest.raises(AssertionError)),
         ]
     )
     async def test_command_help_handler(
-            self, execute_message_handler: FactoryFixtureFunction, user_id: int, command: str,
+            self, execute_message_handler, user_id: int, command: str,
             expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis
     ):
-        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, command=command)
+        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
         with expectation:
             local = await redis_hget_lang(user_id=user_id, redis_client=redis_cli)
             if local == settings.RU_LANG_CODE:
@@ -165,15 +161,14 @@ class TestCommonHandlers:
             (44444, '/' + CommandName.SETTINGS.name, 'options_text', does_not_raise()),
             (44444, '/' + CommandName.SETTINGS.name, '', pytest.raises(AssertionError)),
             (USER_ID, 'pass not correct command', 'options_text', pytest.raises(AssertionError)),
-            # (USER_ID, '/' + CommandName.HELP.name, 'pass not correct text', pytest.raises(AssertionError)),
         ]
     )
     async def test_command_settings_handler(
-            self, execute_message_handler: FactoryFixtureFunction, user_id: int, command: str,
+            self, execute_message_handler, user_id: int, command: str,
             expectation: does_not_raise, i18n: TranslatorRunner, answer_text: str,
             buttons: AppButtons
     ):
-        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, command=command)
+        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
         with expectation:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.text == i18n.get(answer_text)
@@ -222,8 +217,8 @@ class TestCommonHandlers:
         lang_code: str = await redis_hget_lang(user_id, redis_cli)
         with expectation:
             assert isinstance(handler_returns,  AnswerCallbackQuery)
-            print(handler_returns.text)
-            assert lang_code in handler_returns.text
+            assert handler_returns.text is not None
+            assert lang_code == 'ru'
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -245,4 +240,5 @@ class TestCommonHandlers:
         lang_code: str = await redis_hget_lang(user_id, redis_cli)
         with expectation:
             assert isinstance(handler_returns,  AnswerCallbackQuery)
-            assert lang_code in handler_returns.text
+            assert handler_returns.text is not None
+            assert lang_code == 'en'

@@ -26,7 +26,7 @@ def register_actions_handlers() -> Router:
     router.callback_query.register(del_action, ActionCD.filter(F.operation == ActionOperation.DEL))
     router.callback_query.register(update_action_reaction_handler, F.data == AppButtons.actions_data.UPDATE_ACTIONS.name,
                                    ActionState.WAIT_CATEGORY_DATA)
-    router.callback_query.register(select_action, ActionCD.filter(F.operation == ActionOperation.UDP))
+    router.callback_query.register(select_action, ActionCD.filter(F.operation == ActionOperation.UPD))
     router.message.register(upd_action, UpdateActionState.GET_NAME)
 
     return router

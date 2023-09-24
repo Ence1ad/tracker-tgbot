@@ -28,7 +28,7 @@ async def set_ru_lang(call: CallbackQuery, redis_client: Redis, i18n: Translator
     user_id: str = str(call.from_user.id)
     lang_code = settings.RU_LANG_CODE
     await redis_client.hset(name='lang', key=user_id, value=lang_code)
-    msg = await call.answer(text=i18n.get('set_lang_text') + lang_code, show_alert=True)
+    msg = await call.answer(text=i18n.get('set_lang_text'), show_alert=True)
     await call.message.delete()
     return msg
 
@@ -37,7 +37,7 @@ async def set_en_lang(call: CallbackQuery, redis_client: Redis, i18n: Translator
     user_id: str = str(call.from_user.id)
     lang_code = settings.EN_LANG_CODE
     await redis_client.hset(name='lang', key=user_id, value=lang_code)
-    msg = await call.answer(text=i18n.get('set_lang_text') + lang_code, show_alert=True)
+    msg = await call.answer(text=i18n.get('set_lang_text'), show_alert=True)
     await call.message.delete()
     return msg
 

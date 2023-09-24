@@ -48,6 +48,18 @@ async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSe
             return res.fetchall()
 
 
+async def select_category_id(user_id: int, category_name: str, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+    async with db_session as session:
+        async with session.begin():
+            stmt = \
+                select(CategoriesModel.category_id)\
+                .where(CategoriesModel.user_id == user_id,
+                       CategoriesModel.category_name == category_name)
+
+            res = await session.execute(stmt)
+            return res.scalar_one_or_none()
+
+
 async def update_category(user_id: int, category_id: int, new_category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> None:
 

@@ -1,37 +1,51 @@
-import pytest
-import pytest_asyncio
 
-from db.actions.actions_db_commands import create_actions
-from db.categories.categories_commands import create_category
+import pytest_asyncio
+import sqlalchemy as sa
+
+from db import UserModel
+from db.actions.actions_db_commands import create_actions, delete_action
+from db.categories.categories_commands import create_category, delete_category
 from db.users.users_commands import create_user
 
+DB_USER_ID: int = 1111111111
 
-@pytest.mark.usefixtures('set_user_id')
+
 @pytest_asyncio.fixture(scope="class")
-async def add_user(session, set_user_id):
-    user_id: int = set_user_id
-    for i in range(3):
-        await create_user(user_id=user_id + i, first_name='', last_name='', username='',
-                          db_session=session)
-    # yield user_obj
-    # await session.execute(sa.delete(UserModel).where(UserModel.user_id == user_id))
+async def db_user(db_session):
+    user_id: int = DB_USER_ID
+    user_obj = await create_user(user_id=user_id, first_name='', last_name='', username='',
+                                 db_session=db_session)
+    try:
+        yield user_obj.user_id
+    finally:
+        await db_session.execute(sa.delete(UserModel).where(UserModel.user_id == user_id))
 
 
-@pytest.mark.usefixtures('set_user_id')
 @pytest_asyncio.fixture(scope="class")
-async def add_category(session, add_user, set_user_id):
+async def add_category(db_session):
     category_name = 'best_category_ever'
-    await create_category(user_id=set_user_id, category_name=category_name, db_session=session)
-    # yield category_obj
-    # await delete_category(user_id=USER_ID, category_id=category_obj.category_id, db_session=session)
+    user_obj = await create_user(user_id=DB_USER_ID, first_name='', last_name='', username='',
+                                 db_session=db_session)
+    category_obj = await create_category(user_id=user_obj.user_id, category_name=category_name, db_session=db_session)
+    try:
+        yield category_obj.category_id
+    finally:
+        await delete_category(user_id=user_obj.user_id, category_id=category_obj.category_id, db_session=db_session)
+        await db_session.execute(sa.delete(UserModel).where(UserModel.user_id == DB_USER_ID))
 
 
-@pytest.mark.usefixtures('set_user_id')
 @pytest_asyncio.fixture(scope="class")
-async def add_action(session, add_category, set_user_id):
+async def add_action(db_session):
+    user_obj = await create_user(user_id=DB_USER_ID, first_name='', last_name='', username='',
+                                 db_session=db_session)
+    category_name = 'best_category_ever'
+    category_obj = await create_category(user_id=user_obj.user_id, category_name=category_name, db_session=db_session)
     action_name = 'my_action'
-    category_id = 1
-    await create_actions(user_id=set_user_id, action_name=action_name, category_id=category_id,
-                         db_session=session)
-    # yield action_obj
-    # await delete_action(user_id=USER_ID, action_id=action_obj.action_id, db_session=session)
+    action_obj = await create_actions(user_id=user_obj.user_id, action_name=action_name,
+                                      category_id=category_obj.category_id, db_session=db_session)
+    try:
+        yield action_obj
+    finally:
+        await delete_action(user_id=DB_USER_ID, action_id=action_obj.action_id, db_session=db_session)
+        await delete_category(user_id=user_obj.user_id, category_id=category_obj.category_id, db_session=db_session)
+        await db_session.execute(sa.delete(UserModel).where(UserModel.user_id == DB_USER_ID))

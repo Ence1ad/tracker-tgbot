@@ -8,7 +8,6 @@ from db.users.user_model import UserModel
 from db.users.users_commands import create_user
 
 
-@pytest.mark.usefixtures('add_user')
 @pytest.mark.asyncio
 class TestUsers:
     @pytest.mark.parametrize(
@@ -31,7 +30,7 @@ class TestUsers:
     )
     async def test_create_user(
             self,
-            session: async_sessionmaker[AsyncSession],
+            db_session: async_sessionmaker[AsyncSession],
             user_id: int,
             first_name: str,
             last_name: str,
@@ -39,5 +38,6 @@ class TestUsers:
             expectation: does_not_raise
     ):
         with expectation:
-            user_model: UserModel = await create_user(user_id, first_name, last_name, username, db_session=session)
+            user_model: UserModel = await create_user(user_id, first_name, last_name, username, db_session=db_session)
+            assert isinstance(user_model, UserModel)
             assert user_model.user_id == user_id

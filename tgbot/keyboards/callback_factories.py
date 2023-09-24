@@ -5,14 +5,14 @@ from aiogram.filters.callback_data import CallbackData
 
 class CategoryOperation(enum.IntEnum):
     READ = 0
-    UDP = 1
+    UPD = 1
     DEL = 2
     READ_TRACKER = 3
 
 
 class ActionOperation(enum.IntEnum):
     READ = 0
-    UDP = 1
+    UPD = 1
     DEL = 2
     READ_TRACKER = 3
 

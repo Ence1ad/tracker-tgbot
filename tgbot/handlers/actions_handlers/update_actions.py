@@ -32,7 +32,7 @@ async def update_action_reaction_handler(
     category_id = state_data['category_id']
     actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
     if actions:
-        markup = await callback_factories_kb(actions, ActionOperation.UDP)
+        markup = await callback_factories_kb(actions, ActionOperation.UPD)
         await call.message.edit_text(text=i18n.get('to_update_action_text'), reply_markup=markup)
         await state.set_state(UpdateActionState.GET_NAME)
     else:

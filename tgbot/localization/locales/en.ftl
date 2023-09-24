@@ -2,8 +2,10 @@ canceling_text = Your action has been canceled
 exit_text = See you soon!
 options_text = Select the button
 select_lang_text = Select a language
-set_lang_text = The language is ->
-accept_only_text = Please try again, I only accept text message
+set_lang_text = ✅ The Russian language was set!
+accept_only_text = ❌ Failed to update the name! {$new_line}❗️ The name must consist of letters ❗️
+
+valid_data_text = ❗️ Please provide correct data ❗️
 
 # for command_start_handler func
 user_in_db_text = Hello friend! I'm glad to see you again!
@@ -11,20 +13,21 @@ new_user_text = Hello friend! What can I do for you?
 
 # text for categories handlers
 new_category_text = Write the name of the category below.
-added_new_category_text = You have successfully added the new category
+added_new_category_text = ✅ You have successfully added the new category
 show_categories_text = List of your categories:
 empty_categories_text = You don't have any categories yet
 select_category_text = Select the category
 selected_category = Selected category ->
-rm_category_text = You have deleted the category ->
-upd_category_text = You have updated the category ->
-correct_category_text = Please write the correct category name.
+rm_category_text = The category has been deleted!
+upd_category_text = ✅ The category name has been updated to {$new_category_name}
+correct_category_text = Please write the correct category name. {$new_line}
                         The category name is a text, no more than 30 characters!
 categories_is_fake_text = Choose the right category
-category_exists_text = The category with that name already exists!
+category_exists_text = ❌ Failed to update the category name! {$new_line}❗️ The category with the name - {$new_category_name} already exists ❗️
 Please write another name:
 category_limit_text = You have reached the limit of the number of categories for this category.
                       Please delete any categories
+valid_category_name_text = ❌ Failed to update the category name! {$new_line}❗️ The name must consist of letters ❗️
 
 # text for actions handlers
 new_action_text = Write the name of the action below.

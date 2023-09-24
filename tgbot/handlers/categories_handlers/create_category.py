@@ -14,9 +14,8 @@ from tgbot.utils.validators import valid_name
 
 async def prompt_new_category_handler(call: CallbackQuery, state: FSMContext, i18n: TranslatorRunner,
                                       db_session: async_sessionmaker[AsyncSession], buttons: AppButtons,
-                                      ) -> Message | FSMContext:
+                                      ) -> Message:
     user_id = call.from_user.id
-    await call.message.edit_text(text=i18n.get('new_category_text'))
     categories = await select_categories(user_id, db_session)
     if categories and (len(categories) >= settings.USER_CATEGORIES_LIMIT):
         markup = await menu_inline_kb(await buttons.category_limit_menu(), i18n)
@@ -24,7 +23,7 @@ async def prompt_new_category_handler(call: CallbackQuery, state: FSMContext, i1
         return await call.message.edit_text(text=i18n.get("category_limit_text"), reply_markup=markup)
     else:
         await state.set_state(CategoryState.GET_NAME)
-        return state
+        return await call.message.edit_text(text=i18n.get('new_category_text'))
 
 
 async def create_category_handler(message: Message, state: FSMContext,
@@ -36,13 +35,12 @@ async def create_category_handler(message: Message, state: FSMContext,
     new_category_name = state_data['category_name']
     user_categories = await select_categories(user_id, db_session)
     new_category_valid_name = await valid_name(user_categories, new_category_name)
-
+    markup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
     if new_category_valid_name:
         await state.clear()
         await create_category(user_id, new_category_valid_name, db_session)
-        markup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
         return await message.answer(text=i18n.get('added_new_category_text'), reply_markup=markup)
 
     else:
         return await message.answer(
-            text=f"{new_category_name} {i18n.get('category_exists_text')}")
+            text=i18n.get('category_exists_text', new_category_name=new_category_name, new_line='\n'))

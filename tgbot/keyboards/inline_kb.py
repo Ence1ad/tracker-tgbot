@@ -58,7 +58,7 @@ async def callback_factories_kb(data_from_db: list, enum_val: Enum) -> InlineKey
 async def _tracker(trackers: list,
                    callback_class: type[TrackerCD],
                    builder: InlineKeyboardBuilder,
-                   operation: TrackerOperation
+                   operation: Enum
                    ) -> InlineKeyboardBuilder:
     for tracker in trackers:
         spend_hours = round(tracker.duration.seconds / 3600, 2)
@@ -73,7 +73,7 @@ async def _tracker(trackers: list,
 async def _actions(actions: list,
                    callback_class: type[ActionCD],
                    builder: InlineKeyboardBuilder,
-                   operation: ActionOperation) -> InlineKeyboardBuilder:
+                   operation: Enum) -> InlineKeyboardBuilder:
     for act in actions:
         builder.button(
             text=f"{act.action_name}",
@@ -86,7 +86,7 @@ async def _actions(actions: list,
 async def _categories(categories: list,
                       callback_class: type[CategoryCD],
                       builder: InlineKeyboardBuilder,
-                      operation: CategoryOperation
+                      operation: Enum
                       ) -> InlineKeyboardBuilder:
     for cat in categories:
         builder.button(

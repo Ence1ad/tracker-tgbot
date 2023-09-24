@@ -3,8 +3,8 @@ import logging
 
 from aiogram import Dispatcher, Bot
 from aiogram.fsm.storage.redis import RedisStorage
+import redis.asyncio as redis
 from redis.asyncio import Redis
-
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from config import settings
@@ -18,7 +18,6 @@ from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job
-
 from tgbot.utils.bot_commands import my_commands
 
 
@@ -32,7 +31,8 @@ async def main() -> None:
     # Initialize bot
     bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='html')
     # Initialize redis
-    redis_client: Redis = Redis(connection_pool=settings.create_redis_pool)
+    redis_client: Redis = redis.from_url(settings.cache_url)
+    # redis_client: Redis = Redis(connection_pool=settings.create_redis_pool)
     storage = RedisStorage(redis=redis_client)
     # Dispatcher is a root router
     dp = Dispatcher(storage=storage)

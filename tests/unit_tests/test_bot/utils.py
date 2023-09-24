@@ -47,7 +47,7 @@ TEST_CHAT = Chat(
     location=None,
 )
 
-TEST_MESSAGE = Message(message_id=123, date=datetime.now(), chat=TEST_CHAT)
+TEST_MESSAGE = Message(message_id=123, date=datetime.now(), chat=TEST_CHAT, text='')
 
 
 def get_message(text: str, chat=TEST_CHAT, from_user=None, **kwargs):

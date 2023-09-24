@@ -2,7 +2,8 @@ from functools import lru_cache
 
 from apscheduler.jobstores.redis import RedisJobStore
 from pydantic import Field
-from aiogram.fsm.storage import redis
+import redis.asyncio as redis
+# from aiogram.fsm.storage import redis
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from redis.asyncio import ConnectionPool
 from sqlalchemy import URL
@@ -70,9 +71,10 @@ class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, 
             database=self.POSTGRES_DB
         ).render_as_string(hide_password=False)
 
-    # @property
-    # def cache_url(self):
-    #     return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+    @property
+    def cache_url(self):
+        # redis.from_url("redis://localhost:6379?protocol=3")
+        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}?protocol=3"
 
     @property
     def create_redis_pool(self, max_connections: int = 10) -> ConnectionPool:
