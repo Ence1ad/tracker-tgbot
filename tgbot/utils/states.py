@@ -9,11 +9,7 @@ class CategoryState(StatesGroup):
 class ActionState(StatesGroup):
     WAIT_CATEGORY_DATA = State()
     GET_NAME = State()
-    CATEGORY_ID = State()
-
-
-class UpdateActionState(StatesGroup):
-    GET_NAME = State()
+    UPDATE_NAME = State()
 
 
 class TrackerState(StatesGroup):

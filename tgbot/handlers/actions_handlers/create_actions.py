@@ -14,41 +14,46 @@ from tgbot.utils.validators import valid_name
 
 async def prompt_new_action_handler(call: CallbackQuery, state: FSMContext,  i18n: TranslatorRunner,
                                     db_session: async_sessionmaker[AsyncSession], buttons: AppButtons
-                                    ) -> Message | None:
+                                    ) -> Message:
     user_id = call.from_user.id
     state_data = await state.get_data()
     category_id = state_data['category_id']
+
     # Get user_actions from db
     action_count: int = len(await select_category_actions(user_id, category_id, db_session))
     if action_count >= settings.USER_ACTIONS_LIMIT:
-        markup = await menu_inline_kb(await buttons.action_limit_menu(), i18n)
-        return await call.message.edit_text(text=i18n.get('action_limit_text'), reply_markup=markup)
+        markup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+        return await call.message.edit_text(
+            text=i18n.get('action_limit_text', action_limit=settings.USER_ACTIONS_LIMIT), reply_markup=markup)
     else:
         await state.set_state(ActionState.GET_NAME)
         return await call.message.edit_text(text=i18n.get('new_action_text'))
 
 
 async def create_action_handler(message: Message, state: FSMContext, db_session: async_sessionmaker[AsyncSession],
-                                buttons: AppButtons,  i18n: TranslatorRunner) -> None:
+                                buttons: AppButtons,  i18n: TranslatorRunner) -> Message:
     user_id: int = message.from_user.id
     await state.update_data(action_name=message.text)
     state_data = await state.get_data()
     # Get category_id from cache
     category_id = state_data['category_id']
-    new_action_name = state_data['action_name']
+    category_name = state_data['category_name']
+    new_action_name: str = state_data['action_name']
+    await state.clear()
     # If message not a text message
-    if not new_action_name:
-        await message.answer(text=f"{i18n.get('accept_only_text')}")
-    else:  # If message a text
-        # Get user_actions from db
-        user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
-        new_action_valid_name = await valid_name(user_actions, new_action_name)
-        if new_action_valid_name:
+    markup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+    await state.set_state(ActionState.WAIT_CATEGORY_DATA)
+    await state.update_data(category_id=category_id, category_name=category_name)
+    if not isinstance(new_action_name, str):
+        return await message.answer(text=i18n.get('new_valid_action_name', new_line='\n'), reply_markup=markup)
+
+    else:
+        user_actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)  # If message a text
+        if new_action_valid_name := await valid_name(user_actions, new_action_name):
             await create_actions(user_id, new_action_valid_name, category_id=category_id, db_session=db_session)
-            markup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
-            await message.answer(text=f"{i18n.get('added_new_action_text')}: {new_action_valid_name}",
-                                 reply_markup=markup)
-            await state.set_state(ActionState.WAIT_CATEGORY_DATA)
+            return await message.answer(text=i18n.get('added_new_action_text',
+                                                      new_action_valid_name=new_action_valid_name),
+                                        reply_markup=markup)
         else:
-            await message.answer(
-                text=f"{new_action_name} {i18n.get('action_exists_text')}")
+            return await message.answer(text=i18n.get('action_exists_text', new_action_name=new_action_name), reply_markup=markup)
+

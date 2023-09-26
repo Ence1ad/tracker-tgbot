@@ -12,7 +12,7 @@ from cache.redis_tracker_commands import redis_hmset_create_tracker, \
     redis_get_user_day_trackers, _tracker_name
 from redis.exceptions import DataError
 
-USER_ID = 1111111111
+from tests.unit_tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio
@@ -21,20 +21,20 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, tracker_id, action_id, action_name, category_id, category_name, expectation",
         [
-            (USER_ID, 1, 1, "user_act", 1, "user_cat", does_not_raise()),
-            (USER_ID, 1, 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 1, "user_act", 1, "user_cat", does_not_raise()),
+            (MAIN_USER_ID, 1, 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
             (12345, 2, 1, "other_act", 1, "other_cat", does_not_raise()),
             (None, 1, 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, None, 1, "user_act", 1, "user_cat", pytest.raises(DataError)),
-            (USER_ID, 1, None, "user_act", 1, "user_cat", pytest.raises(DataError)),
-            (USER_ID, 1, 1, None, 1, "user_cat", pytest.raises(DataError)),
-            (USER_ID, 1, 1, "user_act", None, "user_cat", pytest.raises(DataError)),
-            (USER_ID, 1, 1, "user_act", 1, None, pytest.raises(DataError)),
-            (USER_ID, 'str', 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, 1, 'str', "user_act", 1, "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, 1, 1, 1, 1, "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, 1, 1, "user_act", 'str', "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, 1, 1, "user_act", 1, 1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, None, 1, "user_act", 1, "user_cat", pytest.raises(DataError)),
+            (MAIN_USER_ID, 1, None, "user_act", 1, "user_cat", pytest.raises(DataError)),
+            (MAIN_USER_ID, 1, 1, None, 1, "user_cat", pytest.raises(DataError)),
+            (MAIN_USER_ID, 1, 1, "user_act", None, "user_cat", pytest.raises(DataError)),
+            (MAIN_USER_ID, 1, 1, "user_act", 1, None, pytest.raises(DataError)),
+            (MAIN_USER_ID, 'str', 1, "user_act", 1, "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 'str', "user_act", 1, "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 1, 1, 1, "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 1, "user_act", 'str', "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 1, "user_act", 1, 1, pytest.raises(AssertionError)),
         ]
     )
     async def test_redis_hmset_create_tracker(
@@ -50,16 +50,16 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, key, expectation",
         [
-            (USER_ID, "tracker_id", does_not_raise()),
-            (USER_ID, "action_id", does_not_raise()),
-            (USER_ID, "action_name", does_not_raise()),
-            (USER_ID, "category_id", does_not_raise()),
+            (MAIN_USER_ID, "tracker_id", does_not_raise()),
+            (MAIN_USER_ID, "action_id", does_not_raise()),
+            (MAIN_USER_ID, "action_name", does_not_raise()),
+            (MAIN_USER_ID, "category_id", does_not_raise()),
             (12345, "category_name", does_not_raise()),
             (12345, "start_time", does_not_raise()),
-            (USER_ID, "", does_not_raise()),
-            (USER_ID, 12345, does_not_raise()),
-            (USER_ID, None, pytest.raises(DataError)),
-            (USER_ID, set(), pytest.raises(DataError)),
+            (MAIN_USER_ID, "", does_not_raise()),
+            (MAIN_USER_ID, 12345, does_not_raise()),
+            (MAIN_USER_ID, None, pytest.raises(DataError)),
+            (MAIN_USER_ID, set(), pytest.raises(DataError)),
         ]
     )
     async def test_redis_hget_tracker_data(self, user_id: int, key: str, redis_cli: Redis, expectation: does_not_raise):
@@ -72,7 +72,7 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (None, pytest.raises(AssertionError)),
             (1, pytest.raises(AssertionError)),
             ('str', pytest.raises(AssertionError)),
@@ -88,7 +88,7 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (None, pytest.raises(AssertionError)),
             (1, pytest.raises(AssertionError)),
             ('str', pytest.raises(AssertionError)),
@@ -104,13 +104,13 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, action_name, category_name, expectation",
         [
-            (USER_ID, "user_act", "user_cat", does_not_raise()),
-            (USER_ID, "my_act", "my_cat", does_not_raise()),
+            (MAIN_USER_ID, "user_act", "user_cat", does_not_raise()),
+            (MAIN_USER_ID, "my_act", "my_cat", does_not_raise()),
             (None,  "user_act", "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, "", "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, "user_act", "", pytest.raises(AssertionError)),
-            (USER_ID, None, "user_cat", pytest.raises(AssertionError)),
-            (USER_ID, "user_act", None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, "", "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, "user_act", "", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, None, "user_cat", pytest.raises(AssertionError)),
+            (MAIN_USER_ID, "user_act", None, pytest.raises(AssertionError)),
 
         ]
     )
@@ -130,7 +130,7 @@ class TestRedisTrackerCommands:
         "user_id, expectation",
         [
 
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (None, pytest.raises(AssertionError)),
             (1, pytest.raises(AssertionError)),
             ('str', pytest.raises(AssertionError)),
@@ -146,8 +146,8 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
-            (USER_ID, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, pytest.raises(AssertionError)),
 
         ]
     )
@@ -160,7 +160,7 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (None, pytest.raises(AssertionError)),
             ('str', pytest.raises(AssertionError)),
         ]
@@ -174,8 +174,8 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
-            (USER_ID, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, pytest.raises(AssertionError)),
         ]
     )
     async def test_redis_decr_user_day_trackers(self, user_id: int, expectation: does_not_raise, redis_cli: Redis):
@@ -187,8 +187,8 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
-            (USER_ID, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, pytest.raises(AssertionError)),
         ]
     )
     async def test_redis_expireat_midnight(self, user_id: int, expectation: does_not_raise, redis_cli: Redis):
@@ -201,7 +201,7 @@ class TestRedisTrackerCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (None, does_not_raise()),
             ('str', does_not_raise()),
         ]

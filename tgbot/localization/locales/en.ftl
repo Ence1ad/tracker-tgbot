@@ -3,7 +3,7 @@ exit_text = See you soon!
 options_text = Select the button
 select_lang_text = Select a language
 set_lang_text = ✅ The Russian language was set!
-accept_only_text = ❌ Failed to update the name! {$new_line}❗️ The name must consist of letters ❗️
+
 
 valid_data_text = ❗️ Please provide correct data ❗️
 
@@ -17,39 +17,40 @@ added_new_category_text = ✅ You have successfully added the new category
 show_categories_text = List of your categories:
 empty_categories_text = You don't have any categories yet
 select_category_text = Select the category
-selected_category = Selected category ->
+selected_category = Selected category -> {$category_name}{$new_line}{$actions_list_text}
 rm_category_text = The category has been deleted!
 upd_category_text = ✅ The category name has been updated to {$new_category_name}
 correct_category_text = Please write the correct category name. {$new_line}
                         The category name is a text, no more than 30 characters!
 categories_is_fake_text = Choose the right category
 category_exists_text = ❌ Failed to update the category name! {$new_line}❗️ The category with the name - {$new_category_name} already exists ❗️
-Please write another name:
-category_limit_text = You have reached the limit of the number of categories for this category.
-                      Please delete any categories
+
+category_limit_text =  ❗️ You have reached the limit of the number of categories - {$category_limit} ❗️
 valid_category_name_text = ❌ Failed to update the category name! {$new_line}❗️ The name must consist of letters ❗️
+valid_new_category_name_text = ❌ Failed to create new category! {$new_line}❗️ The name must consist of letters ❗️
 
 # text for actions handlers
 new_action_text = Write the name of the action below.
-show_action_text = Your actions for the category ->
+show_action_text = Your actions for the category -> {$category_name}{$new_line}{$actions_list_text}
 to_delete_action_text = Select the action to delete
 select_action_text = Select the action
 to_update_action_text = Select the action to update
 empty_actions_text = You don't have any actions yet
-rm_action_text = You have deleted the action ->
-upd_action_text = You have updated the name of your action
+rm_action_text = ✅ You have deleted the action -> {$action_name}
+upd_action_text = ✅ You have updated the name of your action
 first_start_text = Please use "setting" button for adjust your action tracker
 correct_action_text = Please write the correct action name. The action name is a text, no more than 30 characters!
-action_limit_text = You have reached the limit of the number of actions for this category.
-                    Please delete any action or change the category
-action_exists_text = The action with this name already exists!
-Please write another name:
+action_limit_text = ❗️ You have reached the limit of the number of actions - {$action_limit} for this category. ❗️
+action_exists_text = The action name - {$new_action_name} already exists!
+
 action_not_exists_text = Choose the right action
-added_new_action_text = You successfully added new action
+added_new_action_text = ✅ You successfully added new action - {$new_action_valid_name}
+valid_action_name = ❌ Failed to update the action name! {$new_line}❗️ The name must consist of letters ❗️
+new_valid_action_name = ❌ Failed to create new action! {$new_line}❗️ The name must consist of letters ❗️
 
 # text for tracker handlers
 new_tracker_text = You have started tracking action:
-
+select_category_4_tracker = Selected category -> {$category_name}
 not_launched_tracker_text = You don't have any launched tracker yet!
 already_launch_tracker_text = You already have a running tracker:
 

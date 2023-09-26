@@ -6,20 +6,21 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db import ActionsModel
 from db.actions.actions_db_commands import create_actions, select_category_actions, delete_action, update_action_name
-from tests.unit_tests.test_db.conftest import DB_USER_ID
+from tests.unit_tests.utils import MAIN_USER_ID
 
-@pytest.mark.usefixtures('add_category')
+
+@pytest.mark.usefixtures('add_data_to_db')
 @pytest.mark.asyncio
 class TestActions:
     @pytest.mark.parametrize(
         "user_id, action_name, category_id, expectation",
         [
-            (DB_USER_ID, 'new_action', 1, does_not_raise()),
-            (DB_USER_ID, 'new_act', 1, does_not_raise()),
-            (DB_USER_ID, 'new_act', -1, pytest.raises(IntegrityError)),
-            (DB_USER_ID, 'new_act', None, pytest.raises(IntegrityError)),
-            (DB_USER_ID, '', 1, pytest.raises(IntegrityError)),
-            (DB_USER_ID, None, 1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 'new_action', 1, does_not_raise()),
+            (MAIN_USER_ID, 'new_act', 1, does_not_raise()),
+            (MAIN_USER_ID, 'new_act', -1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 'new_act', None, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, '', 1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, None, 1, pytest.raises(IntegrityError)),
             (None, 'best_act', 1, pytest.raises(IntegrityError)),
             ('string', 'some_act', 1, pytest.raises(DBAPIError)),
         ]
@@ -41,11 +42,11 @@ class TestActions:
     @pytest.mark.parametrize(
         "user_id, category_id, expectation",
         [
-            (DB_USER_ID, 1, does_not_raise()),
-            (DB_USER_ID, -1, pytest.raises(AssertionError)),
-            (DB_USER_ID, '1', pytest.raises(ProgrammingError)),
-            ('DB_USER_ID', 1, pytest.raises(ProgrammingError)),
-            (DB_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, does_not_raise()),
+            (MAIN_USER_ID, -1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, '1', pytest.raises(ProgrammingError)),
+            ('MAIN_USER_ID', 1, pytest.raises(ProgrammingError)),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
             (None, 1, pytest.raises(AssertionError)),
             (10000000001, 1, pytest.raises(AssertionError)),
 
@@ -65,15 +66,15 @@ class TestActions:
     @pytest.mark.parametrize(
         "user_id, action_id, new_action_name, expectation",
         [
-            (DB_USER_ID, 1, 'new_name', does_not_raise()),
-            (DB_USER_ID, 1, 'user_cool_action_name', pytest.raises(DBAPIError)),  # name > 20 chars
-            (DB_USER_ID, '1', 'new_name', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, 'new_name', pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, 123, pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, '', pytest.raises(IntegrityError)),
-            (DB_USER_ID, 1, None, pytest.raises(IntegrityError)),
-            (DB_USER_ID, None, 'new_name', pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, 'new_name', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 'new_name', does_not_raise()),
+            (MAIN_USER_ID, 1, 'user_cool_action_name', pytest.raises(DBAPIError)),  # name > 20 chars
+            (MAIN_USER_ID, '1', 'new_name', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, 'new_name', pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, 123, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, '', pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 1, None, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, None, 'new_name', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, 'new_name', pytest.raises(AssertionError)),
             (-1, 1, 'new_name', pytest.raises(AssertionError)),
             (None, 1, 'new_name', pytest.raises(AssertionError)),
         ]
@@ -94,11 +95,11 @@ class TestActions:
     @pytest.mark.parametrize(
         "user_id, action_id, expectation",
         [
-            (DB_USER_ID, 1, does_not_raise()),
-            (DB_USER_ID, '1', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, pytest.raises(DBAPIError)),
-            (DB_USER_ID, None, pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, does_not_raise()),
+            (MAIN_USER_ID, '1', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, pytest.raises(AssertionError)),
             (-1, 1, pytest.raises(AssertionError)),
             (None, 1, pytest.raises(AssertionError)),
         ]

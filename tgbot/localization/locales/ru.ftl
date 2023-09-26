@@ -3,7 +3,7 @@ exit_text = До скорой встречи!
 options_text = Выберите кнопку
 select_lang_text = Выберите язык
 set_lang_text = ✅ Установлен английский язык!
-accept_only_text = ❌ Не удалось обновить имя! {$new_line}❗️ Имя должно состоять из букв ❗️
+
 
 valid_data_text = ❗️ Пожалуйста укажите корректные данные ❗️
 
@@ -17,35 +17,37 @@ added_new_category_text = ✅ Вы успешно добавили новую к
 show_categories_text = Список ваших категорий:
 empty_categories_text = У вас еще нет категорий
 select_category_text = Выберите категорию
-selected_category = Выбранная категория ->
+selected_category = Выбранная категория -> {$category_name}{$new_line}{$actions_list_text}
 rm_category_text = Категория была удалена!
 upd_category_text = ✅ Имя категории было обновлено на {$new_category_name}
 correct_category_text = Пожалуйста, напишите правильное название категории. {$new_line}
                         ❗️ Название категории - это текст, не более 30 символов ❗️
 categories_is_fake_text = ❗️ Выберите корректную категорию ❗️
 category_exists_text = ❌ Не удалось обновить имя категории! {$new_line}❗️ Категория с именем - {$new_category_name} уже существует ❗️
-category_limit_text = Вы достигли предела количества категорий.
+category_limit_text = ❗️ Вы достигли предела количества категорий - {$category_limit} ❗️
 valid_category_name_text = ❌ Не удалось обновить имя категории! {$new_line}❗️ Имя должно состоять из букв ❗️
-
+valid_new_category_name_text = ❌ Не удалось создать новую категорию! {$new_line}❗️ Имя должно состоять из букв ❗️
 
 # text for actions handlers
 new_action_text = Напишите название действия ниже.
-show_action_text = Ваши действия для категории ->
+show_action_text = Ваши действия для категории -> {$category_name}{$new_line}{$actions_list_text}
 to_delete_action_text = Выберите действие для удаления
 select_action_text = Выберите действие
 to_update_action_text = Выберите действие для обновления
 empty_actions_text = У вас пока нет никаких действий
-rm_action_text = Вы удалили действие ->
-upd_action_text = Вы обновили название своего действия
+rm_action_text = ✅ Вы удалили действие -> {$action_name}
+upd_action_text = ✅ Вы обновили название своего действия
 first_start_text = Пожалуйста, используйте кнопку "настройки" для настройки вашего трекера действий
 correct_action_text = Пожалуйста, напишите правильное название действия. Название действия - это текст, не более 30 символов!
-action_limit_text = Вы достигли предела количества действий для этой категории.
-Пожалуйста, удалите любое действие или измените категорию
-action_exists_text = Действие с таким именем уже существует! пожалуйста, напишите другое имя:
+action_limit_text = ❗️ Вы достигли предела количества действий - {$action_limit} для этой категории. ❗️
+action_exists_text = Действие с именем - {$new_action_name} уже существует!
 action_not_exists_text = Выберите корректное действие
-added_new_action_text = Вы успешно добавили новое действие
+added_new_action_text = ✅ Вы успешно добавили новое действие - {$new_action_valid_name}
+valid_action_name = ❌ Не удалось обновить имя действия! {$new_line}❗️ Имя должно состоять из букв ❗️
+new_valid_action_name = ❌ Не удалось создать новое действие! {$new_line}❗️ Имя должно состоять из букв ❗️
 
 # text for tracker handlers
+select_category_4_tracker = Выбранная категория -> {$category_name}
 new_tracker_text = Вы запустили трекер действия:
 not_launched_tracker_text = У вас еще нет ни одного запущенного трекера!
 already_launch_tracker_text = У вас уже есть запущенный трекер:

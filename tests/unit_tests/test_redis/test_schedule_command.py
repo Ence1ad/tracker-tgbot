@@ -5,8 +5,7 @@ from redis import DataError
 from redis.asyncio import Redis
 
 from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_user, redis_smembers_users
-
-USER_ID = 1111111111
+from tests.unit_tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio
@@ -15,8 +14,8 @@ class TestRedisScheduleCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
-            (USER_ID, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, pytest.raises(AssertionError)),
             ('1111111111', pytest.raises(AssertionError)),
             ('12345', does_not_raise()),
             (memoryview(b'11'), does_not_raise()),
@@ -34,7 +33,7 @@ class TestRedisScheduleCommands:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             ('1111111111', does_not_raise()),
             ('12345678', pytest.raises(AssertionError)),
             ([1, 2, 3], pytest.raises(AssertionError)),

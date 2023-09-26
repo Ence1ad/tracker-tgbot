@@ -110,7 +110,7 @@ async def redis_upd_tracker(user_id: int, redis_client: Redis, action_name: str 
         return res
 
 
-async def redis_delete_tracker(user_id: int, redis_client: Redis) -> int:
+async def redis_delete_tracker(user_id: int, redis_client: Redis) -> int | None:
     """
     Removing a user tracker from the redis db
 
@@ -119,8 +119,10 @@ async def redis_delete_tracker(user_id: int, redis_client: Redis) -> int:
     :return: 1 if removing tracker was successfully, 0 if not
     """
     tracker_name: str = await _tracker_name(user_id)
-    res: int = await redis_client.delete(tracker_name)
-    return res
+    if await is_redis_hexists_tracker(user_id, redis_client):
+        res: int = await redis_client.delete(tracker_name)
+        return res
+
 
 
 async def redis_incr_user_day_trackers(user_id: int, redis_client: Redis) -> int:

@@ -6,20 +6,20 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db.categories.categories_commands import create_category, select_categories, update_category, delete_category
 from db.categories.categories_model import CategoriesModel
-from tests.unit_tests.test_db.conftest import DB_USER_ID
+from tests.unit_tests.utils import MAIN_USER_ID
 
 
-@pytest.mark.usefixtures('db_user')
+@pytest.mark.usefixtures('add_data_to_db')
 @pytest.mark.asyncio
 class TestCategories:
     @pytest.mark.parametrize(
         "user_id, category_name, expectation",
         [
-            (DB_USER_ID, 'new_cat', does_not_raise()),
-            (DB_USER_ID, 'new_category', does_not_raise()),
-            (DB_USER_ID, 'new_category', pytest.raises(IntegrityError)),
-            (DB_USER_ID, None, pytest.raises(IntegrityError)),
-            (DB_USER_ID, '', pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 'new_cat', does_not_raise()),
+            (MAIN_USER_ID, 'new_category', does_not_raise()),
+            (MAIN_USER_ID, 'new_category', pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, None, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, '', pytest.raises(IntegrityError)),
             (None, 'best_cat', pytest.raises(IntegrityError)),
             (1111111112, 12345, pytest.raises(DBAPIError)),
             ('abc', 'some_cat', pytest.raises(DBAPIError)),
@@ -42,7 +42,7 @@ class TestCategories:
     @pytest.mark.parametrize(
         "user_id, expectation",
         [
-            (DB_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (-1, pytest.raises(AssertionError)),
             ('1', pytest.raises(ProgrammingError)),
             (None, pytest.raises(AssertionError)),
@@ -61,15 +61,15 @@ class TestCategories:
     @pytest.mark.parametrize(
         "user_id, category_id, new_category_name, expectation",
         [
-            (DB_USER_ID, 1, 'new_name', does_not_raise()),
-            (DB_USER_ID, '1', 'new_name', pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, 'user_super_best_category_name', pytest.raises(DBAPIError)),  # name > 20 chars
-            ('DB_USER_ID', 1, 'new_name', pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, 123, pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, '', pytest.raises(IntegrityError)),
-            (DB_USER_ID, 1, None, pytest.raises(IntegrityError)),
-            (DB_USER_ID, None, 'new_name', pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, 'new_name', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, 'new_name', does_not_raise()),
+            (MAIN_USER_ID, '1', 'new_name', pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, 'user_super_best_category_name', pytest.raises(DBAPIError)),  # name > 20 chars
+            ('MAIN_USER_ID', 1, 'new_name', pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, 123, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, '', pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 1, None, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, None, 'new_name', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, 'new_name', pytest.raises(AssertionError)),
             (-1, 1, 'new_name', pytest.raises(AssertionError)),
             (None, 1, 'new_name', pytest.raises(AssertionError)),
         ]
@@ -89,11 +89,11 @@ class TestCategories:
     @pytest.mark.parametrize(
         "user_id, category_id, expectation",
         [
-            (DB_USER_ID, 1, does_not_raise()),
-            (DB_USER_ID, '1', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, pytest.raises(DBAPIError)),
-            (DB_USER_ID, None, pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, does_not_raise()),
+            (MAIN_USER_ID, '1', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, pytest.raises(AssertionError)),
             (-1, 1, pytest.raises(AssertionError)),
             (None, 1, pytest.raises(AssertionError)),
         ]

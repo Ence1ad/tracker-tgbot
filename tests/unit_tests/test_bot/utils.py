@@ -3,13 +3,10 @@ from datetime import datetime
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 
-from config import settings
-
-USER_ID = 1111111111
-LANG_CODE = settings.EN_LANG_CODE
+from tests.unit_tests.utils import MAIN_USER_ID, LANG_CODE
 
 TEST_USER = User(
-    id=USER_ID,
+    id=MAIN_USER_ID,
     is_bot=False,
     first_name='Test',
     last_name='Bot',

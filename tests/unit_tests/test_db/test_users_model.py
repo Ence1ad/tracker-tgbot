@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from db.users.user_model import UserModel
 from db.users.users_commands import create_user
+from tests.unit_tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio
@@ -13,8 +14,8 @@ class TestUsers:
     @pytest.mark.parametrize(
         "user_id, first_name, last_name, username, expectation",
         [
-            (1000000001, 'Ivan', 'Ivanov', 'Rus', does_not_raise()),
-            (1000000001, '', '', '', pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 'Ivan', 'Ivanov', 'Rus', does_not_raise()),
+            (MAIN_USER_ID, '', '', '', pytest.raises(IntegrityError)),
             (1000000002, 'Ivan', 'Ivanov', 'Rus', does_not_raise()),
             (1000000003, 'Ivan', 'Ivanov', None, does_not_raise()),
             (1000000004, 'Ivan', None, None, does_not_raise()),

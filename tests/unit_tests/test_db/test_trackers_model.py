@@ -8,24 +8,24 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db.report.report_commands import select_weekly_trackers
 from db.tracker.tracker_db_command import create_tracker, select_tracker_duration, delete_tracker, select_stopped_trackers
-from tests.unit_tests.test_db.conftest import DB_USER_ID
+from tests.unit_tests.utils import MAIN_USER_ID
 
 
-@pytest.mark.usefixtures('add_action')
+@pytest.mark.usefixtures('add_data_to_db')
 @pytest.mark.asyncio
 class TestTrackers:
     @pytest.mark.parametrize(
         "user_id, category_id, action_id, expectation",
         [
-            (DB_USER_ID, 1, 1, does_not_raise()),
-            (DB_USER_ID, 1, -1, pytest.raises(IntegrityError)),
-            (DB_USER_ID, -1, 1, pytest.raises(IntegrityError)),
-            (DB_USER_ID, 1, None, pytest.raises(IntegrityError)),
-            (DB_USER_ID, None, 1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 1, 1, does_not_raise()),
+            (MAIN_USER_ID, 1, -1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, -1, 1, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, 1, None, pytest.raises(IntegrityError)),
+            (MAIN_USER_ID, None, 1, pytest.raises(IntegrityError)),
             (None, 1, 1, pytest.raises(IntegrityError)),
-            (DB_USER_ID, '1', 1, pytest.raises(DBAPIError)),
-            (DB_USER_ID, 1, '1', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, '1', 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, 1, '1', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, 1, pytest.raises(DBAPIError)),
         ]
     )
     async def test_create_tracker(
@@ -50,11 +50,11 @@ class TestTrackers:
     @pytest.mark.parametrize(
         ['user_id', 'tracker_id', 'expectation'],
         [
-            (DB_USER_ID, 1, does_not_raise()),
-            (DB_USER_ID, '1', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, pytest.raises(DBAPIError)),
-            (DB_USER_ID, None, pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, does_not_raise()),
+            (MAIN_USER_ID, '1', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, pytest.raises(AssertionError)),
             (-1, 1, pytest.raises(AssertionError)),
             (None, 1, pytest.raises(AssertionError)),
         ]
@@ -73,7 +73,7 @@ class TestTrackers:
     @pytest.mark.parametrize(
         ['user_id', 'expectation'],
         [
-            (DB_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (-1, pytest.raises(AssertionError)),
             ('1', pytest.raises(ProgrammingError)),
             (None, pytest.raises(AssertionError)),
@@ -92,7 +92,7 @@ class TestTrackers:
     @pytest.mark.parametrize(
         ['user_id', 'expectation'],
         [
-            (DB_USER_ID, does_not_raise()),
+            (MAIN_USER_ID, does_not_raise()),
             (-1, pytest.raises(AssertionError)),
             ('1', pytest.raises(ProgrammingError)),
             (None, pytest.raises(AssertionError)),
@@ -111,11 +111,11 @@ class TestTrackers:
     @pytest.mark.parametrize(
         ['user_id', 'tracker_id', 'expectation'],
         [
-            (DB_USER_ID, 1, does_not_raise()),
-            (DB_USER_ID, '1', pytest.raises(DBAPIError)),
-            ('DB_USER_ID', 1, pytest.raises(DBAPIError)),
-            (DB_USER_ID, None, pytest.raises(AssertionError)),
-            (DB_USER_ID, -1, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, 1, does_not_raise()),
+            (MAIN_USER_ID, '1', pytest.raises(DBAPIError)),
+            ('MAIN_USER_ID', 1, pytest.raises(DBAPIError)),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, -1, pytest.raises(AssertionError)),
             (-1, 1, pytest.raises(AssertionError)),
             (None, 1, pytest.raises(AssertionError)),
         ]
