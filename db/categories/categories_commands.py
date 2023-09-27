@@ -1,7 +1,10 @@
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.engine.row import Row
+from sqlalchemy.sql.operators import is_not
+
 from .categories_model import CategoriesModel
+from .. import ActionsModel
 
 
 async def create_category(user_id: int, category_name: str,
@@ -34,21 +37,44 @@ async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSe
 
     :param user_id: int: Select the categories for a specific user
     :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
-    :return: A list of rows(tuples) with the category_id and category_name
+    :return: A list of rows(tuples) with the category_id and category_name or empty list
     """
     async with db_session as session:
         async with session.begin():
             stmt = \
                 select(CategoriesModel.category_id,
-                       CategoriesModel.category_name)\
+                       CategoriesModel.category_name,
+                       func.count(ActionsModel.action_id))\
+                .outerjoin(ActionsModel)\
                 .where(CategoriesModel.user_id == user_id)\
+                .group_by(CategoriesModel.category_id, CategoriesModel.category_name)\
                 .order_by(CategoriesModel.category_name)
 
             res = await session.execute(stmt)
             return res.fetchall()
 
 
-async def select_category_id(user_id: int, category_name: str, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+async def select_categories_with_actions(user_id: int, db_session: async_sessionmaker[AsyncSession]
+                                         ) -> list[Row[int, str]]:
+
+    async with db_session as session:
+        async with session.begin():
+            stmt = \
+                select(CategoriesModel.category_id,
+                       CategoriesModel.category_name,
+                       func.count(ActionsModel.action_id))\
+                .outerjoin(ActionsModel)\
+                .where(CategoriesModel.user_id == user_id,
+                       ActionsModel.action_id.is_not(None)) \
+                .group_by(CategoriesModel.category_id, CategoriesModel.category_name) \
+                .order_by(CategoriesModel.category_name)
+
+            res = await session.execute(stmt)
+            return res.fetchall()
+
+
+async def select_category_id(user_id: int, category_name: str, db_session: async_sessionmaker[AsyncSession]
+                             ) -> int | None:
     async with db_session as session:
         async with session.begin():
             stmt = \

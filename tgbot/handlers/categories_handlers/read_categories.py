@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from db.categories.categories_commands import select_categories
+from db.categories.categories_commands import select_categories, select_categories_with_actions
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryOperation
@@ -38,7 +38,10 @@ async def get_categories(call: CallbackQuery, db_session: async_sessionmaker[Asy
                          i18n: TranslatorRunner) -> Message:
     user_id = call.from_user.id
     operation = await _get_operation(call_data=call.data, buttons=buttons)
-    categories = await select_categories(user_id, db_session)
+    if operation == CategoryOperation.READ_TRACKER:
+        categories = await select_categories_with_actions(user_id, db_session)
+    else:
+        categories = await select_categories(user_id, db_session)
     if categories:
         markup = await callback_factories_kb(categories, operation)
         return await call.message.edit_text(text=i18n.get('select_category_text'), reply_markup=markup)
@@ -55,4 +58,6 @@ async def _get_operation(call_data: str, buttons: AppButtons) -> Enum:
         operation = CategoryOperation.UPD
     elif call_data == buttons.categories_data.DELETE_CATEGORIES.name:
         operation = CategoryOperation.DEL
+    elif call_data == buttons.trackers_data.START_TRACKER_BTN.name:
+        operation = CategoryOperation.READ_TRACKER
     return operation

@@ -4,15 +4,17 @@ from aiogram import Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import User
 from cache.redis_language_commands import LANG_CODE
+from config import settings
 from tests.unit_tests.mocked_bot import MockedBot
 from tests.unit_tests.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware
+from tgbot.middlewares import DbSessionMiddleware, CacheMiddleware, SchedulerMiddleware
 from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
+from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
 @pytest_asyncio.fixture(scope='class')
@@ -47,15 +49,22 @@ def i18n():
 def buttons():
     return AppButtons()
 
+@pytest_asyncio.fixture()
+async def scheduler(async_session, redis_storage, bot, redis_cli):
+    schedule = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_cli,
+                                      storage=redis_storage, async_session=async_session,
+                                      # t_hub=translator.t_hub
+                                      )
+    return schedule
 
 @pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, buttons, i18n, async_session,  redis_storage):
+async def dispatcher(bot, redis_cli, buttons, i18n, async_session,  redis_storage, scheduler):
     dp = Dispatcher(storage=redis_storage)
     translator = Translator()
 
     dp.update.middleware.register(DbSessionMiddleware(async_session))
     dp.update.middleware.register(CacheMiddleware(redis_cli))
-    # dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
+    dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator.t_hub))
 

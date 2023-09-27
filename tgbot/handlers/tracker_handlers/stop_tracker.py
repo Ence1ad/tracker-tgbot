@@ -10,19 +10,23 @@ from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.utils.answer_text import started_tracker_text
 
 
-async def stop_tracker_handler(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession], redis_client: Redis,
-                               buttons: AppButtons, i18n: TranslatorRunner) -> Message:
+async def stop_tracker_yes_handler(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession], redis_client: Redis,
+                                   buttons: AppButtons, i18n: TranslatorRunner) -> Message:
     user_id: int = call.from_user.id
-    tracker_id = int(await redis_hget_tracker_data(user_id, redis_client, 'tracker_id'))
-    await call.message.delete()
+    tracker_id = await redis_hget_tracker_data(user_id, redis_client, 'tracker_id')
     if tracker_id:
         markup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
-        await select_tracker_duration(user_id=user_id, tracker_id=tracker_id, db_session=db_session)
+        await select_tracker_duration(user_id=user_id, tracker_id=int(tracker_id), db_session=db_session)
         track_text = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,
                                                 title='stop_tracker_text')
         # delete tracker from redis db
         await redis_delete_tracker(user_id, redis_client)
-        return await call.message.answer(text=track_text, reply_markup=markup)
+        return await call.message.edit_text(text=track_text, reply_markup=markup)
     else:
         markup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
         return await call.message.edit_text(text=i18n.get('not_launched_tracker_text'), reply_markup=markup)
+
+
+async def stop_tracker_no_handler(call: CallbackQuery, buttons: AppButtons, i18n: TranslatorRunner) -> Message:
+    markup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+    return await call.message.edit_text(text=i18n.get('options_text'), reply_markup=markup)

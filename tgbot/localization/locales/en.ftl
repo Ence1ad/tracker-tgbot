@@ -49,15 +49,15 @@ valid_action_name = ❌ Failed to update the action name! {$new_line}❗️ The 
 new_valid_action_name = ❌ Failed to create new action! {$new_line}❗️ The name must consist of letters ❗️
 
 # text for tracker handlers
-new_tracker_text = You have started tracking action:
-select_category_4_tracker = Selected category -> {$category_name}
+new_tracker_text = ✅ You have started tracking action -> {$action_name}
+select_category_4_tracker = Selected category -> {$category_name}. {$new_line} Select the action!
 not_launched_tracker_text = You don't have any launched tracker yet!
 already_launch_tracker_text = You already have a running tracker:
 
 answer_stop_tracker_text = Do you want to stop the tracker?
 stop_tracker_text = The tracker was stopped:
 daily_tracker_text = Delete daily tracker
-empty_tracker_text = You don't have any trackers yet
+empty_stopped_tracker_text = You don't have any trackers stopped yet
 delete_tracker_text = You have deleted the tracker
 just_one_tracker = You can't run more than one tracker at a time. Do you want to stop the tracker?
 not_enough_data_text = I can't create a tracker. The data is not defined.

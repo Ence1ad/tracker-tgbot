@@ -1,13 +1,12 @@
 from aiogram import F, Router
 
-from tgbot.handlers.categories_handlers.read_categories import get_categories
 from tgbot.keyboards.app_buttons import AppButtons
 
 
 def register_categories_handlers() -> Router:
     from .delete_category import del_category
     from .create_category import prompt_new_category_handler, create_category_handler
-    from .read_categories import display_categories
+    from .read_categories import display_categories, get_categories
     from .update_category import upd_category_name, prompt_category_name
 
     from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation

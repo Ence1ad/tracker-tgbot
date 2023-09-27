@@ -60,7 +60,7 @@ async def redis_hget_tracker_data(user_id: int, redis_client: Redis, key: str) -
     return res if res else None
 
 
-async def is_redis_hexists_tracker(user_id: int, redis_client: Redis) -> bool:
+async def is_redis_hexists_tracker(user_id: int | str, redis_client: Redis) -> bool:
     """
     Checks the redis hash for the presence of a user tracker
 
@@ -149,7 +149,7 @@ async def redis_decr_user_day_trackers(user_id: int, redis_client: Redis) -> int
         return await redis_client.decr(name=str(user_id), amount=1)
 
 
-async def redis_get_user_day_trackers(user_id: int, redis_client: Redis) -> bytes | None:
+async def redis_get_user_day_trackers(user_id: int | str, redis_client: Redis) -> bytes | None:
     return await redis_client.get(str(user_id))
 
 

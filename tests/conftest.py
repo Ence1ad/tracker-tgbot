@@ -121,7 +121,7 @@ async def async_sqlalchemy_engine(setup_database):
         await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="module", autouse=True)
+@pytest_asyncio.fixture(scope="class", autouse=True)
 async def create_drop_models(async_sqlalchemy_engine):
     async with async_sqlalchemy_engine.begin() as conn:
         await conn.run_sync(AsyncSaBase.metadata.create_all)

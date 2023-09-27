@@ -47,14 +47,14 @@ valid_action_name = ❌ Не удалось обновить имя действ
 new_valid_action_name = ❌ Не удалось создать новое действие! {$new_line}❗️ Имя должно состоять из букв ❗️
 
 # text for tracker handlers
-select_category_4_tracker = Выбранная категория -> {$category_name}
-new_tracker_text = Вы запустили трекер действия:
+select_category_4_tracker = Выбранная категория -> {$category_name}. {$new_line} Выберите действие!
+new_tracker_text = ✅ Вы запустили трекер для действия -> {$action_name}
 not_launched_tracker_text = У вас еще нет ни одного запущенного трекера!
 already_launch_tracker_text = У вас уже есть запущенный трекер:
 answer_stop_tracker_text = Вы хотите остановить трекер?
 stop_tracker_text = Трекер остановлен:
 daily_tracker_text = Удалить трекеры за день
-empty_tracker_text = У вас еще нет трекеров
+empty_stopped_tracker_text = У вас нет еще остановленных трекеров
 delete_tracker_text = Вы удалили трекер
 just_one_tracker = Вы не можете запустить больше одного трекера за раз. Вы хотите остановить трекер?
 not_enough_data_text = Я не могу создать трекер. Данные не определены.

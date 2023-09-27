@@ -1,8 +1,9 @@
 from openpyxl.chart.marker import DataPoint
 from openpyxl.drawing.colors import SchemeColor
+from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame
-from copy import deepcopy
+from copy import deepcopy, copy
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference, PieChart
@@ -33,7 +34,7 @@ def create_bar_charts(*, df: DataFrame, wb: Workbook) -> None:
     ws.column_dimensions["A"].width = 14
     for row in ws.iter_rows():
         for cell in row:
-            cell.alignment = cell.alignment.copy(wrapText=True)
+            cell.alignment = Alignment(wrapText=True)
     chart = BarChart()
     chart.y_axis.title = 'Devoted time'
     chart.x_axis.title = 'Days of the week'

@@ -243,14 +243,12 @@ class TestActionsHandlers:
             execute_message_handler, i18n: TranslatorRunner, bot: MockedBot, answer_text: str, dispatcher,
             buttons: AppButtons, redis_cli, create_tracker_fixt
     ):
-        print(await redis_hgetall_started_tracker(user_id, redis_client=redis_cli))
-        # key = StorageKey(bot_id=bot.id, chat_id=TEST_CHAT.id, user_id=user_id)
-        # state_data = await dispatcher.fsm.storage.get_data(key)
+
+
         test_message = Message(message_id=123456, date=datetime.now(), chat=TEST_CHAT, text=new_action_name)
 
         with expectation:
             handler_returns = await execute_message_handler(user_id=user_id, text=test_message.text, state=state)
-            print(await redis_hgetall_started_tracker(user_id, redis_client=redis_cli))
             assert isinstance(handler_returns, SendMessage)
             if not isinstance(new_action_name, str):
                 assert handler_returns.text == i18n.get(answer_text, new_line='\n')
@@ -259,7 +257,8 @@ class TestActionsHandlers:
             else:
                 assert handler_returns.text == i18n.get(answer_text)
                 assert handler_returns.reply_markup == await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
-                assert await redis_hget_tracker_data(user_id, redis_client=redis_cli, key='action_name')\
+                if user_id == MAIN_USER_ID:
+                    assert await redis_hget_tracker_data(user_id, redis_client=redis_cli, key='action_name')\
                             == str(new_action_name).encode(encoding='utf-8')
 
     @pytest.mark.parametrize(

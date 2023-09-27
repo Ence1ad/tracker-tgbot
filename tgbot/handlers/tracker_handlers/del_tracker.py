@@ -10,17 +10,17 @@ from tgbot.keyboards.inline_kb import callback_factories_kb, menu_inline_kb
 from tgbot.keyboards.callback_factories import TrackerOperation, TrackerCD
 
 
-async def select_removing_tracker(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession],
-                                  redis_client: Redis, buttons: AppButtons, i18n: TranslatorRunner) -> Message:
+async def take_traker_4_delete(call: CallbackQuery, db_session: async_sessionmaker[AsyncSession],
+                               redis_client: Redis, buttons: AppButtons, i18n: TranslatorRunner) -> Message:
     user_id = call.from_user.id
-    tracker = await select_stopped_trackers(user_id, db_session)
-    if tracker:
-        markup = await callback_factories_kb(tracker, enum_val=TrackerOperation.DEL)
+    stopped_trackers = await select_stopped_trackers(user_id, db_session)
+    if stopped_trackers:
+        markup = await callback_factories_kb(stopped_trackers, enum_val=TrackerOperation.DEL)
         return await call.message.edit_text(text=i18n.get('daily_tracker_text'), reply_markup=markup)
     else:
         await call.message.delete()
         markup = await _get_right_tracker_markup(user_id, redis_client, buttons, i18n)
-        return await call.message.answer(text=i18n.get('empty_tracker_text'), reply_markup=markup)
+        return await call.message.answer(text=i18n.get('empty_stopped_tracker_text'), reply_markup=markup)
 
 
 async def del_tracking_data(call: CallbackQuery, callback_data: TrackerCD,

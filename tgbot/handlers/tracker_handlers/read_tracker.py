@@ -22,6 +22,3 @@ async def get_tracker_options(call: CallbackQuery, redis_client: Redis, buttons:
         return await call.message.answer(text=i18n.get('options_text'), reply_markup=markup)
 
 
-async def no_btn_handler(call: CallbackQuery, buttons: AppButtons, i18n: TranslatorRunner) -> None:
-    markup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
-    await call.message.edit_text(text=i18n.get('options_text'), reply_markup=markup)

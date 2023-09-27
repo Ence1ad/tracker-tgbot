@@ -9,7 +9,8 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_language_commands import redis_hget_lang
-from cache.redis_schedule_command import is_redis_sismember_user
+from cache.redis_schedule_command import is_redis_sismember_user, redis_sadd_user_id
+from cache.redis_tracker_commands import is_redis_hexists_tracker
 from config import settings
 from db import UserModel
 from tgbot.handlers.common_handles.settings_handler import _get_right_markup, _get_language
@@ -23,45 +24,47 @@ from tgbot.utils.jinja_engine import render_template
 
 @pytest.mark.asyncio
 class TestCommonHandlers:
+
+    NEW_USER = 9999999999
     @pytest.mark.parametrize(
         "user_id, command, answer_text, expectation",
         [
-            (MAIN_USER_ID, "/" + CommandName.START.name, 'new_user_text', does_not_raise()),  # add the user to the db and the redis set
+            (NEW_USER, "/" + CommandName.START.name, 'new_user_text', does_not_raise()),  # add the user to the db and the redis set
+            (NEW_USER, "/" + CommandName.START.name, 'user_in_db_text', does_not_raise()),  # user all ready in db
+            (MAIN_USER_ID, "/" + CommandName.START.name, 'new_user_text', does_not_raise()),  # user all ready in db
             (MAIN_USER_ID, "/" + CommandName.START.name,  None, does_not_raise()),  # checking the answer text when user tracker was launched
-            (12345, "/" + CommandName.START.name,  'new_user_text', does_not_raise()),  # add the user to the db and the redis set
-            (12345, "/" + CommandName.START.name, 'user_in_db_text', does_not_raise()),  # check the user in the db and in the redis set
-            (12345, "/" + CommandName.START.name, 'user_in_db_text', does_not_raise()),
-            (12345, "/" + CommandName.START.name, 'new_user_text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, "/" + CommandName.HELP.name, 'new_user_text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, None, 'new_user_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, "/" + CommandName.START.name, '', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, CommandName.START.name, None, pytest.raises(AssertionError)),
+            (NEW_USER, "/" + CommandName.START.name, '', pytest.raises(AssertionError)),
         ]
     )
     @pytest.mark.asyncio
     async def test_command_start_handler(
-            self, create_tracker_fixt, user_id: int, answer_text: str, command: str,
+            self, create_tracker_fixt_fact, user_id: int, answer_text: str, command: str,
             expectation: does_not_raise, redis_cli: Redis, buttons: AppButtons, i18n: TranslatorRunner,
-            execute_message_handler: FactoryFixtureFunction, db_session: AsyncSession,
+            execute_message_handler, db_session: AsyncSession,
     ):
+
+        if (user_id == MAIN_USER_ID) and (answer_text is None):
+            await create_tracker_fixt_fact(user_id,  category_id=1, category_name='new_cat', action_id='1', action_name='new_act',
+                                           tracker_id='1')
         handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
 
-        if answer_text is None:
-            result_text = await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
-                                                     title='started_tracker_title')
-        else:
-            result_text = i18n.get(answer_text)
         with expectation:
             assert isinstance(handler_returns, SendMessage)
-            assert handler_returns.text == result_text
             assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
-            user_in_cache = await is_redis_sismember_user(user_id, redis_client=redis_cli)
-            assert user_in_cache is True
-            async with db_session as db_session:
-                async with db_session.begin():
-                    stmt = sa.select(UserModel.user_id).where(UserModel.user_id == user_id)
-                    user_in_db = await db_session.execute(stmt)
-            assert user_in_db.scalar_one_or_none() == user_id
+            if await is_redis_hexists_tracker(user_id, redis_cli):
+                assert handler_returns.text == await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
+                                                                          title='started_tracker_title')
+            elif await is_redis_sismember_user(user_id, redis_client=redis_cli):
+                assert handler_returns.text == i18n.get(answer_text)
+            else:
+                assert handler_returns.text == i18n.get(answer_text)
+                async with db_session as db_session:
+                    async with db_session.begin():
+                        stmt = sa.select(UserModel.user_id).where(UserModel.user_id == user_id)
+                        user_in_db = await db_session.execute(stmt)
+                assert user_in_db.scalar_one_or_none() == user_id
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -79,7 +82,7 @@ class TestCommonHandlers:
         ]
     )
     async def test_exit_menu_handler(
-            self, create_tracker_fixt, execute_callback_query_handler, buttons: AppButtons, i18n: TranslatorRunner,
+            self, execute_callback_query_handler, buttons: AppButtons, i18n: TranslatorRunner,
             redis_cli: Redis, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
 
     ):

@@ -68,6 +68,7 @@ async def get_actions_handler(call: CallbackQuery, state: FSMContext, db_session
         return await call.message.edit_text(text=i18n.get('select_action_text'), reply_markup=markup)
     else:
         markup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+        await call.answer(text='У вас нет действий!', show_alert=True, cache_time=5)
         return await call.message.edit_text(text=i18n.get('empty_actions_text'), reply_markup=markup)
 
 

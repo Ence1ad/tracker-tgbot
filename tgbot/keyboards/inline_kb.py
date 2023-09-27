@@ -90,7 +90,7 @@ async def _categories(categories: list,
                       ) -> InlineKeyboardBuilder:
     for cat in categories:
         builder.button(
-            text=f"{cat.category_name}",
+            text=f"{cat.category_name} ({cat.count})",
             callback_data=callback_class(operation=operation, category_id=cat.category_id,
                                          category_name=cat.category_name)
         )
