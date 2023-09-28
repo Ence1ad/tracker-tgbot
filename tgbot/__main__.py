@@ -54,7 +54,7 @@ async def main() -> None:
     dp.update.middleware.register(CacheMiddleware(redis_client))
     dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
-    dp.update.middleware.register(TranslatorRunnerMiddleware(translator.t_hub))
+    dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
     # Register handlers
     common_handlers_router = register_common_handlers()
     actions_router = register_actions_handlers()

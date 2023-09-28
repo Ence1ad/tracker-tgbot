@@ -23,7 +23,6 @@ class TestRedisScheduleCommands:
             (None, pytest.raises(DataError)),
         ]
     )
-    @pytest.mark.asyncio
     async def test_redis_add_user_id(self, user_id: int, expectation: does_not_raise, redis_cli: Redis):
         with expectation:
             res: int = await redis_sadd_user_id(user_id, redis_client=redis_cli)
@@ -52,7 +51,6 @@ class TestRedisScheduleCommands:
             (does_not_raise()),
         ]
     )
-    @pytest.mark.asyncio
     async def test_redis_smembers_users(self, expectation: does_not_raise, redis_cli: Redis):
         with expectation:
             res: set = await redis_smembers_users(redis_client=redis_cli)

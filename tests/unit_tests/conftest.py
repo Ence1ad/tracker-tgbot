@@ -4,40 +4,22 @@ from sqlalchemy import Result
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from cache.redis_schedule_command import redis_sadd_user_id
+
 from cache.redis_tracker_commands import redis_hmset_create_tracker, redis_delete_tracker
-from config import settings
+
 from db import UserModel
-from db.actions.actions_db_commands import create_actions, delete_action
-from db.categories.categories_commands import create_category, delete_category
-from db.tracker.tracker_db_command import create_tracker, delete_tracker
+from db.actions.actions_db_commands import create_actions
+from db.categories.categories_commands import create_category
+from db.tracker.tracker_db_command import create_tracker
 from db.users.users_commands import create_user
-from tests.unit_tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_ID, CATEGORY_NAME, \
+from tests.unit_tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_NAME, \
     SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 
-
-# @pytest_asyncio.fixture
-# async def create_tg_user():  # fixture factory
-#     async def _create_tg_user(user_id, first_name='test_name', is_bot=False, lang_code=LANG_CODE):
-#         return User(id=user_id, first_name=first_name, is_bot=is_bot, language_code=lang_code)
-#     return _create_tg_user
 
 @pytest_asyncio.fixture(scope='class')
 async def db_session(async_session):
     async with async_session() as db_session:
         yield db_session
-
-
-@pytest_asyncio.fixture
-async def create_tracker_fixt_fact(redis_cli):
-    async def _create_tracker_fixt_fact(user_id: int, category_id: int, category_name: str, action_id: int, action_name,
-                                        tracker_id: str):
-        tracker = await redis_hmset_create_tracker(
-            user_id=user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
-            category_id=category_id, category_name=category_name, redis_client=redis_cli
-        )
-        return tracker
-    return _create_tracker_fixt_fact
 
 
 @pytest_asyncio.fixture(scope='class')
@@ -97,27 +79,9 @@ async def create_tracker_fixt(add_data_to_db, redis_cli):
     await redis_delete_tracker(user_id=user_id, redis_client=redis_cli)
 
 
-@pytest_asyncio.fixture(scope="class")
-async def create_categories_more_than_limit(db_user_factory, db_session: async_sessionmaker[AsyncSession]):
-    user_id = await db_user_factory(MAIN_USER_ID)
-    for name in range(settings.USER_CATEGORIES_LIMIT):
-        await create_category(user_id=user_id, category_name=str(name), db_session=db_session)
-    try:
-        yield
-    finally:
-        for cat_id in range(settings.USER_CATEGORIES_LIMIT):
-            await delete_category(user_id=user_id, category_id=cat_id+1, db_session=db_session)
 
 
-@pytest_asyncio.fixture(scope="class")
-async def create_actions_more_than_limit(db_session: async_sessionmaker[AsyncSession]):
-    user_id = MAIN_USER_ID
-    for name in range(settings.USER_ACTIONS_LIMIT):
-        await create_actions(user_id=user_id, category_id=CATEGORY_ID, action_name=str(name), db_session=db_session)
-    try:
-        yield
-    finally:
-        for act_id in range(settings.USER_ACTIONS_LIMIT):
-            await delete_action(user_id=user_id, action_id=act_id+1, db_session=db_session)
+
+
 
 

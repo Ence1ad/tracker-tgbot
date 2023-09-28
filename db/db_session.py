@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 
-# Use when you don't use alembic
+# You need to uncomment this func when you don't use the alembic
 # async def create_tables(engine):
 #     from db.base_model import AsyncSaBase
 #     async with engine.begin() as conn:

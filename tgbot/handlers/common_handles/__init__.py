@@ -4,6 +4,18 @@ from aiogram.fsm.state import any_state
 
 
 def register_common_handlers() -> Router:
+    """
+
+    The register_common_handlers function is a router that handles all the common related callbacks.
+    It registers handlers for:
+        - displaying the main menu of the bot;
+        - canceling user's state;
+        - getting description of the bot operation;
+        - getting user settings;
+
+    :return: A router object
+
+    """
     from tgbot.keyboards.app_buttons import AppButtons
     from tgbot.utils.bot_commands import CommandName
     from .start_handler import command_start_handler

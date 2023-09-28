@@ -15,6 +15,7 @@ class SchedulerMiddleware(BaseMiddleware):
             handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
             event: TelegramObject,
             data: Dict[str, Any],
-    ) -> Any:
+    ) -> Awaitable[Any]:
+
         data["apscheduler"] = self.scheduler
         return await handler(event, data)

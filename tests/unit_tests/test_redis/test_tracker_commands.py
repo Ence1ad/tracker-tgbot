@@ -1,17 +1,15 @@
 import datetime
+from contextlib import nullcontext as does_not_raise
 from types import NoneType
 
 import pytest
-from contextlib import nullcontext as does_not_raise
-
 from redis.asyncio import Redis
+from redis.exceptions import DataError
 
 from cache.redis_tracker_commands import redis_hmset_create_tracker, \
     redis_hget_tracker_data, is_redis_hexists_tracker, redis_hgetall_started_tracker, redis_upd_tracker, \
     redis_delete_tracker, redis_decr_user_day_trackers, redis_expireat_midnight, redis_incr_user_day_trackers, \
     redis_get_user_day_trackers, _tracker_name
-from redis.exceptions import DataError
-
 from tests.unit_tests.utils import MAIN_USER_ID
 
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 
 import pytest
+import pytest_asyncio
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
@@ -13,7 +14,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.redis_tracker_commands import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
-from db.categories.categories_commands import select_categories
+from db.categories.categories_commands import select_categories, create_category, delete_category
 from tests.unit_tests.mocked_bot import MockedBot
 from tests.unit_tests.test_bot.utils import TEST_CHAT
 from tests.unit_tests.utils import MAIN_USER_ID
@@ -27,6 +28,17 @@ from tgbot.utils.states import CategoryState
 @pytest.mark.usefixtures('create_categories_more_than_limit')
 @pytest.mark.asyncio
 class TestCategoriesHandlers:
+    @pytest_asyncio.fixture(scope="class")
+    async def create_categories_more_than_limit(self, db_user_factory, db_session: async_sessionmaker[AsyncSession]):
+        user_id = await db_user_factory(MAIN_USER_ID)
+        for name in range(settings.USER_CATEGORIES_LIMIT):
+            await create_category(user_id=user_id, category_name=str(name), db_session=db_session)
+        try:
+            yield
+        finally:
+            for cat_id in range(settings.USER_CATEGORIES_LIMIT):
+                await delete_category(user_id=user_id, category_id=cat_id + 1, db_session=db_session)
+
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
@@ -144,7 +156,7 @@ class TestCategoriesHandlers:
              pytest.raises(AssertionError)),
         ]
     )
-    async def test_get_categories(
+    async def test_categories_main_menu_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
             execute_callback_query_handler, buttons: AppButtons, i18n, cb_operation: Enum, db_session,
     ):
@@ -242,7 +254,7 @@ class TestCategoriesHandlers:
              'categories_is_fake_text', does_not_raise()),
         ]
     )
-    async def test_del_category(
+    async def test_delete_category_handler(
             self, user_id: int, answer_text: str, expectation: does_not_raise,
             execute_callback_query_handler, buttons: AppButtons,
             i18n, redis_cli, data,

@@ -15,7 +15,7 @@ class CacheMiddleware(BaseMiddleware):
             handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
             event: CallbackQuery,
             data: Dict[str, Any],
-    ) -> Any:
+    ) -> Awaitable[Any]:
 
         data["redis_client"] = self.redis_client
         return await handler(event, data)

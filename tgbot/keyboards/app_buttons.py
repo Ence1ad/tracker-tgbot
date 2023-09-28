@@ -144,11 +144,11 @@ class AppButtons:
     @classmethod
     async def en_language_menu(cls) -> dict[str:str]:
         buttons_data = {cls.settings_data.RUSSIA.name: cls.settings_data.RUSSIA.value,
-                        cls.settings_data.X_ENGLISH.name: cls.settings_data.ENGLISH.value}
+                        cls.settings_data.X_ENGLISH.name: cls.settings_data.X_ENGLISH.value}
         return buttons_data
 
     @classmethod
     async def ru_language_menu(cls) -> dict[str:str]:
-        buttons_data = {cls.settings_data.X_RUSSIA.name: cls.settings_data.RUSSIA.value,
+        buttons_data = {cls.settings_data.X_RUSSIA.name: cls.settings_data.X_RUSSIA.value,
                         cls.settings_data.ENGLISH.name: cls.settings_data.ENGLISH.value}
         return buttons_data

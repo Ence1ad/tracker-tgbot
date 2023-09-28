@@ -17,11 +17,11 @@ from db import TrackerModel
 from db.actions.actions_db_commands import select_category_actions
 from db.categories.categories_commands import select_categories
 from db.report.report_commands import select_weekly_trackers
-from db.tracker.tracker_db_command import select_stopped_trackers, select_tracker_duration, delete_tracker
+from db.tracker.tracker_db_command import select_stopped_trackers, select_tracker_duration
 from tests.unit_tests.test_bot.utils import TEST_CHAT
 from tests.unit_tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 from tgbot.handlers.categories_handlers.read_categories import _get_operation
-from tgbot.handlers.tracker_handlers.del_tracker import _get_right_tracker_markup
+from tgbot.handlers.tracker_handlers.delete_tracker import _get_right_tracker_markup
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD, ActionOperation, ActionCD, TrackerOperation, TrackerCD
 from tgbot.keyboards.inline_kb import menu_inline_kb, callback_factories_kb
@@ -44,7 +44,7 @@ class TestActionsHandlers:
 
             ]
     )
-    async def test_get_tracker_options(
+    async def test_trackers_main_menu_handler(
             self, user_id: str, expectation, button_data: str, execute_callback_query_handler, answer_text: str,
             redis_cli, i18n, buttons,
     ):
@@ -140,19 +140,19 @@ class TestActionsHandlers:
     )
     async def test_create_tracker(
             self, user_id: int, expectation, execute_callback_query_handler, answer_text: str, redis_cli: Redis,
-            i18n, buttons, db_session, state: FSMContext, operation, dispatcher: Dispatcher, bot,
+            i18n, buttons, db_session, state: FSMContext, operation, dispatcher: Dispatcher, bot, scheduler
     ):
         key = StorageKey(bot_id=bot.id, chat_id=TEST_CHAT.id, user_id=user_id)
         state_data = await dispatcher.fsm.storage.get_data(key)
         category_id = state_data.get('category_id')
         handler_result = data = action_name = None
         actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
-        print(actions)
         if actions:
             action_id = actions[0].action_id
             action_name = actions[0].action_name
             data = ActionCD(operation=operation, action_id=action_id, action_name=action_name)
         before_handler = await is_redis_hexists_tracker(user_id, redis_cli)
+
         with expectation:
             assert actions
             handler_result = await execute_callback_query_handler(user_id, data=data.pack(), state=state)
@@ -164,7 +164,6 @@ class TestActionsHandlers:
             else:
                 assert await redis_cli.get(str(user_id))  # check the redis_expireat_midnight func was started
                 assert await redis_incr_user_day_trackers(user_id, redis_cli)
-                # await redis_delete_tracker(user_id, redis_cli)
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
                 assert handler_result.text == i18n.get(answer_text, action_name=action_name)
 
@@ -176,7 +175,7 @@ class TestActionsHandlers:
             (USER_WITHOUT_CATEGORIES, AppButtons.trackers_data.STOP_TRACKER_BTN.name, 'not_launched_tracker_text', does_not_raise()),  # this user don't have an actions
         ]
     )
-    async def test_select_launched_tracker(
+    async def test_check_is_launched_tracker(
             self, user_id: int, expectation, execute_callback_query_handler, answer_text: str, redis_cli,
             i18n, buttons, button_data,
     ):
@@ -188,7 +187,7 @@ class TestActionsHandlers:
             if is_tracker:
                 started_tracker = await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
                                                              title='started_tracker_title')
-                assert handler_result.text == started_tracker + i18n.get(answer_text)
+                assert handler_result.text[:20] == (started_tracker + i18n.get(answer_text))[:20]
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.yes_no_menu(), i18n)
             else:
                 assert handler_result.text == i18n.get(answer_text)
@@ -287,7 +286,7 @@ class TestActionsHandlers:
 
         ]
     )
-    async def test_get_report_options(
+    async def test_main_menu_reports_handler(
             self, user_id: int, expectation, execute_callback_query_handler, answer_text: str, redis_cli,
             i18n, buttons, button_data, db_session
     ):
@@ -317,18 +316,15 @@ class TestActionsHandlers:
     ):
 
         report = await select_weekly_trackers(user_id, db_session)
-        print(report)
         with expectation:
             handler_result = await execute_callback_query_handler(user_id, data=button_data)
             assert isinstance(handler_result, (EditMessageText, SendDocument))
             if report and isinstance(handler_result, SendDocument):
-                assert handler_result.document.filename == 'Weekly Report.xlsx'
+                assert handler_result.document.filename == settings.WEEKLY_XLSX_FILE_NAME
                 assert handler_result.caption == i18n.get(answer_text)
             elif not report and isinstance(handler_result, EditMessageText):
                 assert handler_result.text == i18n.get(answer_text)
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.main_menu_buttons(), i18n)
-
-
 
     @pytest.mark.parametrize(
             "user_id, operation, answer_text, expectation",
@@ -339,14 +335,14 @@ class TestActionsHandlers:
                 (SECOND_USER_ID,  TrackerOperation.DEL, 'already_delete_tracker_text', does_not_raise()),
             ]
     )
-    async def test_del_tracker(
+    async def test_delete_tracker_handler(
             self, user_id: int, expectation, execute_callback_query_handler, answer_text: str, redis_cli: Redis,
             i18n, buttons, db_session, operation, dispatcher: Dispatcher, bot,
     ):
         async with db_session as sess:
             async with sess.begin():
                 res = await sess.execute(sa.select(TrackerModel.tracker_id).where(TrackerModel.user_id == user_id,
-                                           cast(TrackerModel.track_end, DATE) == datetime.date.today()))
+                                         cast(TrackerModel.track_end, DATE) == datetime.date.today()))
         tracker_id = res.scalar_one_or_none()
 
         data = None

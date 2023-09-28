@@ -3,7 +3,7 @@ import pytest_asyncio
 from aiogram import Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import User
-from cache.redis_language_commands import LANG_CODE
+from cache.redis_tracker_commands import redis_hmset_create_tracker
 from config import settings
 from tests.unit_tests.mocked_bot import MockedBot
 from tests.unit_tests.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
@@ -40,9 +40,9 @@ async def bot():
 
 
 @pytest.fixture()
-def i18n():
+def i18n(lang_bot_settings):
     hub = Translator()
-    return hub.t_hub.get_translator_by_locale(LANG_CODE)
+    return hub.t_hub.get_translator_by_locale(lang_bot_settings)
 
 
 @pytest.fixture()
@@ -58,15 +58,14 @@ async def scheduler(async_session, redis_storage, bot, redis_cli):
     return schedule
 
 @pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, buttons, i18n, async_session,  redis_storage, scheduler):
+async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_session,  redis_storage, scheduler):
     dp = Dispatcher(storage=redis_storage)
-    translator = Translator()
-
+    translator = Translator(global_lang=lang_bot_settings)
     dp.update.middleware.register(DbSessionMiddleware(async_session))
     dp.update.middleware.register(CacheMiddleware(redis_cli))
     dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
-    dp.update.middleware.register(TranslatorRunnerMiddleware(translator.t_hub))
+    dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
 
     common_handlers_router = register_common_handlers()
     categories_router = register_categories_handlers()
@@ -107,3 +106,14 @@ async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher):
         return res
     return get_handler_result
 
+
+@pytest_asyncio.fixture
+async def create_tracker_fixt_fact(redis_cli):
+    async def _create_tracker_fixt_fact(user_id: int, category_id: int, category_name: str, action_id: int, action_name,
+                                        tracker_id: str):
+        tracker = await redis_hmset_create_tracker(
+            user_id=user_id, tracker_id=tracker_id, action_id=action_id, action_name=action_name,
+            category_id=category_id, category_name=category_name, redis_client=redis_cli
+        )
+        return tracker
+    return _create_tracker_fixt_fact

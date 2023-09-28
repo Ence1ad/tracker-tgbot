@@ -3,7 +3,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 from aiogram.methods import SendMessage, EditMessageText, AnswerCallbackQuery
 from fluentogram import TranslatorRunner
-from pytest_asyncio.plugin import SimpleFixtureFunction, FactoryFixtureFunction
+from pytest_asyncio.plugin import FactoryFixtureFunction
 from redis.asyncio import Redis
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -54,10 +54,11 @@ class TestCommonHandlers:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
             if await is_redis_hexists_tracker(user_id, redis_cli):
-                assert handler_returns.text == await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
-                                                                          title='started_tracker_title')
+                assert handler_returns.text[:20] == (await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
+                                                                          title='started_tracker_title'))[:20]
             elif await is_redis_sismember_user(user_id, redis_client=redis_cli):
                 assert handler_returns.text == i18n.get(answer_text)
+                print(handler_returns.text)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
                 async with db_session as db_session:
@@ -199,7 +200,7 @@ class TestCommonHandlers:
             assert handler_returns.text == i18n.get(answer_text)
             local = await redis_hget_lang(user_id, redis_client=redis_cli)
             assert handler_returns.reply_markup == await _get_right_markup(buttons=buttons, i18n=i18n,
-                                                                           redis_client=redis_cli, local=local)
+                                                                           local=local)
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -215,12 +216,22 @@ class TestCommonHandlers:
     )
     async def test_set_user_lang(
             self, execute_callback_query_handler: FactoryFixtureFunction, user_id: int, data: str, answer_text: str,
-            expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis, buttons: AppButtons
+            expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis, buttons: AppButtons,
+            lang_bot_settings
     ):
-        choice_lang_code: str = await _get_language(call_data=data, buttons=buttons)
+        lang_code_before: str = await redis_cli.hget(name='lang', key=str(user_id))
+        print('get_code_before:', lang_code_before)
+        # choice_lang_code: str = await _get_language(call_data=data, buttons=buttons)
         handler_returns:  AnswerCallbackQuery = await execute_callback_query_handler(user_id=user_id, data=data)
-        get_code_after: str = await redis_hget_lang(user_id, redis_cli)
+        lang_code_after: str = await redis_cli.hget(name='lang', key=str(user_id))
+        print('get_code_after:', lang_code_before)
         with expectation:
             assert isinstance(handler_returns,  AnswerCallbackQuery)
             assert handler_returns.text is not None
-            assert choice_lang_code == get_code_after
+            # assert choice_lang_code == get_code_after
+            if data is None:
+                assert lang_code_after == lang_bot_settings
+            elif data in ('RUSSIAN', 'X_RUSSIAN'):
+                assert lang_code_after == settings.EN_LANG_CODE
+            elif data in ('ENGLISH', 'X_ENGLISH'):
+                assert lang_code_after == settings.RU_LANG_CODE

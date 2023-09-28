@@ -16,7 +16,7 @@ class ButtonsMiddleware(BaseMiddleware):
             handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
             event: CallbackQuery,
             data: Dict[str, Any],
-    ) -> Any:
+    ) -> Awaitable[Any]:
 
         data["buttons"] = self.buttons
         return await handler(event, data)

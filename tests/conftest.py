@@ -8,6 +8,7 @@ from redis.asyncio import Redis
 from sqlalchemy import text, make_url, URL
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker, AsyncEngine
 
+from config import settings
 from db.base_model import AsyncSaBase
 
 
@@ -22,7 +23,28 @@ def pytest_addoption(parser):
     parser.addoption(
         "--redis",
         default=None,
-        help="run tests which require redis connection")
+        help="run tests which require redis connection"
+    )
+
+    parser.addoption(
+        "--lang",
+        default=None,
+        help="run bot tests with lang_code user settings"
+    )
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """
+    Creates an instance of the default event loop for the test session.
+    """
+    if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
+        # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
+        # https://github.com/encode/httpx/issues/914
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope="session")
@@ -64,18 +86,24 @@ def database_url(request):
 
 
 @pytest.fixture(scope="session")
-def event_loop():
-    """
-    Creates an instance of the default event loop for the test session.
-    """
-    if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
-        # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
-        # https://github.com/encode/httpx/issues/914
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+def lang_bot_settings(request):
+    lang = request.config.getoption("lang")
+    if lang:
+        return lang
+    else:
+        try:
+            return request.getfixturevalue("_lang_bot_settings")
+        except pytest.FixtureLookupError:
+            pytest.exit(
+                'Lang code not given. Define a "_ru_bot_settings" session fixture or '
+                'use the "--lang" in the command line.',
+                returncode=1,
+            )
 
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+
+@pytest.fixture(scope="session")
+def _lang_bot_settings():
+    return settings.GLOBAL_LANG_CODE
 
 
 POSTGRES_DEFAULT_DB = "postgres"
@@ -94,13 +122,11 @@ async def _database_url():
     url = URL.create(
         drivername="postgresql+asyncpg",
         username='postgres',
-        # password=settings.DB_USER_PASS,
         host='localhost',
         port=5432,
         database='new'
     ).render_as_string()
     return url
-# 'postgresql+asyncpg://postgres@localhost:5432/new'
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -121,7 +147,7 @@ async def async_sqlalchemy_engine(setup_database):
         await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="class", autouse=True)
+@pytest_asyncio.fixture(scope="module", autouse=True)
 async def create_drop_models(async_sqlalchemy_engine):
     async with async_sqlalchemy_engine.begin() as conn:
         await conn.run_sync(AsyncSaBase.metadata.create_all)
@@ -136,10 +162,6 @@ async def async_session(async_sqlalchemy_engine):
         async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
             async_sqlalchemy_engine, class_=AsyncSession, expire_on_commit=False)
         yield async_session
-
-        # async with async_session() as db_session:
-        #     yield db_session
-
 
 
 async def create_database(url: str):

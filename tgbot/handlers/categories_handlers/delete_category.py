@@ -1,5 +1,5 @@
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -7,17 +7,32 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.redis_tracker_commands import redis_delete_tracker
 from db.categories.categories_commands import delete_category
 from tgbot.keyboards.app_buttons import AppButtons
-from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.callback_factories import CategoryCD
+from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
-async def del_category(call: CallbackQuery, callback_data: CategoryCD, db_session: async_sessionmaker[AsyncSession],
-                       redis_client: Redis, buttons: AppButtons, i18n: TranslatorRunner, state: FSMContext) -> Message:
-    user_id = call.from_user.id
-    category_id = callback_data.category_id
-    markup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+async def delete_category_handler(
+        call: CallbackQuery, callback_data: CategoryCD, db_session: async_sessionmaker[AsyncSession],
+        redis_client: Redis, buttons: AppButtons, i18n: TranslatorRunner, state: FSMContext
+) -> Message:
+    """
+    The delete_category_handler function is responsible for deleting a category from the database.
+
+    :param call: CallbackQuery: Get the callback query object from the callback inline button
+    :param callback_data: CategoryCD: Get the category_id from the callback data
+    :param db_session: async_sessionmaker[AsyncSession]: Get the database session from the middleware
+    :param redis_client: Redis: Connect to the redis database
+    :param buttons: AppButtons: Get the buttons from the middleware
+    :param i18n: TranslatorRunner: Get the language of the user from the middleware.
+     Translate the buttons and the message text
+    :param state: FSMContext: Clear the state of the user after deleting a category
+    :return: A message
+    """
+    user_id: int = call.from_user.id
+    category_id: int = callback_data.category_id
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
     await redis_delete_tracker(user_id, redis_client)
-    returning = await delete_category(user_id, category_id, db_session)
+    returning: int = await delete_category(user_id, category_id, db_session)
     if returning:
         await state.clear()
         return await call.message.edit_text(text=f"{i18n.get('rm_category_text')}", reply_markup=markup)

@@ -31,13 +31,13 @@ async def create_category(user_id: int, category_name: str,
 async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[Row[int, str]]:
 
     """
-    The select_categories function returns a list of rows(tuples) containing the category_id and category_name
-    of all categories belonging to the user with id = user_id. If no results are found, empty list will be returned
-    instead.
+    The select_categories function returns a list of rows(tuples) containing the category_id, category_name and
+    count of actions for each category of all categories belonging to the user with id = user_id.
+    If no results are found, empty list will be returned instead.
 
     :param user_id: int: Select the categories for a specific user
     :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
-    :return: A list of rows(tuples) with the category_id and category_name or empty list
+    :return: A list of rows(tuples) with the category_id, category_name and actions count  or empty list
     """
     async with db_session as session:
         async with session.begin():
@@ -57,6 +57,15 @@ async def select_categories(user_id: int, db_session: async_sessionmaker[AsyncSe
 async def select_categories_with_actions(user_id: int, db_session: async_sessionmaker[AsyncSession]
                                          ) -> list[Row[int, str]]:
 
+    """
+    The select_categories_with_actions function returns a list of tuples containing the category_id,
+    category_name and count of actions for each category. The function is used to populate the categories
+    dropdown menu in the main page.
+
+    :param user_id: int: Identify the user
+    :param db_session: async_sessionmaker[AsyncSession]: Create a new session to the database
+    :return: A list of tuples
+    """
     async with db_session as session:
         async with session.begin():
             stmt = \
@@ -75,6 +84,17 @@ async def select_categories_with_actions(user_id: int, db_session: async_session
 
 async def select_category_id(user_id: int, category_name: str, db_session: async_sessionmaker[AsyncSession]
                              ) -> int | None:
+    """
+    The select_category_id function takes in a user_id, category_name, and db_session.
+    It then uses the db session to query the database for a category id that matches both
+    the user id and category name provided. If it finds one, it returns that value as an int;
+    otherwise it returns None.
+
+    :param user_id: int: Identify the user who owns the category
+    :param category_name: str: Select the category_id of a specific category
+    :param db_session: async_sessionmaker[AsyncSession]: Make a connection to the database
+    :return: The id of the category with the specified name
+    """
     async with db_session as session:
         async with session.begin():
             stmt = \
@@ -88,7 +108,6 @@ async def select_category_id(user_id: int, category_name: str, db_session: async
 
 async def update_category(user_id: int, category_id: int, new_category_name: str,
                           db_session: async_sessionmaker[AsyncSession]) -> None:
-
     """
     The update_category function updates the category name of a given user's category.
 

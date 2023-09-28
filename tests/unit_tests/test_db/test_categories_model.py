@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
-from db.categories.categories_commands import create_category, select_categories, update_category, delete_category
+from db.categories.categories_commands import create_category, select_categories, update_category, delete_category, \
+    select_category_id
 from db.categories.categories_model import CategoriesModel
 from tests.unit_tests.utils import MAIN_USER_ID
 
@@ -49,14 +50,50 @@ class TestCategories:
         ]
     )
     async def test_select_categories(
-            self,
-            db_session: async_sessionmaker[AsyncSession],
-            user_id: int,
-            expectation: does_not_raise,
+            self, db_session: async_sessionmaker[AsyncSession], user_id: int, expectation: does_not_raise,
     ):
         with expectation:
             categories_fetchall = await select_categories(user_id, db_session=db_session)
-            assert len(categories_fetchall) > 0
+            assert categories_fetchall
+
+    @pytest.mark.parametrize(
+        "user_id, expectation",
+        [
+            (MAIN_USER_ID, does_not_raise()),
+            (-1, pytest.raises(AssertionError)),
+            ('1', pytest.raises(ProgrammingError)),
+            (None, pytest.raises(AssertionError)),
+        ]
+    )
+    async def test_select_categories_with_actions(
+            self, db_session: async_sessionmaker[AsyncSession], user_id: int, expectation: does_not_raise,
+    ):
+        with expectation:
+            categories_fetchall = await select_categories(user_id, db_session=db_session)
+            assert isinstance(categories_fetchall, list)
+            assert categories_fetchall
+
+    @pytest.mark.parametrize(
+        "user_id, category_name, expectation",
+        [
+            (MAIN_USER_ID, 'new_cat', does_not_raise()),
+            (MAIN_USER_ID, 'new_category', does_not_raise()),
+            (MAIN_USER_ID, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, '', pytest.raises(AssertionError)),
+            (None, 'best_cat', pytest.raises(AssertionError)),
+            (1111111112, 12345, pytest.raises(DBAPIError)),
+            ('abc', 'some_cat', pytest.raises(DBAPIError)),
+
+        ]
+    )
+    async def test_select_category_id(
+            self, db_session: async_sessionmaker[AsyncSession], user_id: int, category_name: str,
+            expectation: does_not_raise
+    ):
+        with expectation:
+            category_id = await select_category_id(user_id, category_name, db_session)
+            assert isinstance(category_id, int)
+            assert category_id
 
     @pytest.mark.parametrize(
         "user_id, category_id, new_category_name, expectation",
