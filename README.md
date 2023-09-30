@@ -39,6 +39,7 @@ Welcome to the Telegram Tracker Bot project! This bot, built using the Aiogram l
 
 These features make the Telegram Tracker Bot a powerful tool for managing and tracking activities within your Telegram group.
 
+
 Certainly! Here's the updated "Technologies Used" section with links to their respective GitHub pages or home pages if available:
 
 ## Technologies Used
@@ -48,7 +49,6 @@ Certainly! Here's the updated "Technologies Used" section with links to their re
 - [SQLAlchemy](https://www.sqlalchemy.org/): A SQL toolkit and Object-Relational Mapping (ORM) library.
 - [Alembic](https://alembic.sqlalchemy.org/en/latest/): A database migration tool.
 - [Openpyxl](https://openpyxl.readthedocs.io/en/stable/): A library for reading and writing Excel files.
-- [Redis](https://redis.io/): A high-performance in-memory data store.
 - [Pandas](https://pandas.pydata.org/): A data manipulation library.
 - [Python-dotenv](https://github.com/theskumar/python-dotenv): For managing environment variables.
 - [Pydantic-settings](https://github.com/pydantic/pydantic-settings): Configuration settings management.
@@ -57,6 +57,14 @@ Certainly! Here's the updated "Technologies Used" section with links to their re
 - [APScheduler](https://apscheduler.readthedocs.io/en/stable/): A Python job scheduling library.
 - [Jinja2](https://jinja.palletsprojects.com/en/3.1.x/): A template engine.
 - [Fluentogram](https://github.com/orsinium/fluentogram): A library for localizing Telegram bot messages.
+- [Redis](https://redis.io/): An open-source, in-memory data structure store.
+- [PostgreSQL](https://www.postgresql.org/): A powerful, open-source relational database management system.
+- [Prometheus](https://prometheus.io/): An open-source monitoring and alerting toolkit.
+- [Grafana](https://grafana.com/): An open-source analytics and monitoring platform.
+- [PostgreSQL Exporter](https://github.com/prometheus-community/postgres_exporter): A PostgreSQL metric exporter for Prometheus.
+- [Redis Exporter](https://github.com/oliver006/redis_exporter): A Prometheus exporter for Redis metrics.
+- [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/): An alert handling system for Prometheus.
+- [Portainer](https://www.portainer.io/): An open-source container management tool.
 
 These technologies collectively power the Telegram Tracker Bot, enabling its robust functionality.
 
