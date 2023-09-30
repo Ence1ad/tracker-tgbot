@@ -56,9 +56,6 @@ async def create_category_handler(message: Message, state: FSMContext, i18n: Tra
     """
     user_id: int = message.from_user.id
     markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
-
-    if not isinstance(message.text, str):
-        return await message.answer(text=i18n.get('new_valid_action_name', new_line='\n'), reply_markup=markup)
     user_categories: list[Row] = await select_categories(user_id, db_session)
     await state.update_data(category_name=message.text)
     state_data: dict = await state.get_data()

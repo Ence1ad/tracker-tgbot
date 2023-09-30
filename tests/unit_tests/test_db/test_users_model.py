@@ -5,7 +5,7 @@ from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from db.users.user_model import UserModel
-from db.users.users_commands import create_user
+from db.users.users_commands import create_user, delete_user
 from tests.unit_tests.utils import MAIN_USER_ID
 
 
@@ -42,3 +42,27 @@ class TestUsers:
             user_model: UserModel = await create_user(user_id, first_name, last_name, username, db_session=db_session)
             assert isinstance(user_model, UserModel)
             assert user_model.user_id == user_id
+
+    @pytest.mark.parametrize(
+        "user_id, expectation",
+        [
+            (MAIN_USER_ID,  does_not_raise()),
+            (MAIN_USER_ID, pytest.raises(AssertionError)),
+            (1000000002,  does_not_raise()),
+            (1000000003,  does_not_raise()),
+            (1000000004,  does_not_raise()),
+            (1000000005,  does_not_raise()),
+            (1000000006,  does_not_raise()),
+        ]
+    )
+    async def test_delete_user(
+            self,
+            db_session: async_sessionmaker[AsyncSession],
+            user_id: int,
+            expectation: does_not_raise
+    ):
+        with expectation:
+            res = await delete_user(user_id, db_session=db_session)
+            assert isinstance(res, int)
+            assert res == user_id
+

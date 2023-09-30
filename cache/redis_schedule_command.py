@@ -13,7 +13,6 @@ async def _set_name(name: str = "users") -> str:
 
 
 async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
-
     """
     The redis_sadd_user_id function adds a user_id to the set of users who have been
         sent a message.
@@ -26,8 +25,19 @@ async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
     return await redis_client.sadd(name, user_id)
 
 
-async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | None:
+async def redis_srem_user_id(user_id: int, redis_client: Redis) -> int:
+    """
+    The redis_srem_user_id function removes a user_id from the set of all users.
 
+    :param user_id: int: Specify the user id of the user to remove from the set
+    :param redis_client: Redis: Pass in a redis client object
+    :return: 1 if removing the user id was successfully, 0 if not
+    """
+    name: str = await _set_name()
+    return await redis_client.srem(name, user_id)
+
+
+async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | None:
     """
     The is_redis_sismember_user function checks if a user is in the Redis set.
 

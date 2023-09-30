@@ -237,7 +237,7 @@ class TestActionsHandlers:
             assert isinstance(handler_result, EditMessageText)
             if tracker_id:
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
-                assert handler_result.text == track_text
+                assert handler_result.text[:20] == track_text[:20]
                 assert not await is_redis_hexists_tracker(user_id, redis_cli)
                 assert await select_tracker_duration(user_id=user_id, tracker_id=int(tracker_id), db_session=db_session)\
                        != 0

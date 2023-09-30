@@ -75,7 +75,6 @@ async def display_actions(call: CallbackQuery, state: FSMContext, db_session: as
         return await call.message.answer(text=i18n.get('show_action_text', category_name=category_name,
                                          new_line='\n', actions_list_text=actions_list_text), reply_markup=markup)
     else:
-
         markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.new_action(), i18n)
         return await call.message.edit_text(text=i18n.get('empty_actions_text'), reply_markup=markup)
 
@@ -115,12 +114,14 @@ async def collect_actions_data_handler(
     category_id: int = state_data['category_id']
     operation: IntEnum = await _get_action_operation(call_data=call.data, buttons=buttons)
     actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+
     if actions:
         markup: InlineKeyboardMarkup = await callback_factories_kb(actions, operation)
         return await call.message.edit_text(text=i18n.get('select_action_text'), reply_markup=markup)
     else:
+        await call.message.delete()
         markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
-        return await call.message.edit_text(text=i18n.get('empty_actions_text'), reply_markup=markup)
+        return await call.message.answer(text=i18n.get('empty_actions_text'), reply_markup=markup)
 
 
 async def _get_action_operation(call_data: str, buttons: AppButtons) -> IntEnum:

@@ -62,23 +62,17 @@ async def create_action_handler(message: Message, state: FSMContext, db_session:
     state_data: dict = await state.get_data()
     # Get category_id from cache
     category_id: int = state_data['category_id']
-    category_name: str = state_data['category_name']
     new_action_name: str = state_data['action_name']
-    await state.clear()
     # If message not a text message
     markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
-    await state.update_data(category_id=category_id, category_name=category_name)
-    if not isinstance(new_action_name, str):
-        return await message.answer(text=i18n.get('new_valid_action_name', new_line='\n'), reply_markup=markup)
 
+    user_actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+    if new_action_valid_name := await valid_name(user_actions, new_action_name):
+        await create_actions(user_id, new_action_valid_name, category_id=category_id, db_session=db_session)
+        return await message.answer(text=i18n.get('added_new_action_text',
+                                                  new_action_valid_name=new_action_valid_name),
+                                    reply_markup=markup)
     else:
-        user_actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
-        if new_action_valid_name := await valid_name(user_actions, new_action_name):
-            await create_actions(user_id, new_action_valid_name, category_id=category_id, db_session=db_session)
-            return await message.answer(text=i18n.get('added_new_action_text',
-                                                      new_action_valid_name=new_action_valid_name),
-                                        reply_markup=markup)
-        else:
-            return await message.answer(text=i18n.get('action_exists_text', new_action_name=new_action_name),
-                                        reply_markup=markup)
+        return await message.answer(text=i18n.get('action_exists_text', new_action_name=new_action_name),
+                                    reply_markup=markup)

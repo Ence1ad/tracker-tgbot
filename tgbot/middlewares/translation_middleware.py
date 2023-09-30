@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import Update
+from aiogram.types import Update, User
 
 from fluentogram import TranslatorHub, TranslatorRunner
 from redis.asyncio import Redis
@@ -24,13 +24,10 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
     ) -> Awaitable[Any]:
 
         redis_client: Redis = data.get('redis_client')
-        if event.message is not None:
-            user_id: int = event.message.from_user.id
-            self.lang = await redis_hget_lang(user_id, redis_client, local=self.lang)
-        elif event.callback_query is not None:
-            user_id: int = event.callback_query.from_user.id
-            self.lang = await redis_hget_lang(user_id, redis_client, local=self.lang)
+        user: User = data['event_from_user']
+        user_id = user.id
 
+        self.lang = await redis_hget_lang(user_id, redis_client, local=self.lang)
         hub: TranslatorHub = self.translator.t_hub
         data['i18n']: TranslatorRunner = hub.get_translator_by_locale(self.lang)
         return await handler(event, data)

@@ -29,7 +29,7 @@ class PostgresSettings(BaseSettings):
 class TgBotSettings(BaseSettings):
     BOT_TOKEN: str
     ADMIN_ID: int
-    CHAT_ID: int
+    GROUP_ID: int
 
 
 class ProjectSettings(BaseSettings):

@@ -22,18 +22,18 @@ def register_categories_handlers() -> Router:
 
     router = Router()
 
-    router.callback_query.register(categories_main_menu_handler, F.data == AppButtons.general_data.ACTIONS_BTN.name)
+    router.callback_query.register(categories_main_menu_handler, F.data.in_(
+        (AppButtons.general_data.ACTIONS_BTN.name,
+        AppButtons.categories_data.UPDATE_CATEGORIES.name,
+        AppButtons.categories_data.DELETE_CATEGORIES.name))
+                                   )
     router.callback_query.register(display_categories, (F.data == AppButtons.general_data.CATEGORIES_BTN.name)
                                    | (F.data == AppButtons.categories_data.USER_CATEGORIES.name))
     router.callback_query.register(prompt_new_category_handler,
                                    F.data == AppButtons.categories_data.CREATE_CATEGORIES.name)
-    router.message.register(create_category_handler, CategoryState.GET_NAME)
-    router.callback_query.register(categories_main_menu_handler,
-                                   F.data == AppButtons.categories_data.UPDATE_CATEGORIES.name)
+    router.message.register(create_category_handler, CategoryState.GET_NAME, F.text)
     router.callback_query.register(prompt_category_name, CategoryCD.filter(F.operation == CategoryOperation.UPD))
-    router.message.register(upd_category_name, CategoryState.WAIT_CATEGORY_DATA)
-    router.callback_query.register(categories_main_menu_handler,
-                                   F.data == AppButtons.categories_data.DELETE_CATEGORIES.name)
+    router.message.register(upd_category_name, CategoryState.WAIT_CATEGORY_DATA, F.text)
     router.callback_query.register(delete_category_handler, CategoryCD.filter(F.operation == CategoryOperation.DEL))
 
     return router

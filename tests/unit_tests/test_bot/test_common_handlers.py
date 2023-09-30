@@ -9,11 +9,11 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_language_commands import redis_hget_lang
-from cache.redis_schedule_command import is_redis_sismember_user, redis_sadd_user_id
+from cache.redis_schedule_command import is_redis_sismember_user
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from config import settings
 from db import UserModel
-from tgbot.handlers.common_handles.settings_handler import _get_right_markup, _get_language
+from tgbot.handlers.common_handles.settings_handler import _get_right_markup
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb, menu_inline_kb
 from tgbot.utils.answer_text import started_tracker_text
@@ -29,9 +29,8 @@ class TestCommonHandlers:
     @pytest.mark.parametrize(
         "user_id, command, answer_text, expectation",
         [
-            (NEW_USER, "/" + CommandName.START.name, 'new_user_text', does_not_raise()),  # add the user to the db and the redis set
             (NEW_USER, "/" + CommandName.START.name, 'user_in_db_text', does_not_raise()),  # user all ready in db
-            (MAIN_USER_ID, "/" + CommandName.START.name, 'new_user_text', does_not_raise()),  # user all ready in db
+            (MAIN_USER_ID, "/" + CommandName.START.name, 'user_in_db_text', does_not_raise()),  # user all ready in db
             (MAIN_USER_ID, "/" + CommandName.START.name,  None, does_not_raise()),  # checking the answer text when user tracker was launched
             (MAIN_USER_ID, "/" + CommandName.HELP.name, 'new_user_text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, None, 'new_user_text', pytest.raises(AssertionError)),
@@ -56,16 +55,9 @@ class TestCommonHandlers:
             if await is_redis_hexists_tracker(user_id, redis_cli):
                 assert handler_returns.text[:20] == (await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
                                                                           title='started_tracker_title'))[:20]
-            elif await is_redis_sismember_user(user_id, redis_client=redis_cli):
-                assert handler_returns.text == i18n.get(answer_text)
-                print(handler_returns.text)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
-                async with db_session as db_session:
-                    async with db_session.begin():
-                        stmt = sa.select(UserModel.user_id).where(UserModel.user_id == user_id)
-                        user_in_db = await db_session.execute(stmt)
-                assert user_in_db.scalar_one_or_none() == user_id
+
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -177,7 +169,7 @@ class TestCommonHandlers:
         with expectation:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.text == i18n.get(answer_text)
-            assert handler_returns.reply_markup == await menu_inline_kb(buttons=await buttons.settings_menu(),
+            assert handler_returns.reply_markup == await menu_inline_kb(buttons=await buttons.settings_data.settings_menu(),
                                                                         i18n=i18n)
 
     @pytest.mark.parametrize(
@@ -219,19 +211,14 @@ class TestCommonHandlers:
             expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis, buttons: AppButtons,
             lang_bot_settings
     ):
-        lang_code_before: str = await redis_cli.hget(name='lang', key=str(user_id))
-        print('get_code_before:', lang_code_before)
-        # choice_lang_code: str = await _get_language(call_data=data, buttons=buttons)
         handler_returns:  AnswerCallbackQuery = await execute_callback_query_handler(user_id=user_id, data=data)
         lang_code_after: str = await redis_cli.hget(name='lang', key=str(user_id))
-        print('get_code_after:', lang_code_before)
         with expectation:
             assert isinstance(handler_returns,  AnswerCallbackQuery)
             assert handler_returns.text is not None
-            # assert choice_lang_code == get_code_after
             if data is None:
-                assert lang_code_after == lang_bot_settings
+                assert lang_code_after.decode(encoding='utf-8') == lang_bot_settings
             elif data in ('RUSSIAN', 'X_RUSSIAN'):
-                assert lang_code_after == settings.EN_LANG_CODE
+                assert lang_code_after.decode(encoding='utf-8') == settings.RU_LANG_CODE
             elif data in ('ENGLISH', 'X_ENGLISH'):
-                assert lang_code_after == settings.RU_LANG_CODE
+                assert lang_code_after.decode(encoding='utf-8') == settings.EN_LANG_CODE

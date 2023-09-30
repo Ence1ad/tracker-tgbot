@@ -1,6 +1,8 @@
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, ChatMemberUpdatedFilter, JOIN_TRANSITION, LEAVE_TRANSITION
 from aiogram.fsm.state import any_state
+
+from config import settings
 
 
 def register_common_handlers() -> Router:
@@ -23,9 +25,13 @@ def register_common_handlers() -> Router:
     from .exit_handler import exit_menu_handler
     from .help_handler import command_help_handler
     from .settings_handler import command_settings_handler, language_settings, set_user_lang
+    from .check_status import add_user_handler, remove_user_handler
 
     router = Router()
-
+    router.message.filter(F.chat.id == F.from_user.id)
+    router.chat_member.filter(F.chat.id == settings.GROUP_ID)
+    router.chat_member.register(add_user_handler, ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION))
+    router.chat_member.register(remove_user_handler, ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION))
     router.message.register(command_start_handler, Command(CommandName.START.name, ignore_case=True))
     router.message.register(command_cancel_handler, Command(CommandName.CANCEL.name, ignore_case=True), any_state)
     router.callback_query.register(callback_cancel_handler, F.data == AppButtons.general_data.CANCEL_BTN.name,
@@ -34,8 +40,6 @@ def register_common_handlers() -> Router:
     router.message.register(command_help_handler, Command(CommandName.HELP.name, ignore_case=True))
     router.message.register(command_settings_handler, Command(CommandName.SETTINGS.name, ignore_case=True))
     router.callback_query.register(language_settings, F.data == AppButtons.settings_data.LANGUAGE.name)
-    router.callback_query.register(set_user_lang, (F.data == AppButtons.settings_data.RUSSIA.name)
-                                   | (F.data == AppButtons.settings_data.X_RUSSIA.name))
-    router.callback_query.register(set_user_lang, (F.data == AppButtons.settings_data.ENGLISH.name) |
-                                   (F.data == AppButtons.settings_data.X_ENGLISH.name))
+    router.callback_query.register(set_user_lang, (F.data.in_(AppButtons.settings_data_list)))
+
     return router

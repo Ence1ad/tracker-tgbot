@@ -32,6 +32,7 @@ async def prompt_new_action_name(call: CallbackQuery, state: FSMContext, callbac
     old_action_name: str = callback_data.action_name
     await state.update_data(action_id=action_id, old_action_name=old_action_name)
     await state.set_state(ActionState.UPDATE_NAME)
+
     return await call.message.edit_text(text=i18n.get('new_action_text'))
 
 
@@ -56,15 +57,11 @@ async def update_action_name_handler(message: Message, state: FSMContext, db_ses
     new_action_name: str = state_data['action_name']
     category_id: int = state_data['category_id']
     action_id: int = state_data['action_id']
-    category_name: str = state_data['category_name']
-    # await state.clear()
+
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
-    await state.update_data(category_id=category_id, category_name=category_name)
     markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
-    # Is the text checking
-    if not isinstance(new_action_name, str):
-        return await message.answer(text=i18n.get('valid_action_name', new_line='\n'), reply_markup=markup)
-    elif user_actions := await select_category_actions(user_id, category_id=category_id, db_session=db_session):
+
+    if user_actions := await select_category_actions(user_id, category_id=category_id, db_session=db_session):
 
         if new_valid_action_name := await valid_name(user_actions, new_action_name):
             await update_action_name(user_id=user_id, action_id=action_id, new_action_name=new_valid_action_name,

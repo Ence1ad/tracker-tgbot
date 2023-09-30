@@ -2,7 +2,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 
-from cache.redis_language_commands import redis_hget_lang
+from cache.redis_language_commands import redis_hget_lang, redis_hset_lang
 from config import settings
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
@@ -21,7 +21,7 @@ async def command_settings_handler(message: Message, buttons: AppButtons, i18n: 
     :return: The message text and the inline keyboard with settings menu buttons
 
     """
-    markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_menu(), i18n=i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.settings_menu(), i18n=i18n)
     await message.delete()
     return await message.answer(text=i18n.get('options_text'), reply_markup=markup)
 
@@ -58,16 +58,19 @@ async def set_user_lang(call: CallbackQuery, redis_client: Redis, i18n: Translat
     :param buttons: AppButtons: Get the buttons from the middleware
     :return: A boolean value
     """
-    user_id: str = str(call.from_user.id)
-    lang_code: str = await _get_language(call_data=call.data, buttons=buttons)
-
-    await redis_client.hset(name='lang', key=user_id, value=lang_code)
-    is_answer: bool = await call.answer(text=i18n.get('set_lang_text'), show_alert=True)
+    user_id: int = call.from_user.id
+    before_lang_code = await redis_hget_lang(user_id, redis_client=redis_client)
+    lang_code: str = _get_language(call_data=call.data, buttons=buttons)
+    await redis_hset_lang(user_id, lang_code=lang_code, redis_client=redis_client)
+    if before_lang_code != lang_code:
+        is_answer: bool = await call.answer(text=i18n.get('set_lang_text'), show_alert=True)
+    else:
+        is_answer: bool = await call.answer(text=i18n.get('settings_not_change_text'), show_alert=True)
     await call.message.delete()
     return is_answer
 
 
-async def _get_language(call_data: str, buttons: AppButtons) -> str:
+def _get_language(call_data: str, buttons: AppButtons) -> str:
     """
     The _get_language is a helper function is used to determine the language code of a user's Telegram account.
     The function takes two arguments: call_data and buttons. The call_data argument is a string that
@@ -78,10 +81,10 @@ async def _get_language(call_data: str, buttons: AppButtons) -> str:
     :param buttons: AppButtons: Get the buttons from the middleware
     :return: The language code
     """
-    lang_code: str = settings.GLOBAL_LANG_CODE
+
     if call_data in (buttons.settings_data.RUSSIA.name, buttons.settings_data.X_RUSSIA.name):
         lang_code: str = settings.RU_LANG_CODE
-    elif call_data in (buttons.settings_data.ENGLISH.name, buttons.settings_data.X_ENGLISH.name):
+    else:
         lang_code: str = settings.EN_LANG_CODE
     return lang_code
 
@@ -97,9 +100,12 @@ async def _get_right_markup(buttons: AppButtons, i18n: TranslatorRunner, local: 
     :param local: str: Determine the language of the message
     :return: A markup for the language that is set in the settings
     """
+
     if local == settings.RU_LANG_CODE:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.en_language_menu(), i18n=i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.ru_language_menu(),
+                                                            i18n=i18n)
         return markup
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.ru_language_menu(), i18n=i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.en_language_menu(),
+                                                            i18n=i18n)
         return markup

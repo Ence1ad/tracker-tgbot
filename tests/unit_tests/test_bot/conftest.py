@@ -1,8 +1,10 @@
 import pytest
 import pytest_asyncio
 from aiogram import Dispatcher
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import User
+from aiogram.types import User, Chat
 from cache.redis_tracker_commands import redis_hmset_create_tracker
 from config import settings
 from tests.unit_tests.mocked_bot import MockedBot
@@ -49,6 +51,7 @@ def i18n(lang_bot_settings):
 def buttons():
     return AppButtons()
 
+
 @pytest_asyncio.fixture()
 async def scheduler(async_session, redis_storage, bot, redis_cli):
     schedule = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_cli,
@@ -82,11 +85,12 @@ async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_ses
 
 
 @pytest_asyncio.fixture()
-async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher):
+async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher, chat_fixt_fact):
     async def get_handler_result(user_id: int, data, state=None):
         user: User = User(id=user_id, first_name='test_user', is_bot=False)
+        chat: Chat = await chat_fixt_fact(user_id)
         if state is not None:
-            context = dispatcher.fsm.get_context(bot=bot, chat_id=TEST_CHAT.id, user_id=user.id)
+            context = dispatcher.fsm.get_context(bot=bot, chat_id=chat.id, user_id=user.id)
             await context.set_state(state)
         res = await dispatcher.feed_update(bot=bot, update=get_update(callback_query=get_callback_query(data=data,
                                                                                                         from_user=user)))
@@ -95,14 +99,16 @@ async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher)
 
 
 @pytest_asyncio.fixture()
-async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher):
+async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher, chat_fixt_fact):
     async def get_handler_result(user_id: int, text, state=None):
         user: User = User(id=user_id, first_name='test_user', is_bot=False)
+        chat: Chat = await chat_fixt_fact(user_id)
         if state is not None:
-            context = dispatcher.fsm.get_context(bot=bot, chat_id=TEST_CHAT.id, user_id=user.id)
+            context = dispatcher.fsm.get_context(bot=bot, chat_id=chat.id, user_id=user.id)
             await context.set_state(state)
 
-        res = await dispatcher.feed_update(bot=bot, update=get_update(message=get_message(text=text, from_user=user)))
+        res = await dispatcher.feed_update(bot=bot, update=get_update(message=get_message(text=text, chat=chat,
+                                                                                          from_user=user)))
         return res
     return get_handler_result
 
@@ -117,3 +123,29 @@ async def create_tracker_fixt_fact(redis_cli):
         )
         return tracker
     return _create_tracker_fixt_fact
+
+
+@pytest_asyncio.fixture
+async def chat_fixt_fact():
+    async def _create_chat(chat_id: int = None, chat_type: str = 'private', title: str = 'TEST_TITLE',
+                         username: str = TEST_CHAT.username, **kwargs) -> Chat:
+        return Chat(id=chat_id, type=chat_type, title=title, username=username, **kwargs)
+    return _create_chat
+
+@pytest_asyncio.fixture
+async def set_state_data_fict_fact(chat_fixt_fact, dispatcher, bot):
+    async def set_state_data(user_id, data):
+        chat: Chat = await chat_fixt_fact(user_id)
+        key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
+        return await dispatcher.fsm.storage.set_data(key=key, data=data)
+    return set_state_data
+
+
+@pytest_asyncio.fixture
+async def get_state_fict_fact(chat_fixt_fact, dispatcher, bot):
+    async def get_state(user_id):
+        chat: Chat = await chat_fixt_fact(user_id)
+        key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
+        state = await dispatcher.fsm.storage.get_state(key)
+        return state
+    return get_state

@@ -1,3 +1,4 @@
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .user_model import UserModel
@@ -23,3 +24,24 @@ async def create_user(user_id: int, first_name: str, last_name: str, username: s
             await session.flush()
         await session.refresh(user_obj)
         return user_obj
+
+
+async def delete_user(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+
+    """
+    The delete_user function deletes a user from the database.
+
+    :param user_id: int: Specify the user_id of the user to be deleted
+    :param db_session: async_sessionmaker[AsyncSession]: Create a database session
+    :return: The user_id of the deleted user
+
+    """
+    async with db_session as session:
+        async with session.begin():
+            del_stmt = \
+                delete(UserModel)\
+                .where(UserModel.user_id == user_id)\
+                .returning(UserModel.user_id)
+
+            returning = await session.execute(del_stmt)
+        return returning.scalar_one_or_none()

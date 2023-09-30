@@ -3,7 +3,8 @@ exit_text = See you soon!
 options_text = Select the button
 select_lang_text = Select a language
 set_lang_text = ✅ The Russian language was set!
-
+settings_not_change_text = ❌ Already installed ❗️
+use_bot_text = To use the bot, you need to register in the group:
 
 valid_data_text = ❗️ Please provide correct data ❗️
 
