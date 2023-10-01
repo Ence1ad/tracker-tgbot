@@ -56,7 +56,6 @@ jobs:
         run: |
           docker exec -it tgbot pytest --cov=tgbot tgbot/tests/
 
-      - name: Lint code with Ruff
       - uses: chartboost/ruff-action@v1
         with:
           src: "./tgbot"
