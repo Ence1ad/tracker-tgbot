@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 async def command_cancel_handler(message: Message, state: FSMContext, i18n: TranslatorRunner) -> Message:
 
     """
-    The command_cancel_handler function is a handler for the /cancel command.
+    Handle the /cancel command.
     It clears the state and deletes the message that triggered it, then sends the cancellation message.
 
     :param message: Message: Object represents the telegram message

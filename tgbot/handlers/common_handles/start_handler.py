@@ -13,7 +13,7 @@ from tgbot.utils.answer_text import started_tracker_text
 async def command_start_handler(message: Message, db_session: async_sessionmaker[AsyncSession], redis_client: Redis,
                                 buttons: AppButtons, i18n: TranslatorRunner, state: FSMContext) -> Message:
     """
-    The command_start_handler function is the handler for the /start command.
+    Handle the /start command.
 
     :param message: Message: Get the message object that was sent by the user
     :param db_session: async_sessionmaker[AsyncSession]: Get the database session from the middleware

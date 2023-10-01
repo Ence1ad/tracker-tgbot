@@ -1,3 +1,5 @@
+
+
 import pytest
 import pytest_asyncio
 from aiogram import Dispatcher
@@ -84,6 +86,7 @@ async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_ses
         await dp.emit_shutdown()
 
 
+
 @pytest_asyncio.fixture()
 async def execute_callback_query_handler(bot: MockedBot, dispatcher: Dispatcher, chat_fixt_fact):
     async def get_handler_result(user_id: int, data, state=None):
@@ -128,7 +131,7 @@ async def create_tracker_fixt_fact(redis_cli):
 @pytest_asyncio.fixture
 async def chat_fixt_fact():
     async def _create_chat(chat_id: int = None, chat_type: str = 'private', title: str = 'TEST_TITLE',
-                         username: str = TEST_CHAT.username, **kwargs) -> Chat:
+                           username: str = TEST_CHAT.username, **kwargs) -> Chat:
         return Chat(id=chat_id, type=chat_type, title=title, username=username, **kwargs)
     return _create_chat
 

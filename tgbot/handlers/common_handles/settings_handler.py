@@ -11,7 +11,8 @@ from tgbot.keyboards.inline_kb import menu_inline_kb
 async def command_settings_handler(message: Message, buttons: AppButtons, i18n: TranslatorRunner) -> Message:
 
     """
-    The command_settings_handler function is the handler for the /settings command.
+    Handle the /settings command.
+
     It deletes the message sent by the user and sends back the message and inline keyboard with all
     the settings options available to them.
 

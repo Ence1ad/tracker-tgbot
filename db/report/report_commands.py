@@ -23,8 +23,10 @@ async def select_weekly_trackers(user_id: int, db_session: async_sessionmaker[As
         async with session.begin():
             # Get last monday
             last_monday_subq = \
-                (select(func.current_date() + cast(-6 - extract("dow", func.current_date()), Integer) % 7)
-                 ).scalar_subquery()
+                select(func.current_date() + cast(-6 - extract("dow", func.current_date()), Integer) % 7)\
+                .scalar_subquery()
+            # # Calculate the date of the first day of the current month
+            # first_day_of_month_subquery = select(func.date_trunc('month', func.current_date())).scalar_subquery()
 
             # Create a cte and get sorted (by tracker_id) action_id, duration, from monday to today
             # if the tracker was stopped. The limit restriction to obtain from the project settings.
