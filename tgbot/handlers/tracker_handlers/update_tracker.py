@@ -30,12 +30,13 @@ async def check_is_launched_tracker(call: CallbackQuery, redis_client: Redis, bu
         track_text: str = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,
                                                      title='started_tracker_title')
         await call.message.delete()
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.yes_no_menu(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.general_btn_source.yes_no_menu(), i18n)
         return await call.message.answer(text=track_text + i18n.get('answer_stop_tracker_text'),
                                          reply_markup=markup)
     else:
         await call.message.delete()
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
         return await call.message.answer(text=i18n.get('not_launched_tracker_text'), reply_markup=markup)
 
 
@@ -58,7 +59,8 @@ async def stop_tracker_yes_handler(call: CallbackQuery, db_session: async_sessio
     user_id: int = call.from_user.id
     tracker_id: bytes = await redis_hget_tracker_data(user_id, redis_client, 'tracker_id')
     if tracker_id:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
         await select_tracker_duration(user_id=user_id, tracker_id=int(tracker_id), db_session=db_session)
         track_text: str = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,
                                                      title='stop_tracker_text')
@@ -66,7 +68,7 @@ async def stop_tracker_yes_handler(call: CallbackQuery, db_session: async_sessio
         await redis_delete_tracker(user_id, redis_client)
         return await call.message.edit_text(text=track_text, reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
         return await call.message.edit_text(text=i18n.get('not_launched_tracker_text'), reply_markup=markup)
 
 
@@ -81,5 +83,5 @@ async def stop_tracker_no_handler(call: CallbackQuery, buttons: AppButtons, i18n
      Translate the buttons and the message text
     :return: The message text and the inline keyboard with the menu buttons
     """
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
     return await call.message.edit_text(text=i18n.get('options_text'), reply_markup=markup)

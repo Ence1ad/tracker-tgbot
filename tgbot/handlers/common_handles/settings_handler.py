@@ -9,7 +9,6 @@ from tgbot.keyboards.inline_kb import menu_inline_kb
 
 
 async def command_settings_handler(message: Message, buttons: AppButtons, i18n: TranslatorRunner) -> Message:
-
     """
     Handle the /settings command.
 
@@ -22,7 +21,8 @@ async def command_settings_handler(message: Message, buttons: AppButtons, i18n: 
     :return: The message text and the inline keyboard with settings menu buttons
 
     """
-    markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.settings_menu(), i18n=i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_btn_source.settings_menu(),
+                                                        i18n=i18n)
     await message.delete()
     return await message.answer(text=i18n.get('options_text'), reply_markup=markup)
 
@@ -82,8 +82,7 @@ def _get_language(call_data: str, buttons: AppButtons) -> str:
     :param buttons: AppButtons: Get the buttons from the middleware
     :return: The language code
     """
-
-    if call_data in (buttons.settings_data.RUSSIA.name, buttons.settings_data.X_RUSSIA.name):
+    if call_data in (buttons.settings_btn_source.RUSSIA.name, buttons.settings_btn_source.X_RUSSIA.name):
         lang_code: str = settings.RU_LANG_CODE
     else:
         lang_code: str = settings.EN_LANG_CODE
@@ -101,12 +100,15 @@ async def _get_right_markup(buttons: AppButtons, i18n: TranslatorRunner, local: 
     :param local: str: Determine the language of the message
     :return: A markup for the language that is set in the settings
     """
-
     if local == settings.RU_LANG_CODE:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.ru_language_menu(),
-                                                            i18n=i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(
+            buttons=await buttons.settings_btn_source.ru_language_menu(),
+            i18n=i18n
+        )
         return markup
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(buttons=await buttons.settings_data.en_language_menu(),
-                                                            i18n=i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(
+            buttons=await buttons.settings_btn_source.en_language_menu(),
+            i18n=i18n
+        )
         return markup

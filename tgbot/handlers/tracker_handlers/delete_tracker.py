@@ -67,7 +67,9 @@ async def _get_right_tracker_markup(user_id: int, redis_client: Redis, buttons: 
     """
     is_started_tracker: bool = await is_redis_hexists_tracker(user_id, redis_client)
     if not is_started_tracker:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(),
+                                                            i18n)
     return markup

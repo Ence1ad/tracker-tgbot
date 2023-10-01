@@ -59,7 +59,7 @@ async def update_action_name_handler(message: Message, state: FSMContext, db_ses
     action_id: int = state_data['action_id']
 
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
 
     if user_actions := await select_category_actions(user_id, category_id=category_id, db_session=db_session):
 

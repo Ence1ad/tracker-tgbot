@@ -29,7 +29,7 @@ async def delete_action_handler(
     user_id: int = call.from_user.id
     action_id: int = callback_data.action_id
     action_name: str = callback_data.action_name
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
     await redis_delete_tracker(user_id, redis_client)
     db_returning: int = await delete_action(user_id, action_id, db_session)
     if db_returning:

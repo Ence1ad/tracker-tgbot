@@ -240,8 +240,8 @@ cython_debug/
 #.idea/
 
 
-tests
-pytest.ini
+#tests
+#pytest.ini
 *.env
 .gitignore
 LICENSE

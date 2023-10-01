@@ -27,7 +27,7 @@ async def get_weekly_report(call: CallbackQuery, db_session: async_sessionmaker[
     """
     user_id: int = call.from_user.id
     report: list[Row] = await select_weekly_trackers(user_id, db_session)
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
     if report:
         action_data: DataFrame = await pd_action_data(report)
         category_data: DataFrame = await pd_category_data(report)

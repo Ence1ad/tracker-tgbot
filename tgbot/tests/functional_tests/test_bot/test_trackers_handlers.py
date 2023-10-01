@@ -18,8 +18,8 @@ from db.actions.actions_db_commands import select_category_actions
 from db.categories.categories_commands import select_categories
 from db.report.report_commands import select_weekly_trackers
 from db.tracker.tracker_db_command import select_stopped_trackers, select_tracker_duration
-from tests.unit_tests.test_bot.utils import TEST_CHAT
-from tests.unit_tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
+from tgbot.tests.functional_tests.test_bot.utils import TEST_CHAT
+from tgbot.tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 from tgbot.handlers.categories_handlers.read_categories import _get_operation
 from tgbot.handlers.tracker_handlers.delete_tracker import _get_right_tracker_markup
 from tgbot.keyboards.app_buttons import AppButtons
@@ -38,9 +38,9 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
             "user_id, button_data, answer_text, expectation",
             [
-                (USER_ID_WITH_TRACKER_LIMIT, AppButtons.general_data.TRACKERS_BTN.name, 'started_tracker_title', does_not_raise()),
-                (MAIN_USER_ID, AppButtons.general_data.TRACKERS_BTN.name, 'options_text', does_not_raise()),
-                (USER_WITHOUT_TRACKER, AppButtons.trackers_data.DURATION_TRACKER_BTN.name, 'options_text', does_not_raise()),
+                (USER_ID_WITH_TRACKER_LIMIT, AppButtons.general_btn_source.TRACKERS_BTN.name, 'started_tracker_title', does_not_raise()),
+                (MAIN_USER_ID, AppButtons.general_btn_source.TRACKERS_BTN.name, 'options_text', does_not_raise()),
+                (USER_WITHOUT_TRACKER, AppButtons.trackers_btn_source.DURATION_TRACKER_BTN.name, 'options_text', does_not_raise()),
 
             ]
     )
@@ -57,18 +57,18 @@ class TestActionsHandlers:
             assert isinstance(handler_result,  SendMessage)
             if is_tracker:
                 assert handler_result.text == started_tracker_txt
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
             else:
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
 
     @pytest.mark.parametrize(
             "user_id, button_data, answer_text, expectation",
             [
-                (MAIN_USER_ID, AppButtons.trackers_data.START_TRACKER_BTN.name, 'select_category_text', does_not_raise()),
-                (USER_ID_WITH_TRACKER_LIMIT, AppButtons.trackers_data.START_TRACKER_BTN.name, 'tracker_daily_limit_text', does_not_raise()),
-                (USER_WITHOUT_TRACKER, AppButtons.trackers_data.START_TRACKER_BTN.name, 'select_category_text', does_not_raise()),
-                (USER_WITHOUT_CATEGORIES, AppButtons.trackers_data.START_TRACKER_BTN.name, 'empty_categories_text', does_not_raise()),
+                (MAIN_USER_ID, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'select_category_text', does_not_raise()),
+                (USER_ID_WITH_TRACKER_LIMIT, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'tracker_daily_limit_text', does_not_raise()),
+                (USER_WITHOUT_TRACKER, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'select_category_text', does_not_raise()),
+                (USER_WITHOUT_CATEGORIES, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'empty_categories_text', does_not_raise()),
             ]
     )
     async def test_pass_tracker_checks(
@@ -92,10 +92,12 @@ class TestActionsHandlers:
                     assert handler_result.reply_markup == await callback_factories_kb(categories, operation)
                 else:
                     assert handler_result.text == i18n.get(answer_text)
-                    assert handler_result.reply_markup == await menu_inline_kb(await buttons.new_category(), i18n)
+                    assert handler_result.reply_markup == await menu_inline_kb(
+                        await buttons.categories_btn_source.new_category(), i18n
+                    )
             else:
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
 
     @pytest.mark.parametrize(
             "user_id, state, operation, answer_text, expectation",
@@ -126,7 +128,7 @@ class TestActionsHandlers:
                 assert handler_result.reply_markup == await callback_factories_kb(actions, operation)
             else:
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
 
     @pytest.mark.parametrize(
             "user_id, state, operation, answer_text, expectation",
@@ -160,19 +162,19 @@ class TestActionsHandlers:
             after_handler = await is_redis_hexists_tracker(user_id, redis_cli)
             if before_handler == after_handler:
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
             else:
                 assert await redis_cli.get(str(user_id))  # check the redis_expireat_midnight func was started
                 assert await redis_incr_user_day_trackers(user_id, redis_cli)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
                 assert handler_result.text == i18n.get(answer_text, action_name=action_name)
 
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.trackers_data.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text', does_not_raise()),
-            (SECOND_USER_ID, AppButtons.trackers_data.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text', does_not_raise()),
-            (USER_WITHOUT_CATEGORIES, AppButtons.trackers_data.STOP_TRACKER_BTN.name, 'not_launched_tracker_text', does_not_raise()),  # this user don't have an actions
+            (MAIN_USER_ID, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text', does_not_raise()),
+            (SECOND_USER_ID, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text', does_not_raise()),
+            (USER_WITHOUT_CATEGORIES, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'not_launched_tracker_text', does_not_raise()),  # this user don't have an actions
         ]
     )
     async def test_check_is_launched_tracker(
@@ -188,19 +190,19 @@ class TestActionsHandlers:
                 started_tracker = await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
                                                              title='started_tracker_title')
                 assert handler_result.text[:20] == (started_tracker + i18n.get(answer_text))[:20]
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.yes_no_menu(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.general_btn_source.yes_no_menu(), i18n)
             else:
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
 
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.general_data.NO_BTN.name, 'options_text',
+            (MAIN_USER_ID, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_data.NO_BTN.name, 'options_text',
+            (SECOND_USER_ID, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),
-            (USER_WITHOUT_CATEGORIES, AppButtons.general_data.NO_BTN.name, 'options_text',
+            (USER_WITHOUT_CATEGORIES, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),  # this user don't have an actions
         ]
     )
@@ -216,11 +218,11 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.general_data.YES_BTN.name, 'stop_tracker_text',
+            (MAIN_USER_ID, AppButtons.general_btn_source.YES_BTN.name, 'stop_tracker_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_data.YES_BTN.name, 'stop_tracker_text',
+            (SECOND_USER_ID, AppButtons.general_btn_source.YES_BTN.name, 'stop_tracker_text',
              does_not_raise()),
-            (USER_WITHOUT_CATEGORIES, AppButtons.general_data.YES_BTN.name, 'not_launched_tracker_text',
+            (USER_WITHOUT_CATEGORIES, AppButtons.general_btn_source.YES_BTN.name, 'not_launched_tracker_text',
              does_not_raise()),  # this user don't have an actions
         ]
     )
@@ -236,25 +238,25 @@ class TestActionsHandlers:
             handler_result = await execute_callback_query_handler(user_id, data=button_data)
             assert isinstance(handler_result, EditMessageText)
             if tracker_id:
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
                 assert handler_result.text[:20] == track_text[:20]
                 assert not await is_redis_hexists_tracker(user_id, redis_cli)
                 assert await select_tracker_duration(user_id=user_id, tracker_id=int(tracker_id), db_session=db_session)\
                        != 0
             else:
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
                 assert handler_result.text == i18n.get(answer_text)
 
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.trackers_data.DELETE_TRACKER_BTN.name, 'empty_stopped_tracker_text',
+            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'empty_stopped_tracker_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.trackers_data.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
+            (MAIN_USER_ID, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.trackers_data.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
+            (SECOND_USER_ID, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
              does_not_raise()),
-            (USER_WITHOUT_CATEGORIES, AppButtons.trackers_data.DELETE_TRACKER_BTN.name, 'empty_stopped_tracker_text',
+            (USER_WITHOUT_CATEGORIES, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'empty_stopped_tracker_text',
              does_not_raise()),  # this user don't have an actions
         ]
     )
@@ -277,11 +279,11 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.general_data.REPORTS_BTN.name, 'options_text',
+            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_data.REPORTS_BTN.name, 'options_text',
+            (MAIN_USER_ID, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_data.REPORTS_BTN.name, 'options_text',
+            (SECOND_USER_ID, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
              does_not_raise()),
 
         ]
@@ -295,18 +297,19 @@ class TestActionsHandlers:
             handler_result = await execute_callback_query_handler(user_id, data=button_data)
             assert isinstance(handler_result, EditMessageText)
             assert handler_result.text == i18n.get(answer_text)
-            assert handler_result.reply_markup == await menu_inline_kb(await buttons.report_menu(), i18n)
+            assert handler_result.reply_markup == await menu_inline_kb(await buttons.reports_btn_source.report_menu(),
+                                                                       i18n)
 
     @pytest.mark.parametrize(
         "user_id, button_data, answer_text, expectation",
         [
-            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.reports_data.WEEKLY_REPORT_BTN.name, 'empty_trackers_text',
+            (USER_ID_WITH_TRACKER_LIMIT, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'empty_trackers_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.reports_data.WEEKLY_REPORT_BTN.name, 'send_report_text',
+            (MAIN_USER_ID, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'send_report_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.reports_data.WEEKLY_REPORT_BTN.name, 'send_report_text',
+            (SECOND_USER_ID, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'send_report_text',
              does_not_raise()),
-            (USER_WITHOUT_CATEGORIES, AppButtons.reports_data.WEEKLY_REPORT_BTN.name, 'empty_trackers_text',
+            (USER_WITHOUT_CATEGORIES, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'empty_trackers_text',
              does_not_raise()),  # this user don't have an actions
         ]
     )
@@ -324,7 +327,7 @@ class TestActionsHandlers:
                 assert handler_result.caption == i18n.get(answer_text)
             elif not report and isinstance(handler_result, EditMessageText):
                 assert handler_result.text == i18n.get(answer_text)
-                assert handler_result.reply_markup == await menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+                assert handler_result.reply_markup == await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
 
     @pytest.mark.parametrize(
             "user_id, operation, answer_text, expectation",

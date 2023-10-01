@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fluent_compiler.bundle import FluentBundle
-from fluentogram import TranslatorHub, FluentTranslator, TranslatorRunner
+from fluentogram import TranslatorHub, FluentTranslator
 
 from config import settings
 
@@ -33,16 +33,3 @@ class Translator:
                              ))],
         root_locale=settings.GLOBAL_LANG_CODE,
     )
-
-    # def __call__(self, language: str, *args, **kwargs):
-    #     return LocalizedTranslator(translator=self.t_hub.get_translator_by_locale(language))
-
-
-class LocalizedTranslator:
-    translator: TranslatorRunner
-
-    def __init__(self, translator) -> None:
-        self.translator = translator
-
-    def get(self, key: str, **kwargs: dict) -> str:
-        return self.translator.get(key, **kwargs)

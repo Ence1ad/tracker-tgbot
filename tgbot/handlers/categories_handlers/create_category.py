@@ -30,7 +30,8 @@ async def prompt_new_category_handler(call: CallbackQuery, state: FSMContext, i1
     user_id: int = call.from_user.id
     categories: list[Row] = await select_categories(user_id, db_session)
     if categories and (len(categories) >= settings.USER_CATEGORIES_LIMIT):
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
+                                                            i18n)
         await state.clear()
         return await call.message.edit_text(
             text=i18n.get("category_limit_text", category_limit=settings.USER_CATEGORIES_LIMIT), reply_markup=markup)
@@ -55,7 +56,8 @@ async def create_category_handler(message: Message, state: FSMContext, i18n: Tra
     :return: A message with the text and a menu inline keyboard
     """
     user_id: int = message.from_user.id
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
+                                                        i18n)
     user_categories: list[Row] = await select_categories(user_id, db_session)
     await state.update_data(category_name=message.text)
     state_data: dict = await state.get_data()

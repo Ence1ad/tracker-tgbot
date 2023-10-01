@@ -38,7 +38,7 @@ async def actions_main_menu_handler(
     await state.update_data(category_id=category_id, category_name=category_name)
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
     actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
     if actions:
         actions_list_text: str = await _actions_list(actions)
         return await call.message.edit_text(
@@ -69,21 +69,20 @@ async def display_actions(call: CallbackQuery, state: FSMContext, db_session: as
     category_name: str = state_data['category_name']
     actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
     if actions:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(),
+                                                            i18n)
         await call.message.delete()
         actions_list_text: str = await _actions_list(actions)
         return await call.message.answer(text=i18n.get('show_action_text', category_name=category_name,
                                          new_line='\n', actions_list_text=actions_list_text), reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.new_action(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.new_action(), i18n)
         return await call.message.edit_text(text=i18n.get('empty_actions_text'), reply_markup=markup)
 
 
 async def _actions_list(model: list[Row]) -> str:
     """
     The _actions_list helper function takes a list of Row objects and returns a string.
-    The string is formatted as follows:
-        1. action_name_0\n\r2. action_name_1...etc.
 
     :param model: list[Row]: Pass the list of actions to the function
     :return: A string with all the actions in a list, numbered
@@ -120,7 +119,8 @@ async def collect_actions_data_handler(
         return await call.message.edit_text(text=i18n.get('select_action_text'), reply_markup=markup)
     else:
         await call.message.delete()
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(),
+                                                            i18n)
         return await call.message.answer(text=i18n.get('empty_actions_text'), reply_markup=markup)
 
 
@@ -136,8 +136,8 @@ async def _get_action_operation(call_data: str, buttons: AppButtons) -> IntEnum:
     :return: The operation that should be performed
     """
     operation: None = None
-    if call_data == buttons.actions_data.UPDATE_ACTIONS.name:
+    if call_data == buttons.actions_btn_source.UPDATE_ACTIONS.name:
         operation: IntEnum = ActionOperation.UPD
-    elif call_data == buttons.actions_data.DELETE_ACTIONS.name:
+    elif call_data == buttons.actions_btn_source.DELETE_ACTIONS.name:
         operation: IntEnum = ActionOperation.DEL
     return operation

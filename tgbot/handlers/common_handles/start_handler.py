@@ -28,7 +28,8 @@ async def command_start_handler(message: Message, db_session: async_sessionmaker
     user_id: int = message.from_user.id
     await message.delete()
     await state.clear()
-    markup: InlineKeyboardMarkup = await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await start_menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(),
+                                                              i18n)
     if await is_redis_hexists_tracker(user_id, redis_client):
         started_text: str = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,
                                                   title='started_tracker_title')

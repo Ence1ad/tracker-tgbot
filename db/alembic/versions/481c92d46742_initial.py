@@ -1,4 +1,6 @@
-"""initial
+"""
+
+initial
 
 Revision ID: 481c92d46742
 Revises: 

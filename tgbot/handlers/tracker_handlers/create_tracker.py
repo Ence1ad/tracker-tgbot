@@ -40,7 +40,8 @@ async def pass_tracker_checks(call: CallbackQuery, db_session: async_sessionmake
     if user_trackers_cnt is None or (int(user_trackers_cnt) < settings.USER_TRACKERS_DAILY_LIMIT):
         return await categories_main_menu_handler(call=call, db_session=db_session, buttons=buttons, i18n=i18n)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
         await call.message.delete()
         return await call.message.answer(text=i18n.get('tracker_daily_limit_text'), reply_markup=markup)
 
@@ -71,7 +72,7 @@ async def take_action_4_tracker(call: CallbackQuery, callback_data: CategoryCD, 
             text=i18n.get('select_category_4_tracker', category_name=category_name, new_line='\n'), reply_markup=markup)
     else:
         await state.clear()
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
         return await call.message.edit_text(text=i18n.get('valid_data_text'), reply_markup=markup)
 
 
@@ -114,11 +115,12 @@ async def create_new_tracker(
         await redis_expireat_midnight(user_id, redis_client)
         # If user not stop the tracker, it will be deleted automatically
         await _setup_duration_schedule_checker(scheduler=apscheduler, user_id=user_id, i18n=i18n)
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
         return await call.message.edit_text(text=i18n.get('new_tracker_text', action_name=action_name),
                                             reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
         return await call.message.edit_text(text=i18n.get('not_enough_data_text'), reply_markup=markup)
 
 

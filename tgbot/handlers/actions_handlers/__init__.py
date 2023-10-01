@@ -25,16 +25,16 @@ def register_actions_handlers() -> Router:
     router = Router()
 
     router.callback_query.register(actions_main_menu_handler, CategoryCD.filter(F.operation == CategoryOperation.READ))
-    router.callback_query.register(display_actions, (F.data == AppButtons.actions_data.USER_ACTIONS.name),
+    router.callback_query.register(display_actions, (F.data == AppButtons.actions_btn_source.USER_ACTIONS.name),
                                    ActionState.WAIT_CATEGORY_DATA)
     router.callback_query.register(prompt_name_4_new_action_handler,
-                                   (F.data == AppButtons.actions_data.CREATE_ACTIONS.name),
+                                   (F.data == AppButtons.actions_btn_source.CREATE_ACTIONS.name),
                                    ActionState.WAIT_CATEGORY_DATA)
     router.message.register(create_action_handler, ActionState.GET_NAME, F.text)
 
     router.callback_query.register(collect_actions_data_handler,
-                                   (F.data == AppButtons.actions_data.UPDATE_ACTIONS.name) |
-                                   (F.data == AppButtons.actions_data.DELETE_ACTIONS.name),
+                                   (F.data == AppButtons.actions_btn_source.UPDATE_ACTIONS.name) |
+                                   (F.data == AppButtons.actions_btn_source.DELETE_ACTIONS.name),
                                    ActionState.WAIT_CATEGORY_DATA)
     router.callback_query.register(prompt_new_action_name, ActionCD.filter(F.operation == ActionOperation.UPD))
     router.message.register(update_action_name_handler, ActionState.UPDATE_NAME, F.text)

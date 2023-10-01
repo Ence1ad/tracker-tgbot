@@ -3,8 +3,7 @@ from typing import Callable, Dict, Any, Awaitable
 
 from aiogram.utils.markdown import hide_link
 from aiogram import BaseMiddleware
-from aiogram.types import Update, User, ChatMemberMember, ChatMemberOwner, ChatMemberAdministrator, \
-    ChatMemberRestricted, ChatMemberLeft, ChatMemberBanned
+from aiogram.types import Update, User, ChatMemberRestricted, ChatMemberLeft, ChatMemberBanned
 from redis.asyncio import Redis
 
 from cache.redis_schedule_command import is_redis_sismember_user
@@ -39,7 +38,7 @@ class ChatMemberMiddleware(BaseMiddleware):
         """
         user: User = data['event_from_user']
         if user.is_bot:
-           return
+            return
 
         user_id = user.id
         redis_client: Redis = data['redis_client']

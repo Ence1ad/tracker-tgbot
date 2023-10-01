@@ -5,20 +5,19 @@ from aiogram.methods import SendMessage, EditMessageText, AnswerCallbackQuery
 from fluentogram import TranslatorRunner
 from pytest_asyncio.plugin import FactoryFixtureFunction
 from redis.asyncio import Redis
-import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.redis_language_commands import redis_hget_lang
-from cache.redis_schedule_command import is_redis_sismember_user
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from config import settings
-from db import UserModel
+
+
 from tgbot.handlers.common_handles.settings_handler import _get_right_markup
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb, menu_inline_kb
 from tgbot.utils.answer_text import started_tracker_text
 from tgbot.utils.bot_commands import CommandName
-from ..utils import MAIN_USER_ID
+from tgbot.tests.utils import MAIN_USER_ID
 from tgbot.utils.jinja_engine import render_template
 
 
@@ -51,7 +50,7 @@ class TestCommonHandlers:
 
         with expectation:
             assert isinstance(handler_returns, SendMessage)
-            assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+            assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
             if await is_redis_hexists_tracker(user_id, redis_cli):
                 assert handler_returns.text[:20] == (await started_tracker_text(user_id=user_id, redis_client=redis_cli, i18n=i18n,
                                                                           title='started_tracker_title'))[:20]
@@ -62,15 +61,15 @@ class TestCommonHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.general_data.EXIT_BTN.name, None, does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_data.EXIT_BTN.name, 'options_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.CANCEL_BTN.name, None, pytest.raises(AssertionError)),
-            (12345, AppButtons.general_data.EXIT_BTN.name, 'options_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.EXIT_BTN.name, None, does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.EXIT_BTN.name, 'options_text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CANCEL_BTN.name, None, pytest.raises(AssertionError)),
+            (12345, AppButtons.general_btn_source.EXIT_BTN.name, 'options_text', does_not_raise()),
             (12345, None, 'options_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.EXIT_BTN.name, None, does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_data.EXIT_BTN.name, 'options_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.CANCEL_BTN.name, None, pytest.raises(AssertionError)),
-            (12345, AppButtons.general_data.EXIT_BTN.name, 'options_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.EXIT_BTN.name, None, does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.EXIT_BTN.name, 'options_text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CANCEL_BTN.name, None, pytest.raises(AssertionError)),
+            (12345, AppButtons.general_btn_source.EXIT_BTN.name, 'options_text', does_not_raise()),
             (12345, None, 'options_text', pytest.raises(AssertionError)),
         ]
     )
@@ -88,7 +87,7 @@ class TestCommonHandlers:
         with expectation:
             assert isinstance(handler_returns, EditMessageText)
             assert handler_returns.text == result_text
-            assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+            assert handler_returns.reply_markup == await start_menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
 
     @pytest.mark.parametrize(
         "user_id, command, answer_text, expectation",
@@ -112,10 +111,10 @@ class TestCommonHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.general_data.CANCEL_BTN.name, 'exit_text', does_not_raise()),
-            (44444, AppButtons.general_data.CANCEL_BTN.name, 'exit_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CANCEL_BTN.name, 'exit_text', does_not_raise()),
+            (44444, AppButtons.general_btn_source.CANCEL_BTN.name, 'exit_text', does_not_raise()),
             (MAIN_USER_ID, None, 'options_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.CANCEL_BTN.name, 'pass not correct text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CANCEL_BTN.name, 'pass not correct text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, 'pass not correct data', 'exit_text', pytest.raises(AssertionError)),
         ]
     )
@@ -123,30 +122,67 @@ class TestCommonHandlers:
             self, execute_callback_query_handler: FactoryFixtureFunction, user_id: int, data: str, answer_text: str,
             expectation: does_not_raise, i18n: TranslatorRunner
     ):
-        handler_returns: AnswerCallbackQuery = await execute_callback_query_handler(user_id=user_id, data=data)
+        handler_returns = await execute_callback_query_handler(user_id=user_id, data=data)
         with expectation:
-            assert isinstance(handler_returns, AnswerCallbackQuery)
+            assert isinstance(handler_returns, (AnswerCallbackQuery, EditMessageText))
             assert handler_returns.text == i18n.get(answer_text)
 
     @pytest.mark.parametrize(
-        "user_id, command, expectation",
+        "user_id, text, expectation",
         [
-            (MAIN_USER_ID, '/' + CommandName.HELP.name, does_not_raise()),
-            (44444, '/' + CommandName.HELP.name, does_not_raise()),
-            (MAIN_USER_ID, 'pass not correct command', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, '/help', does_not_raise()),
+            (MAIN_USER_ID, '/help_cat', does_not_raise()),
+            (MAIN_USER_ID, '/help_act', does_not_raise()),
+            (MAIN_USER_ID, '/help_tra', does_not_raise()),
+            (MAIN_USER_ID, '/help_rep', does_not_raise()),
+            (44444, '/help', does_not_raise()),
+            (MAIN_USER_ID, '/help_unknown', does_not_raise()),
+            (MAIN_USER_ID, '/help this is incorrect', does_not_raise()),
         ]
     )
     async def test_command_help_handler(
-            self, execute_message_handler, user_id: int, command: str,
+            self, execute_message_handler, user_id: int, text: str,
             expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis
     ):
-        handler_returns: SendMessage = await execute_message_handler(user_id=user_id, text=command)
-        with expectation:
-            local = await redis_hget_lang(user_id=user_id, redis_client=redis_cli)
-            if local == settings.RU_LANG_CODE:
-                answer_text = render_template('ru_help_handler.html')
+        local = await redis_hget_lang(user_id=user_id, redis_client=redis_cli)
+
+
+        if local == settings.RU_LANG_CODE:
+            lang_code: dict[str:str] = {
+                "main": 'ru_help_main.html',
+                "cat": 'ru_help_categories.html',
+                "act": 'ru_help_actions.html',
+                "tra": 'ru_help_trackers.html',
+                "rep": 'ru_help_reports.html'
+            }
+        else:
+            lang_code = {
+                "main": 'en_help_main.html',
+                "cat": 'en_help_categories.html',
+                "act": 'en_help_actions.html',
+                "tra": 'en_help_trackers.html',
+                "rep": 'en_help_reports.html'
+            }
+
+        words = text.split('_')
+
+        # If there is only one word (i.e., just "/help" without specifying a command)
+        if len(words) == 1:
+            # Provide a general help message
+            answer_text: str = render_template(lang_code.get("main"))
+        elif len(words) == 2:
+            command = words[1]
+            html_doc = lang_code.get(command)
+            if html_doc is not None:
+                answer_text = render_template(html_doc)
             else:
-                answer_text = render_template('en_help_handler.html')
+                answer_text = i18n.get('help_unknown_command_text')
+
+        else:
+            answer_text = i18n.get('help_invalid_command_format_text')
+
+        handler_returns = await execute_message_handler(user_id=user_id, text=text)
+        with expectation:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.text == answer_text
             assert handler_returns.reply_markup is None
@@ -169,16 +205,16 @@ class TestCommonHandlers:
         with expectation:
             assert isinstance(handler_returns, SendMessage)
             assert handler_returns.text == i18n.get(answer_text)
-            assert handler_returns.reply_markup == await menu_inline_kb(buttons=await buttons.settings_data.settings_menu(),
+            assert handler_returns.reply_markup == await menu_inline_kb(buttons=await buttons.settings_btn_source.settings_menu(),
                                                                         i18n=i18n)
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.settings_data.LANGUAGE.name, 'select_lang_text', does_not_raise()),
-            (44444, AppButtons.settings_data.LANGUAGE.name, 'select_lang_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.settings_btn_source.LANGUAGE.name, 'select_lang_text', does_not_raise()),
+            (44444, AppButtons.settings_btn_source.LANGUAGE.name, 'select_lang_text', does_not_raise()),
             (MAIN_USER_ID, None, 'select_lang_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.settings_data.LANGUAGE.name, 'pass not correct text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.settings_btn_source.LANGUAGE.name, 'pass not correct text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, 'pass not correct data', 'select_lang_text', pytest.raises(AssertionError)),
         ]
     )
@@ -197,13 +233,13 @@ class TestCommonHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.settings_data.X_RUSSIA.name, 'set_lang_text', does_not_raise()),
-            (44444, AppButtons.settings_data.RUSSIA.name, 'set_lang_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.settings_btn_source.X_RUSSIA.name, 'set_lang_text', does_not_raise()),
+            (44444, AppButtons.settings_btn_source.RUSSIA.name, 'set_lang_text', does_not_raise()),
             (MAIN_USER_ID, None, 'select_lang_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.settings_data.ENGLISH.name, 'set_lang_text', does_not_raise()),
-            (44444, AppButtons.settings_data.X_ENGLISH.name, 'set_lang_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.settings_btn_source.ENGLISH.name, 'set_lang_text', does_not_raise()),
+            (44444, AppButtons.settings_btn_source.X_ENGLISH.name, 'set_lang_text', does_not_raise()),
             (MAIN_USER_ID, 'pass not correct data', 'select_lang_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.settings_data.LANGUAGE.name, 'pass not correct text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.settings_btn_source.LANGUAGE.name, 'pass not correct text', pytest.raises(AssertionError)),
         ]
     )
     async def test_set_user_lang(
@@ -211,10 +247,10 @@ class TestCommonHandlers:
             expectation: does_not_raise, i18n: TranslatorRunner, redis_cli: Redis, buttons: AppButtons,
             lang_bot_settings
     ):
-        handler_returns:  AnswerCallbackQuery = await execute_callback_query_handler(user_id=user_id, data=data)
+        handler_returns = await execute_callback_query_handler(user_id=user_id, data=data)
         lang_code_after: str = await redis_cli.hget(name='lang', key=str(user_id))
         with expectation:
-            assert isinstance(handler_returns,  AnswerCallbackQuery)
+            assert isinstance(handler_returns, (AnswerCallbackQuery, SendMessage))
             assert handler_returns.text is not None
             if data is None:
                 assert lang_code_after.decode(encoding='utf-8') == lang_bot_settings

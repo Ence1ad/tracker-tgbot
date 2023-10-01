@@ -26,7 +26,8 @@ async def exit_menu_handler(call: CallbackQuery, state: FSMContext, redis_client
     :return: A message with the options_text and the start menu buttons
     """
     user_id: int = call.from_user.id
-    markup: InlineKeyboardMarkup = await start_menu_inline_kb(await buttons.main_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await start_menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(),
+                                                              i18n)
     await state.clear()
     if await is_redis_hexists_tracker(user_id, redis_client):
         text: str = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,

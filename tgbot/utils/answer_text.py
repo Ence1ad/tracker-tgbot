@@ -8,6 +8,13 @@ from tgbot.utils.jinja_engine import render_template
 
 
 async def _prepare_tracker_data(user_id: int, redis_client: Redis) -> dict:
+    """
+    The _prepare_tracker_data function is used to prepare the data that will be displayed in the tracker.
+
+    :param user_id: int: Get the user's id
+    :param redis_client: Redis: Pass the redis client object to the function
+    :return: A dictionary with the trackers keys
+    """
     tracker_data = await redis_hgetall_started_tracker(user_id=user_id, redis_client=redis_client)
     if tracker_data:
         tracker_data = \
@@ -19,6 +26,16 @@ async def _prepare_tracker_data(user_id: int, redis_client: Redis) -> dict:
 
 
 async def started_tracker_text(user_id: int, title: str, redis_client: Redis, i18n: TranslatorRunner) -> str:
+    """
+    The started_tracker_text function is used to generate a text message that will be sent to the user
+    when they start tracking their time.
+
+    :param user_id: int: Get the user's data from redis
+    :param title: str: Specify the title of the tracker
+    :param redis_client: Redis: Connect to the redis database
+    :param i18n: TranslatorRunner: Translate the text into the user's language
+    :return: The text of the message that appears when you start tracking
+    """
     tracker_data: dict[str: str] = await _prepare_tracker_data(user_id, redis_client)
     row_text = {
         'common_title': i18n.get(str(title)),

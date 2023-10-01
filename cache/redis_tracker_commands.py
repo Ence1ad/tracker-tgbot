@@ -17,8 +17,8 @@ async def _tracker_name(user_id: int) -> str | None:
     return name
 
 
-async def redis_hmset_create_tracker(user_id: int, tracker_id: int | str, action_id: int, action_name: str, category_id: int,
-                                     category_name: str, redis_client: Redis) -> int | None:
+async def redis_hmset_create_tracker(user_id: int, tracker_id: int | str, action_id: int, action_name: str,
+                                     category_id: int, category_name: str, redis_client: Redis) -> int | None:
 
     """
     The redis_hmset_create_tracker function creates a new tracker in Redis.
@@ -87,7 +87,6 @@ async def redis_hgetall_started_tracker(user_id: int, redis_client: Redis) -> di
     :param redis_client: Redis: Pass in the redis client
     :return: A dictionary of all the
     """
-
     tracker_name: str = await _tracker_name(user_id)
     return await redis_client.hgetall(tracker_name)
 
@@ -123,15 +122,12 @@ async def redis_delete_tracker(user_id: int, redis_client: Redis) -> int | None:
 
     """
     The redis_delete_tracker function deletes the tracker for a given user_id.
-        Args:
-            user_id (int): The id of the user whose tracker is to be deleted.
-            redis_client (Redis): A Redis client object that can be used to interact with Redis.
+
 
     :param user_id: int: Identify the user
     :param redis_client: Redis: Pass the redis_client object to the function
     :return: 1 if removing tracker was successfully, 0 if not
     """
-
     tracker_name: str = await _tracker_name(user_id)
     if await is_redis_hexists_tracker(user_id, redis_client):
         res: int = await redis_client.delete(tracker_name)
@@ -191,7 +187,6 @@ async def redis_expireat_midnight(user_id: int, redis_client: Redis, day_time: N
     :return: True if the deletion was successfully, False if not
 
     """
-
     today = date.today()
     if not day_time:
         # set midnight time

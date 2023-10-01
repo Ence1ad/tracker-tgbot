@@ -3,7 +3,7 @@ from openpyxl.drawing.colors import SchemeColor
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame
-from copy import deepcopy, copy
+from copy import deepcopy
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference, PieChart

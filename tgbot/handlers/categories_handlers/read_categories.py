@@ -36,7 +36,7 @@ async def categories_main_menu_handler(call: CallbackQuery, db_session: async_se
         markup: InlineKeyboardMarkup = await callback_factories_kb(categories, operation)
         return await call.message.edit_text(text=i18n.get('select_category_text'), reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.new_category(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.new_category(), i18n)
         return await call.message.edit_text(text=i18n.get('empty_categories_text'), reply_markup=markup)
 
 
@@ -59,11 +59,12 @@ async def display_categories(call: CallbackQuery, db_session: async_sessionmaker
     categories: list[Row] = await select_categories(user_id, db_session)
     if categories:
         columns_list_text: str = await _categories_list(categories)
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
+                                                            i18n)
         return await call.message.answer(text=f"{i18n.get('show_categories_text')}\n\r{columns_list_text}",
                                          reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.new_category(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.new_category(), i18n)
         return await call.message.answer(text=i18n.get('empty_categories_text'), reply_markup=markup)
 
 
@@ -91,12 +92,12 @@ async def _get_operation(call_data: str, buttons: AppButtons) -> IntEnum:
     :return: The operation that should be performed
     """
     operation: None = None
-    if call_data == buttons.general_data.ACTIONS_BTN.name:
+    if call_data == buttons.general_btn_source.ACTIONS_BTN.name:
         operation: IntEnum = CategoryOperation.READ
-    elif call_data == buttons.categories_data.UPDATE_CATEGORIES.name:
+    elif call_data == buttons.categories_btn_source.UPDATE_CATEGORIES.name:
         operation: IntEnum = CategoryOperation.UPD
-    elif call_data == buttons.categories_data.DELETE_CATEGORIES.name:
+    elif call_data == buttons.categories_btn_source.DELETE_CATEGORIES.name:
         operation: IntEnum = CategoryOperation.DEL
-    elif call_data == buttons.trackers_data.START_TRACKER_BTN.name:
+    elif call_data == buttons.trackers_btn_source.START_TRACKER_BTN.name:
         operation: IntEnum = CategoryOperation.READ_TRACKER
     return operation

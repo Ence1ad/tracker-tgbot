@@ -31,8 +31,20 @@ async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None 
         return lang_code
     if not lang_code and local is not None:
         return local
+    else:
+        return settings.EN_LANG_CODE
 
 
 async def redis_hset_lang(user_id: int,  redis_client: Redis, lang_code: str | bytes) -> int:
-    name = _set_name()
-    return await redis_client.hset(name=name, key=str(user_id), value=lang_code)
+    """
+    The redis_hset_lang function is used to set the language code for a user.
+
+    :param user_id: int: Specify the user id of the user
+    :param redis_client: Redis: Pass the redis client object to the function
+    :param lang_code: str | bytes: Specify the language code
+    :return: The number of fields that were changed
+    """
+    if lang_code is not None:
+        name = _set_name()
+        return await redis_client.hset(name=name, key=str(user_id), value=lang_code)
+

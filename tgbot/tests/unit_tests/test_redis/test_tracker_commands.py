@@ -10,7 +10,7 @@ from cache.redis_tracker_commands import redis_hmset_create_tracker, \
     redis_hget_tracker_data, is_redis_hexists_tracker, redis_hgetall_started_tracker, redis_upd_tracker, \
     redis_delete_tracker, redis_decr_user_day_trackers, redis_expireat_midnight, redis_incr_user_day_trackers, \
     redis_get_user_day_trackers, _tracker_name
-from tests.unit_tests.utils import MAIN_USER_ID
+from tgbot.tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio
@@ -204,7 +204,7 @@ class TestRedisTrackerCommands:
             ('str', does_not_raise()),
         ]
     )
-    async def test_tracker_name(self, user_id, expectation):
+    async def test_tracker_name(self, user_id: int, expectation):
         with expectation:
             res = await _tracker_name(user_id)
             assert isinstance(res, str)

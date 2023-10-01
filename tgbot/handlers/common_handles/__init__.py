@@ -34,12 +34,12 @@ def register_common_handlers() -> Router:
     router.chat_member.register(remove_user_handler, ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION))
     router.message.register(command_start_handler, Command(CommandName.START.name, ignore_case=True))
     router.message.register(command_cancel_handler, Command(CommandName.CANCEL.name, ignore_case=True), any_state)
-    router.callback_query.register(callback_cancel_handler, F.data == AppButtons.general_data.CANCEL_BTN.name,
+    router.callback_query.register(callback_cancel_handler, F.data == AppButtons.general_btn_source.CANCEL_BTN.name,
                                    any_state)
-    router.callback_query.register(exit_menu_handler, F.data == AppButtons.general_data.EXIT_BTN.name)
-    router.message.register(command_help_handler, Command(CommandName.HELP.name, ignore_case=True))
+    router.callback_query.register(exit_menu_handler, F.data == AppButtons.general_btn_source.EXIT_BTN.name)
+    router.message.register(command_help_handler, F.text.startswith('/help'))
     router.message.register(command_settings_handler, Command(CommandName.SETTINGS.name, ignore_case=True))
-    router.callback_query.register(language_settings, F.data == AppButtons.settings_data.LANGUAGE.name)
-    router.callback_query.register(set_user_lang, (F.data.in_(AppButtons.settings_data_list)))
+    router.callback_query.register(language_settings, F.data == AppButtons.settings_btn_source.LANGUAGE.name)
+    router.callback_query.register(set_user_lang, (F.data.in_(AppButtons.settings_btn_list)))
 
     return router

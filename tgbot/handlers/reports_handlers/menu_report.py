@@ -16,5 +16,5 @@ async def main_menu_reports_handler(call: CallbackQuery, buttons: AppButtons, i1
      Translate the buttons and the message text
     :return: The message text and the inline keyboard with main menu reports buttons
     """
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.report_menu(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.reports_btn_source.report_menu(), i18n)
     return await call.message.edit_text(text=i18n.get('options_text'),  reply_markup=markup)

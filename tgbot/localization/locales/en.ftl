@@ -5,7 +5,8 @@ select_lang_text = Select a language
 set_lang_text = ✅ The Russian language was set!
 settings_not_change_text = ❌ Already installed ❗️
 use_bot_text = To use the bot, you need to register in the group:
-
+help_unknown_command_text = Sorry, I don't recognize that command. Please use '/help' to see available commands
+help_invalid_command_format_text = Invalid command format. Use '/help_<command>' to get help for specific commands.
 valid_data_text = ❗️ Please provide correct data ❗️
 
 # for command_start_handler func
@@ -19,7 +20,7 @@ show_categories_text = List of your categories:
 empty_categories_text = You don't have any categories yet
 select_category_text = Select the category
 selected_category = Selected category -> {$category_name}{$new_line}{$actions_list_text}
-rm_category_text = The category has been deleted!
+rm_category_text = ✅ The category has been deleted!
 upd_category_text = ✅ The category name has been updated to {$new_category_name}
 correct_category_text = Please write the correct category name. {$new_line}
                         The category name is a text, no more than 30 characters!
@@ -44,7 +45,7 @@ correct_action_text = Please write the correct action name. The action name is a
 action_limit_text = ❗️ You have reached the limit of the number of actions - {$action_limit} for this category. ❗️
 action_exists_text = The action name - {$new_action_name} already exists!
 
-action_not_exists_text = Choose the right action
+action_not_exists_text = ❗️ Choose the right action ❗️
 added_new_action_text = ✅ You successfully added new action - {$new_action_valid_name}
 valid_action_name = ❌ Failed to update the action name! {$new_line}❗️ The name must consist of letters ❗️
 new_valid_action_name = ❌ Failed to create new action! {$new_line}❗️ The name must consist of letters ❗️
@@ -56,10 +57,10 @@ not_launched_tracker_text = You don't have any launched tracker yet!
 already_launch_tracker_text = You already have a running tracker:
 
 answer_stop_tracker_text = Do you want to stop the tracker?
-stop_tracker_text = The tracker was stopped:
+stop_tracker_text = ✅ The tracker was stopped:
 daily_tracker_text = Delete daily tracker
-empty_stopped_tracker_text = You don't have any trackers stopped yet
-delete_tracker_text = You have deleted the tracker
+empty_stopped_tracker_text = ❗️ You don't have any trackers stopped yet ❗️
+delete_tracker_text = ✅ You have deleted the tracker
 just_one_tracker = You can't run more than one tracker at a time. Do you want to stop the tracker?
 not_enough_data_text = I can't create a tracker. The data is not defined.
 already_delete_tracker_text = You have already deleted the tracker

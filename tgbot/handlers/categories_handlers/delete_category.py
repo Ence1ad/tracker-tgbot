@@ -30,7 +30,8 @@ async def delete_category_handler(
     """
     user_id: int = call.from_user.id
     category_id: int = callback_data.category_id
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
+                                                        i18n)
     await redis_delete_tracker(user_id, redis_client)
     returning: int = await delete_category(user_id, category_id, db_session)
     if returning:

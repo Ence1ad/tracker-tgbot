@@ -16,4 +16,3 @@ ENV PYTHONUNBUFFERED 1
 ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR usr/src/app
 COPY tgbot usr/src/app/tgbot
-#CMD ["python", "-m", "tgbot"]

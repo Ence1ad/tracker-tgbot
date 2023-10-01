@@ -106,12 +106,12 @@ services:
       - prometheus
     networks:
       - monitoring
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   redis:
     container_name: redis_db
@@ -156,6 +156,8 @@ services:
     user: root
     env_file: .env
     restart: unless-stopped
+    depends_on:
+      - prometheus
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
     ports:
@@ -165,12 +167,6 @@ services:
       - ./metrics_containers_data/alertmanager_data:/alertmanager/
     networks:
       - monitoring
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9093/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
   portainer:
     container_name: portainer

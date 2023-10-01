@@ -8,10 +8,6 @@ async def create_actions(user_id: int, action_name: str, category_id: int,
                          db_session: async_sessionmaker[AsyncSession]) -> ActionsModel:
     """
     The create_actions function creates a new action in the database.
-        Args:
-            user_id (int): The id of the user who created this action.
-            action_name (str): The name of the new action to be created.
-            category_id (int): The id of the category that this new
 
     :param user_id: int: Identify the user who is creating the action
     :param action_name: str: Create the action name

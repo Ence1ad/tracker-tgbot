@@ -17,7 +17,7 @@ def register_report_handlers() -> Router:
     from .weekly_report import get_weekly_report
 
     router = Router()
-    router.callback_query.register(main_menu_reports_handler, F.data == AppButtons.general_data.REPORTS_BTN.name)
-    router.callback_query.register(get_weekly_report, F.data == AppButtons.reports_data.WEEKLY_REPORT_BTN.name)
+    router.callback_query.register(main_menu_reports_handler, F.data == AppButtons.general_btn_source.REPORTS_BTN.name)
+    router.callback_query.register(get_weekly_report, F.data == AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name)
 
     return router

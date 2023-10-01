@@ -1,7 +1,6 @@
 from sqlalchemy import select, delete, update, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.engine.row import Row
-from sqlalchemy.sql.operators import is_not
 
 from .categories_model import CategoriesModel
 from .. import ActionsModel
@@ -111,18 +110,12 @@ async def update_category(user_id: int, category_id: int, new_category_name: str
     """
     The update_category function updates the category name of a given user's category.
 
-        Args:
-            user_id (int): The id of the user whose category is to be updated.
-            category_id (int): The id of the specific category that is to be updated.
-            new_category_name (str): The new name for this particular category.
-
     :param user_id: int: Identify the user
     :param category_id: int: Identify the category to be updated
     :param new_category_name: str: Update the category name
     :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
     :return: one if the update operation was successful, none if not
     """
-
     async with db_session as session:
         async with session.begin():
             udp_stmt = \

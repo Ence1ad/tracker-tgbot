@@ -15,9 +15,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from cache.redis_tracker_commands import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
 from db.categories.categories_commands import select_categories, create_category, delete_category
-from tests.unit_tests.mocked_bot import MockedBot
-from tests.unit_tests.test_bot.utils import TEST_CHAT
-from tests.unit_tests.utils import MAIN_USER_ID
+from tgbot.tests.functional_tests.mocked_bot import MockedBot
+from tgbot.tests.functional_tests.test_bot.utils import TEST_CHAT
+from tgbot.tests.utils import MAIN_USER_ID
 from tgbot.handlers.categories_handlers.read_categories import _categories_list
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryOperation, CategoryCD
@@ -42,13 +42,13 @@ class TestCategoriesHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.categories_data.CREATE_CATEGORIES.name, 'category_limit_text', does_not_raise()),
-            (MAIN_USER_ID, AppButtons.categories_data.CREATE_CATEGORIES.name, 'new_category_text',
+            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'category_limit_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'new_category_text',
              pytest.raises(AssertionError)),
-            (12345, AppButtons.categories_data.CREATE_CATEGORIES.name, 'new_category_text', does_not_raise()),
-            (54321, AppButtons.categories_data.CREATE_CATEGORIES.name, '', pytest.raises(AssertionError)),
+            (12345, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'new_category_text', does_not_raise()),
+            (54321, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, '', pytest.raises(AssertionError)),
             (7000007, None, 'new_category_text', pytest.raises(AssertionError)),
-            (333333, AppButtons.categories_data.DELETE_CATEGORIES.name, 'new_category_text',
+            (333333, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'new_category_text',
              pytest.raises(AssertionError)),
         ]
     )
@@ -63,7 +63,9 @@ class TestCategoriesHandlers:
             assert isinstance(handler_returns, EditMessageText)
             assert handler_returns.text == i18n.get(answer_text, category_limit=settings.USER_CATEGORIES_LIMIT)
             if answer_text == 'category_limit_text':
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.categories_btn_source.category_menu_buttons(), i18n
+                )
 
     @pytest.mark.parametrize(
         "user_id, state, new_category_name, answer_text, expectation",
@@ -96,7 +98,9 @@ class TestCategoriesHandlers:
             if state_data == {}:
                 assert isinstance(handler_returns, SendMessage)
                 assert handler_returns.text == i18n.get(answer_text)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.categories_btn_source.category_menu_buttons(), i18n
+                )
                 assert new_category_name == (await select_categories(user_id, db_session))[0].category_name
                 assert state_data == {}
             else:
@@ -107,13 +111,13 @@ class TestCategoriesHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (12345, AppButtons.general_data.CATEGORIES_BTN.name, 'empty_categories_text', does_not_raise()),
-            (12345, AppButtons.general_data.CATEGORIES_BTN.name, 'show_categories_text', pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.CATEGORIES_BTN.name, 'show_categories_text', does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_data.CATEGORIES_BTN.name, 'empty_categories_text',
+            (12345, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'empty_categories_text', does_not_raise()),
+            (12345, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'show_categories_text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'show_categories_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'empty_categories_text',
              pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.CATEGORIES_BTN.name, '', pytest.raises(AssertionError)),
-            (12345, AppButtons.general_data.ACTIONS_BTN.name, 'empty_categories_text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, '', pytest.raises(AssertionError)),
+            (12345, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', pytest.raises(AssertionError)),
         ]
     )
     async def test_display_categories(self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
@@ -126,32 +130,36 @@ class TestCategoriesHandlers:
             if categories:
                 assert isinstance(handler_returns, SendMessage)
                 assert handler_returns.text == f"{i18n.get(answer_text)}\n\r{columns_list_text}"
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.categories_btn_source.category_menu_buttons(), i18n
+                )
             else:
                 assert isinstance(handler_returns, SendMessage)
                 assert handler_returns.text == i18n.get(answer_text)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.new_category(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.categories_btn_source.new_category(), i18n
+                )
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, cb_operation, expectation",
         [
-            (MAIN_USER_ID, AppButtons.categories_data.DELETE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.categories_data.UPDATE_CATEGORIES.name, 'select_category_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'select_category_text', CategoryOperation.UPD,
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_data.ACTIONS_BTN.name, 'select_category_text', CategoryOperation.READ,
+            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'select_category_text', CategoryOperation.READ,
              does_not_raise()),
-            (123, AppButtons.categories_data.DELETE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.DEL,
+            (123, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.DEL,
              does_not_raise()),
-            (123, AppButtons.categories_data.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
+            (123, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
              does_not_raise()),
-            (123, AppButtons.general_data.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.READ,
+            (123, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.READ,
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.categories_data.CREATE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
              pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.categories_data.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
              pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_data.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.UPD,
              pytest.raises(AssertionError)),
         ]
     )
@@ -168,7 +176,9 @@ class TestCategoriesHandlers:
                 assert handler_returns.reply_markup == await callback_factories_kb(categories, cb_operation)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.new_category(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.categories_btn_source.new_category(), i18n
+                )
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -227,7 +237,7 @@ class TestCategoriesHandlers:
             state_data = await redis_storage.get_data(key=key)
 
             assert isinstance(handler_returns, SendMessage)
-            markup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+            markup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(), i18n)
             assert state_data == {}
             if not isinstance(new_category_name, str):
                 assert handler_returns.text == i18n.get(answer_text, new_line='\n')
@@ -268,5 +278,7 @@ class TestCategoriesHandlers:
             assert isinstance(handler_returns, EditMessageText)
             assert handler_returns.text == i18n.get(answer_text)
             assert not await is_redis_hexists_tracker(user_id, redis_client=redis_cli)
-            assert handler_returns.reply_markup == await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+            assert handler_returns.reply_markup == await menu_inline_kb(
+                await buttons.categories_btn_source.category_menu_buttons(), i18n
+            )
 

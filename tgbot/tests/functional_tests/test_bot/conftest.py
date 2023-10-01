@@ -3,14 +3,13 @@
 import pytest
 import pytest_asyncio
 from aiogram import Dispatcher
-from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import User, Chat
 from cache.redis_tracker_commands import redis_hmset_create_tracker
 from config import settings
-from tests.unit_tests.mocked_bot import MockedBot
-from tests.unit_tests.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
+from tgbot.tests.functional_tests.mocked_bot import MockedBot
+from tgbot.tests.functional_tests.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons

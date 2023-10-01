@@ -22,19 +22,21 @@ def register_tracker_handlers() -> Router:
 
     router = Router()
 
-    router.callback_query.register(trackers_main_menu_handler, (F.data == AppButtons.general_data.TRACKERS_BTN.name)
-                                   | (F.data == AppButtons.trackers_data.DURATION_TRACKER_BTN.name))
+    router.callback_query.register(trackers_main_menu_handler,
+                                   (F.data == AppButtons.general_btn_source.TRACKERS_BTN.name) |
+                                   (F.data == AppButtons.trackers_btn_source.DURATION_TRACKER_BTN.name))
     router.callback_query.register(pass_tracker_checks,
-                                   F.data == AppButtons.trackers_data.START_TRACKER_BTN.name)
+                                   F.data == AppButtons.trackers_btn_source.START_TRACKER_BTN.name)
     router.callback_query.register(take_action_4_tracker,
                                    CategoryCD.filter(F.operation == CategoryOperation.READ_TRACKER))
     router.callback_query.register(create_new_tracker, ActionCD.filter(F.operation == ActionOperation.READ_TRACKER),
                                    TrackerState.WAIT_CATEGORY_DATA)
     router.callback_query.register(check_is_launched_tracker,
-                                   F.data == AppButtons.trackers_data.STOP_TRACKER_BTN.name)
-    router.callback_query.register(stop_tracker_yes_handler, F.data == AppButtons.general_data.YES_BTN.name)
-    router.callback_query.register(stop_tracker_no_handler, F.data == AppButtons.general_data.NO_BTN.name)
-    router.callback_query.register(take_traker_4_delete, F.data == AppButtons.trackers_data.DELETE_TRACKER_BTN.name)
+                                   F.data == AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name)
+    router.callback_query.register(stop_tracker_yes_handler, F.data == AppButtons.general_btn_source.YES_BTN.name)
+    router.callback_query.register(stop_tracker_no_handler, F.data == AppButtons.general_btn_source.NO_BTN.name)
+    router.callback_query.register(take_traker_4_delete,
+                                   F.data == AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name)
     router.callback_query.register(delete_tracker_handler, TrackerCD.filter(F.operation == TrackerOperation.DEL))
 
     return router

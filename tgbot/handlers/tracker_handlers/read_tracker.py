@@ -26,8 +26,10 @@ async def trackers_main_menu_handler(call: CallbackQuery, redis_client: Redis, b
     if await is_redis_hexists_tracker(user_id, redis_client):
         started_tracker: str = await started_tracker_text(user_id=user_id, redis_client=redis_client, i18n=i18n,
                                                           title='started_tracker_title')
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_stop(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(),
+                                                            i18n)
         return await call.message.answer(text=started_tracker, reply_markup=markup)
     else:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.tracker_menu_start(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(),
+                                                            i18n)
         return await call.message.answer(text=i18n.get('options_text'), reply_markup=markup)

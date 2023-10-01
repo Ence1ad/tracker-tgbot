@@ -12,22 +12,28 @@ class CommandName(Enum):
 
 
 async def my_commands(bot: Bot) -> None:
+    """
+    The my_commands function is used to set the commands that will be shown in the bot's profile.
+
+    :param bot: Bot: Access the bot's methods
+    :return: A list of botcommand objects
+    """
     commands = [
         BotCommand(
             command=CommandName.START.value,
-            description='Start bot'
+            description="Tap this button to begin using the bot"
         ),
         BotCommand(
             command=CommandName.HELP.value,
-            description='Get help'
+            description="Use this button to access helpful information and guidance on how to use the bot."
         ),
         BotCommand(
             command=CommandName.SETTINGS.value,
-            description='Set bot parameters'
+            description='Tap this button to customize your language preferences and settings within the bot.'
         ),
         BotCommand(
             command=CommandName.CANCEL.value,
-            description='Cancellation of the action'
+            description='If you want to stop the current task or conversation, use this button'
         )
     ]
 

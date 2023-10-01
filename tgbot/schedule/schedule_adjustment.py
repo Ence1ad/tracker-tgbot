@@ -1,5 +1,4 @@
 from aiogram import Bot
-from fluentogram import TranslatorRunner, TranslatorHub
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from aiogram.fsm.storage.redis import RedisStorage
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -12,6 +11,17 @@ async def setup_scheduler(bot: Bot, jobstores: dict[str, int], storage: RedisSto
                           redis_client: Redis, async_session: async_sessionmaker[AsyncSession],
                           # t_hub: TranslatorHub
                           ) -> ContextSchedulerDecorator:
+    """
+    The setup_scheduler function is a factory function that returns an instance of the ContextSchedulerDecorator class.
+
+    :param bot: Bot: Pass the bot instance to the scheduler
+    :param jobstores: dict[str: Define the type of jobstore that is used
+    :param dict[str, int]: Specify the type of jobstores
+    :param storage: RedisStorage: Store the data in redis
+    :param redis_client: Redis: Create a redis instance
+    :param async_session: async_sessionmaker[AsyncSession]: Create a database session
+    :return: A contextschedulerdecorator object
+    """
     scheduler = ContextSchedulerDecorator(AsyncIOScheduler(jobstores=jobstores))
     scheduler.ctx.add_instance(bot, declared_class=Bot)
     scheduler.ctx.add_instance(scheduler, declared_class=BaseScheduler)

@@ -36,7 +36,8 @@ async def prompt_name_4_new_action_handler(
     # Get user_actions from db
     action_count: int = len(await select_category_actions(user_id, category_id, db_session))
     if action_count >= settings.USER_ACTIONS_LIMIT:
-        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+        markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(),
+                                                            i18n)
         return await call.message.edit_text(
             text=i18n.get('action_limit_text', action_limit=settings.USER_ACTIONS_LIMIT), reply_markup=markup)
     else:
@@ -64,7 +65,7 @@ async def create_action_handler(message: Message, state: FSMContext, db_session:
     category_id: int = state_data['category_id']
     new_action_name: str = state_data['action_name']
     # If message not a text message
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.action_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
 
     user_actions: list[Row] = await select_category_actions(user_id, category_id=category_id, db_session=db_session)

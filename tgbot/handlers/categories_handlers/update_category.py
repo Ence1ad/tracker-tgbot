@@ -56,7 +56,8 @@ async def upd_category_name(message: Message, state: FSMContext, db_session: asy
     new_category_name: str = state_data['category_name']
     old_category_name: str = state_data['old_category_name']
     # Is the text checking
-    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.category_menu_buttons(), i18n)
+    markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
+                                                        i18n)
     await state.clear()
     if await select_category_id(user_id=user_id, category_name=old_category_name, db_session=db_session):
         categories: list[Row] = await select_categories(user_id, db_session)  # If message a text
