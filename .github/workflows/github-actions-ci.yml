@@ -38,30 +38,38 @@ jobs:
         with:
           python-version: 3.11
 
+      - name: Set up Environment Variables
+        run: |
+          touch .env
+          cp .env.ci .env  # Copy the example ci .env file to .env (if needed)
+          # Ensure the .env file exists in the current directory
+          if [ -f .env ]; then
+            source .env
+          fi
+
       - name: Use Docker Compose
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./docker-compose.dev.yml"
-        env:
-          POSTGRES_USER: "admin"
-          POSTGRES_PASSWORD: "asdfgh"
-          DB_USER: "api"
-          DB_USER_PASS: "asdfgh"
-
-          POSTGRES_HOST: "db"
-          POSTGRES_PORT: "5432"
-          POSTGRES_DB: "tracker"
-
-          REDIS_HOST: "redis"
-          REDIS_PORT: "6379"
-          REDIS_DB: "0"
-          REDIS_PASSWORD: "asdfgh"
-          BOT_TOKEN: ${MY_BOT_TOKEN}
-          ADMIN_ID: "1111111111"
-          GROUP_ID: "-1111111111111"
-
-          FORMAT: ''
-          LEVEL: 10
+#          POSTGRES_USER: "admin"
+#          POSTGRES_PASSWORD: "asdfgh"
+#          DB_USER: "api"
+#          DB_USER_PASS: "asdfgh"
+#
+#          POSTGRES_HOST: "db"
+#          POSTGRES_PORT: "5432"
+#          POSTGRES_DB: "tracker"
+#
+#          REDIS_HOST: "redis"
+#          REDIS_PORT: "6379"
+#          REDIS_DB: "0"
+#          REDIS_PASSWORD: "asdfgh"
+#          BOT_TOKEN: ${MY_BOT_TOKEN}
+#          ADMIN_ID: "1111111111"
+#          GROUP_ID: "-1111111111111"
+#
+#          FORMAT: ''
+#          LEVEL: 10
 
 #      - name: Install dependencies
 #        run: |
