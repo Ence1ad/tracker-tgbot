@@ -24,7 +24,7 @@ async def delete_tracker_job(scheduler: ContextSchedulerDecorator, user_id: int,
     """
     return scheduler.add_job(
         func=func, trigger='date',
-        run_date=datetime.datetime.now() + datetime.timedelta(seconds=settings.MAX_HOURS_DURATION_TRACKER),
+        run_date=datetime.datetime.now() + datetime.timedelta(hours=settings.MAX_HOURS_DURATION_TRACKER),
         kwargs={"user_id": user_id, "msg_text": msg_text}
     )
 

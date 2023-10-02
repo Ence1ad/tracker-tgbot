@@ -1,3 +1,6 @@
 from .apscheduler_middleware import SchedulerMiddleware
 from .db_middleware import DbSessionMiddleware
 from .redis_middleware import CacheMiddleware
+from .chat_member_middleware import ChatMemberMiddleware
+from .button_middleware import ButtonsMiddleware
+from .translation_middleware import TranslatorRunnerMiddleware

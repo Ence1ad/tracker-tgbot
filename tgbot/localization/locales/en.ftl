@@ -10,13 +10,13 @@ help_invalid_command_format_text = Invalid command format. Use '/help_<command>'
 valid_data_text = ❗️ Please provide correct data ❗️
 
 # for command_start_handler func
-user_in_db_text = Hello friend! I'm glad to see you again!
+user_in_db_text = 👋🏼 Hello friend! 🤖 I'm glad to see you again!
 new_user_text = Hello friend! What can I do for you?
 
 # text for categories handlers
 new_category_text = Write the name of the category below.
 added_new_category_text = ✅ You have successfully added the new category
-show_categories_text = List of your categories:
+show_categories_text = Your categories:
 empty_categories_text = You don't have any categories yet
 select_category_text = Select the category
 selected_category = Selected category -> {$category_name}{$new_line}{$actions_list_text}

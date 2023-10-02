@@ -1,27 +1,32 @@
 import asyncio
 import logging
+import sys
+from pathlib import Path
 
+import redis.asyncio as redis
 from aiogram import Dispatcher, Bot
 from aiogram.fsm.storage.redis import RedisStorage
-import redis.asyncio as redis
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from config import settings
-from db.db_session import create_async_session
+# Construct an absolute path to the project's root directory
+project_root = Path(__file__).parent.parent.as_posix()
+
+# Add the project's root directory to sys.path
+sys.path.append(project_root)
+
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware
-from tgbot.middlewares.button_middleware import ButtonsMiddleware
-from tgbot.middlewares.chat_member_middleware import ChatMemberMiddleware
-
-from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
+from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware, \
+    ButtonsMiddleware, ChatMemberMiddleware, TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 from tgbot.utils.bot_commands import my_commands
+from config import settings
+from db.db_session import create_async_session
 
 
 async def start_bot(bot: Bot) -> None:
@@ -64,7 +69,6 @@ async def main() -> None:
     dp.update.middleware.register(CacheMiddleware(redis_client))
     dp.update.middleware.register(DbSessionMiddleware(async_session))
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
-    # dp.chat_member.middleware.register(MemberStatusMiddleware())
     dp.update.middleware.register(ChatMemberMiddleware())
     dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
 
@@ -78,10 +82,7 @@ async def main() -> None:
 
     try:
         scheduler.start()
-        await dp.start_polling(bot,
-                               # allowed_updates=dp.resolve_used_update_types()
-                               # allowed_updates=["message", "inline_query", "chat_member"]
-                               )
+        await dp.start_polling(bot)
     except Exception as ex:
         logging.error(ex)
     finally:
