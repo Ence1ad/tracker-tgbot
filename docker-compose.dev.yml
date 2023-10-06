@@ -141,7 +141,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/usr/src/app
-    restart: always
+    restart: on-failure
     env_file: .env
     depends_on:
       - db

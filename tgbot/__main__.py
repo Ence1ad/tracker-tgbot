@@ -3,11 +3,13 @@ import logging
 
 import redis.asyncio as redis
 from aiogram import Dispatcher, Bot
+from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from config import settings
+from tgbot.utils.before_bot_start import add_admin, is_bot_admin
 from .handlers import register_common_handlers, register_tracker_handlers, \
     register_report_handlers, register_actions_handlers, register_categories_handlers
 
@@ -21,9 +23,7 @@ from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 from tgbot.utils.bot_commands import my_commands
 
 from db.db_session import create_async_session
-from sys import path
 
-print(path)
 
 async def start_bot(bot: Bot) -> None:
     await my_commands(bot)
@@ -55,9 +55,21 @@ async def main() -> None:
                                       )
     # Initialize dispatcher
     dp: Dispatcher = Dispatcher(storage=storage)
+
+    try:
+        await is_bot_admin(bot, settings.GROUP_ID)
+    except (TelegramAPIError, PermissionError) as error:
+        error_msg = f"Error with main group: {error}"
+        try:
+            await bot.send_message(settings.ADMIN_ID, error_msg)
+        finally:
+            logging.exception(error_msg)
+            return
+
+    await add_admin(settings.ADMIN_ID, db_session=async_session, redis_client=redis_client)
     # Get commands
     await start_bot(bot)
-
+    # Set sending reports job
     await interval_sending_reports_job(scheduler=scheduler)
 
     # Register middlewares

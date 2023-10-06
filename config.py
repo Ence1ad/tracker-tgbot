@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from apscheduler.jobstores.redis import RedisJobStore
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -33,8 +33,8 @@ class TgBotSettings(BaseSettings):
     """
     Telegram Bot Settings
     """
-    BOT_TOKEN: str
-    # ADMIN_ID: int
+    BOT_TOKEN: SecretStr
+    ADMIN_ID: int
     GROUP_ID: int
 
 
