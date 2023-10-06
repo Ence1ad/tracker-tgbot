@@ -22,7 +22,7 @@ services:
       - "-c"
       - "pg_stat_statements.track=all"
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
@@ -135,10 +135,10 @@ services:
 
   tgbot:
     container_name: tgbot
+    user: root
     build:
       context: .
-      dockerfile: bot.Dockerfile
-    command: bash -c "alembic upgrade head && python -m tgbot"
+      dockerfile: Dockerfile
     volumes:
       - ./:/usr/src/app
     restart: always

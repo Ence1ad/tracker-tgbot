@@ -25,7 +25,7 @@ class PostgresSettings(BaseSettings):
 
 class TgBotSettings(BaseSettings):
     BOT_TOKEN: str
-    ADMIN_ID: int
+    # ADMIN_ID: int
     GROUP_ID: int
 
 
@@ -54,8 +54,8 @@ class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, 
     #     tg_bot_settings: Type[TgBotSettings]
     #     project_settings: Type[ProjectSettings]
     #     logging_settings: Type[LoggingSettings]
-    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
-    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
     @property
     def db_url(self) -> str:

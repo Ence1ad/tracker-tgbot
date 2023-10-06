@@ -1,6 +1,20 @@
+
 # tracker-tgbot  
-  
-![Telegram Tracker Bot Logo](your_logo_image_url_here)  
+
+[![](https://img.shields.io/github/license/Ence1ad/tracker-tgbot?style=flat-square)](https://github.com/Ence1ad/tracker-tgbot/LICENSE)
+[![](https://img.shields.io/badge/Python-3.10&nbsp;|&nbsp;3.11-blue)](https://www.python.org/downloads/)
+![](https://img.shields.io/badge/version-0.0.3%20-brightgreen?style=flat-square)
+[![CI](https://github.com/Ence1ad/tracker-tgbot/actions/workflows/ci-tests.yml/badge.svg?branch=dev)](https://github.com/Ence1ad/tracker-tgbot/actions/workflows/ci-tests.yml)
+[![codecov](https://codecov.io/gh/Ence1ad/tracker-tgbot/graph/badge.svg?token=XK6RVDC1YB)](https://codecov.io/gh/Ence1ad/tracker-tgbot)
+![](https://img.shields.io/github/forks/Ence1ad/tracker-tgbot?style=flat-square)
+![](https://img.shields.io/github/stars/Ence1ad/tracker-tgbot?style=flat-square)
+[![telegram](https://img.shields.io/badge/Telegram-Join-blue)](https://t.me/)
+
+
+
+<!---!![build branch parameter](https://github.com/Ence1ad/tracker-tgbot/actions/workflows/ci-tests.yml/badge.svg?branch=dev&style=flat-square) -->
+<!---![Telegram Tracker Bot Logo](image_url)  -->
+
 
 **Project Description:**
 Welcome to the **tracker-tgbot**, a versatile Telegram bot designed to simplify task and time tracking. This bot seamlessly integrates with your Telegram groups and private chats, providing a powerful platform for managing your activities and generating insightful reports.
@@ -12,7 +26,7 @@ Welcome to the **tracker-tgbot**, a versatile Telegram bot designed to simplify 
 3. [Usage](#how-it-works)  
 4. [Getting Started](#getting-started)  
 5. [Technologies Used](#technologies-used)  
-6. [Project Roadmap](#Project Roadmap)  
+6. [Project Roadmap](#project-roadmap)  
 7. [Contributing](#contributing)  
 8. [License](#license)  
   
