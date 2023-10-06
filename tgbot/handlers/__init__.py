@@ -4,3 +4,5 @@ from .tracker_handlers import register_tracker_handlers
 from .reports_handlers import register_report_handlers
 from .common_handles import register_common_handlers
 
+__all__ = ['register_categories_handlers', 'register_actions_handlers', 'register_tracker_handlers',
+           'register_report_handlers', 'register_common_handlers']

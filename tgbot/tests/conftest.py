@@ -258,8 +258,3 @@ async def add_data_to_db(db_user_factory, db_category_factory,  db_session,):
         tracker_obj = await create_tracker(user_id=user_id, category_id=category_id,
                                            action_id=action_obj.action_id, db_session=db_session)
     yield tracker_obj
-    # for user_id in users:
-    #     await delete_tracker(user_id=user_id, tracker_id=tracker_obj.tracker_id, db_session=db_session)
-    #     await delete_action(user_id=user_id, action_id=action_obj.action_id, db_session=db_session)
-    #     await delete_category(user_id=user_id, category_id=category_obj.category_id, db_session=db_session)
-    #     await db_session.execute(sa.delete(UserModel).where(UserModel.user_id == user_id))

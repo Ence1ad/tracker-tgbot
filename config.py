@@ -7,6 +7,9 @@ from sqlalchemy import URL
 
 
 class RedisSettings(BaseSettings):
+    """
+    Redis Settings
+    """
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_DB: int
@@ -14,6 +17,9 @@ class RedisSettings(BaseSettings):
 
 
 class PostgresSettings(BaseSettings):
+    """
+    PostgreSQL Settings
+    """
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
@@ -24,12 +30,18 @@ class PostgresSettings(BaseSettings):
 
 
 class TgBotSettings(BaseSettings):
+    """
+    Telegram Bot Settings
+    """
     BOT_TOKEN: str
     # ADMIN_ID: int
     GROUP_ID: int
 
 
 class ProjectSettings(BaseSettings):
+    """
+    Project Settings
+    """
     RU_LANG_CODE: str = Field(default='ru')
     EN_LANG_CODE: str = Field(default='en')
     GLOBAL_LANG_CODE: str = Field(default='en')
@@ -43,22 +55,34 @@ class ProjectSettings(BaseSettings):
 
 
 class LoggingSettings(BaseSettings):
+    """
+    Logging Settings
+    """
     LEVEL: int
     FORMAT: str
 
 
 class Settings(TgBotSettings, LoggingSettings, PostgresSettings, RedisSettings, ProjectSettings, BaseSettings):
+    """
+    Complete Settings
+    """
     # class Settings(BaseSettings):
     #     redis_settings: Type[RedisSettings]
     #     postgres_settings: Type[PostgresSettings]
     #     tg_bot_settings: Type[TgBotSettings]
     #     project_settings: Type[ProjectSettings]
     #     logging_settings: Type[LoggingSettings]
-    model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
-    # model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    # model_config = SettingsConfigDict(env_file='dev.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
     @property
     def db_url(self) -> str:
+        """
+        The db_url function returns a string that is the URL for connecting to the database.
+
+        :param self: Reference the class itself
+        :return: A string that is a connection url for the database
+        """
         return URL.create(
             drivername="postgresql+asyncpg",
             username=self.DB_USER,

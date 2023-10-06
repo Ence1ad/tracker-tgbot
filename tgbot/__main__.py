@@ -7,17 +7,9 @@ from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-# # Construct an absolute path to the project's root directory
-# project_root = Path(__file__).parent.parent.as_posix()
-#
-# # Add the project's root directory to sys.path
-# sys.path.append(project_root)
 from config import settings
-from handlers.common_handles import register_common_handlers
-from handlers.tracker_handlers import register_tracker_handlers
-from handlers.reports_handlers import register_report_handlers
-from handlers.actions_handlers import register_actions_handlers
-from handlers.categories_handlers import register_categories_handlers
+from .handlers import register_common_handlers, register_tracker_handlers, \
+    register_report_handlers, register_actions_handlers, register_categories_handlers
 
 
 from tgbot.keyboards.app_buttons import AppButtons
@@ -29,7 +21,9 @@ from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 from tgbot.utils.bot_commands import my_commands
 
 from db.db_session import create_async_session
+from sys import path
 
+print(path)
 
 async def start_bot(bot: Bot) -> None:
     await my_commands(bot)
