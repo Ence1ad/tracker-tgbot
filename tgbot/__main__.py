@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import sys
-from pathlib import Path
 
 import redis.asyncio as redis
 from aiogram import Dispatcher, Bot
@@ -9,14 +7,18 @@ from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-# Construct an absolute path to the project's root directory
-project_root = Path(__file__).parent.parent.as_posix()
+# # Construct an absolute path to the project's root directory
+# project_root = Path(__file__).parent.parent.as_posix()
+#
+# # Add the project's root directory to sys.path
+# sys.path.append(project_root)
+from config import settings
+from handlers.common_handles import register_common_handlers
+from handlers.tracker_handlers import register_tracker_handlers
+from handlers.reports_handlers import register_report_handlers
+from handlers.actions_handlers import register_actions_handlers
+from handlers.categories_handlers import register_categories_handlers
 
-# Add the project's root directory to sys.path
-sys.path.append(project_root)
-
-from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
-    register_tracker_handlers, register_report_handlers
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
@@ -25,7 +27,7 @@ from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMid
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 from tgbot.utils.bot_commands import my_commands
-from config import settings
+
 from db.db_session import create_async_session
 
 
