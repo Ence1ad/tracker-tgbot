@@ -29,8 +29,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 4G
+          cpus: '0.50'
+          memory: 4g
+        reservations:
+          cpus: '0.25'
+          memory: 2g
     networks:
       - monitoring
       - bot_api
@@ -59,7 +62,6 @@ services:
   redis_exporter:
     container_name: redis_exporter
     image: oliver006/redis_exporter
-    env_file: .env
     command: [ "--redis.addr", "redis://${REDIS_PASSWORD}@redis:${REDIS_PORT}/${REDIS_DB}" ]
     ports:
       - "9121:9121"
@@ -95,7 +97,6 @@ services:
     container_name: grafana
     image: grafana/grafana
     restart: unless-stopped
-
     user: root
     ports:
       - "3000:3000"
@@ -135,7 +136,6 @@ services:
 
   tgbot:
     container_name: tgbot
-    user: root
     build:
       context: .
       dockerfile: Dockerfile

@@ -22,11 +22,15 @@ def register_categories_handlers() -> Router:
 
     router = Router()
 
-    router.callback_query.register(categories_main_menu_handler, F.data.in_(
-        (AppButtons.general_btn_source.ACTIONS_BTN.name,
-         AppButtons.categories_btn_source.UPDATE_CATEGORIES.name,
-         AppButtons.categories_btn_source.DELETE_CATEGORIES.name))
-                                   )
+    router.callback_query.register(
+        categories_main_menu_handler, F.data.in_(
+            (
+                AppButtons.general_btn_source.ACTIONS_BTN.name,
+                AppButtons.categories_btn_source.UPDATE_CATEGORIES.name,
+                AppButtons.categories_btn_source.DELETE_CATEGORIES.name,
+            )
+        )
+    )
     router.callback_query.register(display_categories, (F.data == AppButtons.general_btn_source.CATEGORIES_BTN.name)
                                    | (F.data == AppButtons.categories_btn_source.USER_CATEGORIES.name))
     router.callback_query.register(prompt_new_category_handler,

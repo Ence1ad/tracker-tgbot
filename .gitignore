@@ -163,6 +163,7 @@ cython_debug/
 *.xlsx
 .ruff_cache
 .pytest_cache
-/metrics_containers_data
+metrics_containers_data/*
 /postgres_data
 /redis_data
+

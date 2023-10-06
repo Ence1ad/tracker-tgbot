@@ -1,6 +1,5 @@
 from contextlib import nullcontext as does_not_raise
 from datetime import datetime
-from enum import Enum
 
 import pytest
 import pytest_asyncio
@@ -14,11 +13,13 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.redis_tracker_commands import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
-from db.categories.categories_commands import select_categories, create_category, delete_category
+from db.actions.actions_db_commands import create_actions
+from db.categories.categories_commands import select_categories, create_category, delete_category, \
+    select_categories_with_actions
 from tgbot.tests.functional_tests.mocked_bot import MockedBot
 from tgbot.tests.functional_tests.test_bot.utils import TEST_CHAT
 from tgbot.tests.utils import MAIN_USER_ID
-from tgbot.handlers.categories_handlers.read_categories import _categories_list
+from tgbot.handlers.categories_handlers.read_categories import _categories_list, _get_operation
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryOperation, CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb, callback_factories_kb
@@ -124,8 +125,9 @@ class TestCategoriesHandlers:
                                       execute_callback_query_handler, i18n: TranslatorRunner, db_user_factory,
                                       db_session: async_sessionmaker[AsyncSession], buttons: AppButtons):
         handler_returns = await execute_callback_query_handler(user_id, data)
+        categories = await select_categories(user_id, db_session)
         with expectation:
-            categories = await select_categories(user_id, db_session)
+
             columns_list_text = await _categories_list(categories)
             if categories:
                 assert isinstance(handler_returns, SendMessage)
@@ -141,39 +143,58 @@ class TestCategoriesHandlers:
                 )
 
     @pytest.mark.parametrize(
-        "user_id, data, answer_text, cb_operation, expectation",
+        "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'select_category_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'select_category_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'select_category_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'select_category_text', CategoryOperation.READ,
+            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'select_category_text',
              does_not_raise()),
-            (123, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.DEL,
+            (54321, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'select_category_text',
              does_not_raise()),
-            (123, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
+            (100001, AppButtons.trackers_btn_source.START_TRACKER_BTN.name, 'empty_category_actions_text',
              does_not_raise()),
-            (123, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.READ,
+            (123, AppButtons.categories_btn_source.DELETE_CATEGORIES.name, 'empty_categories_text',
              does_not_raise()),
-            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'select_category_text', CategoryOperation.DEL,
+            (123, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text',
+             does_not_raise()),
+            (123, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text',
+             does_not_raise()),
+            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'select_category_text',
              pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.categories_btn_source.UPDATE_CATEGORIES.name, 'empty_categories_text',
              pytest.raises(AssertionError)),
-            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', CategoryOperation.UPD,
+            (MAIN_USER_ID, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text',
              pytest.raises(AssertionError)),
         ]
     )
     async def test_categories_main_menu_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
-            execute_callback_query_handler, buttons: AppButtons, i18n, cb_operation: Enum, db_session,
+            execute_callback_query_handler, buttons: AppButtons, i18n, db_session,
     ):
-        handler_returns = await execute_callback_query_handler(user_id, data)
-        with expectation:
+        if user_id == 54321:
             categories = await select_categories(user_id, db_session)
             if categories:
+                category_id = categories[0][0]
+                await create_actions(user_id, action_name='name', category_id=category_id, db_session=db_session)
+        handler_returns = await execute_callback_query_handler(user_id, data)
+        operation = await _get_operation(data, buttons)
+        categories = await select_categories(user_id, db_session)
+        with expectation:
+            if categories and operation != CategoryOperation.READ_TRACKER:
                 assert isinstance(handler_returns, EditMessageText)
                 assert handler_returns.text == i18n.get(answer_text)
-                assert handler_returns.reply_markup == await callback_factories_kb(categories, cb_operation)
+                assert handler_returns.reply_markup == await callback_factories_kb(categories, operation)
+            elif categories and operation == CategoryOperation.READ_TRACKER:
+                categories_with_actions = await select_categories_with_actions(user_id, db_session)
+                if not categories_with_actions:
+                    assert handler_returns.text == i18n.get(answer_text)
+                    assert handler_returns.reply_markup == await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
+                else:
+                    assert handler_returns.text == i18n.get(answer_text)
+                    assert handler_returns.reply_markup == await callback_factories_kb(categories_with_actions,
+                                                                                       operation)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
                 assert handler_returns.reply_markup == await menu_inline_kb(

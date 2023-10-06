@@ -28,13 +28,19 @@ async def categories_main_menu_handler(call: CallbackQuery, db_session: async_se
     """
     user_id: int = call.from_user.id
     operation: IntEnum = await _get_operation(call_data=call.data, buttons=buttons)
-    if operation == CategoryOperation.READ_TRACKER:
-        categories: list[Row] = await select_categories_with_actions(user_id, db_session)
-    else:
-        categories: list[Row] = await select_categories(user_id, db_session)
-    if categories:
+    categories: list[Row] = await select_categories(user_id, db_session)
+    if categories and (operation != CategoryOperation.READ_TRACKER):
         markup: InlineKeyboardMarkup = await callback_factories_kb(categories, operation)
         return await call.message.edit_text(text=i18n.get('select_category_text'), reply_markup=markup)
+    elif categories and (operation == CategoryOperation.READ_TRACKER):
+        categories_with_actions: list[Row] = await select_categories_with_actions(user_id, db_session)
+        if not categories_with_actions:
+            markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(),
+                                                                i18n)
+            return await call.message.edit_text(text=i18n.get('empty_category_actions_text'), reply_markup=markup)
+        else:
+            markup: InlineKeyboardMarkup = await callback_factories_kb(categories_with_actions, operation)
+            return await call.message.edit_text(text=i18n.get('select_category_text'), reply_markup=markup)
     else:
         markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.new_category(), i18n)
         return await call.message.edit_text(text=i18n.get('empty_categories_text'), reply_markup=markup)

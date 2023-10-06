@@ -55,7 +55,7 @@ new_tracker_text = ✅ You have started tracking action -> {$action_name}
 select_category_4_tracker = Selected category -> {$category_name}. {$new_line} Select the action!
 not_launched_tracker_text = You don't have any launched tracker yet!
 already_launch_tracker_text = You already have a running tracker:
-
+empty_category_actions_text = ❗️ Make sure you have created action for the category ❗️
 answer_stop_tracker_text = Do you want to stop the tracker?
 stop_tracker_text = ✅ The tracker was stopped:
 daily_tracker_text = Delete daily tracker
