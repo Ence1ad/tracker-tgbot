@@ -1,6 +1,7 @@
 
 # tracker-tgbot  
 
+---
 [![](https://img.shields.io/github/license/Ence1ad/tracker-tgbot?style=flat-square)](https://github.com/Ence1ad/tracker-tgbot/LICENSE)
 [![](https://img.shields.io/badge/Python-3.10&nbsp;|&nbsp;3.11-blue)](https://www.python.org/downloads/)
 ![](https://img.shields.io/badge/version-0.0.3%20-brightgreen?style=flat-square)
@@ -94,59 +95,71 @@ Follow these steps to set up and run the **tracker-tgbot** on your local machine
 
 2. **Add the bot to your existing group and make it an administrator.**
   
-3. **Clone the repository:**  
-  
-```bash  
-https://github.com/Ence1ad/tracker-tgbot.git  
-```  
-  
+3. **Clone the repository:**
+    ```bash
+    git clone https://github.com/Ence1ad/tracker-tgbot.git  
+    ```
+
 4. **Navigate to the project directory:**:  
   
-```bash  
-cd tracker-tgbot
-```  
+    ```bash  
+    cd tracker-tgbot
+    ```  
   
 5. **Create a virtual environment (optional but recommended)**:  
   
-```bash  
-python -m venv venvsource venv/bin/activate # On Windows, use "venv\Scripts\activate"
-```  
+    ```bash  
+    python -m venv venvsource venv/bin/activate # On Windows, use "venv\Scripts\activate"
+    ```  
   
 6. **Install project dependencies:**:  
   
-```bash  
-pip install -r requirements.txt
-```  
+    ```bash  
+    pip install -r requirements.txt
+    ```  
   
 7. **Create an .env file based on the provided .env.example:**  
   
-```bash  
-cp .env.example .env
-```  
+    ```bash  
+    cp .env.example .env
+    ```  
   
 8. **Open the .env file in a text editor and fill in the required configuration values.** 
-```env
-# Database Configuration
-POSTGRES_USER= # PostgreSQL database superuser.  
-POSTGRES_PASSWORD= # Password for the PostgreSQL database superuser.
-...
+    ```env
+    # Database Configuration
+    POSTGRES_USER= # PostgreSQL database superuser.  
+    POSTGRES_PASSWORD= # Password for the PostgreSQL database superuser.
+    ...
 
-# Bot API Configuration  
-BOT_TOKEN= # Bot api token received from the bot-father  
-GROUP_ID= # Your group or supergroup chat id
-```
+    # Bot API Configuration  
+    BOT_TOKEN= # Bot api token received from the bot-father  
+    GROUP_ID= # Your group or supergroup chat id
+    ```
 
 9. **Run the bot using:**  
   
-```bash  
-python tgbot/__main__.py
-```  
+    ```bash  
+    python tgbot/__main__.py
+    ```  
 
-10. **Start Docker Compose**: To get all the features, please [install docker engine](https://docs.docker.com/engine/install/) on your host and run the following command to launch docker compose file:
+10. **Start Docker Compose**: To get all the features, please [install docker engine](https://docs.docker.com/engine/install/) on your host.
 
-```bash
-docker-compose -f docker-compose.yml up -d
-```
+11. **Alertmanager notification** To receive an alert notification from alertmanager, set up an email notification configs. 
+Open the alertmanager.yml and enter your email credentials:
+   ```yml
+       email_configs:
+        - to: '<login>gmail.com' # Enter the gmail login that will receive alert notifications
+          from: '<login>@gmail.com' # Enter the gmail login that will send alert notifications
+          smarthost: smtp.gmail.com:587
+          auth_username: '<login>@gmail.com' # Enter the gmail login that will send alert notifications
+          auth_identity: '<login>@gmail.com' # Enter the gmail login that will send alert notifications
+          auth_password: 'google-app-password' # if you are using gmail create google app password -> https://support.google.com/accounts/answer/185833?hl=en
+          send_resolved: true
+   ```
+12. Run the following command to launch docker compose file:
+  ```bash
+  docker-compose -f docker-compose.yml up -d
+  ```
   
 ## Technologies Used  
   
