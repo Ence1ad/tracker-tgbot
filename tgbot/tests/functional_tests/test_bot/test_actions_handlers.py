@@ -136,19 +136,14 @@ class TestActionsHandlers:
     )
     async def test_prompt_name_4_new_action_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
-            execute_callback_query_handler, create_actions_more_than_limit, bot, dispatcher: Dispatcher,
+            execute_callback_query_handler, create_actions_more_than_limit,
             i18n: TranslatorRunner, buttons: AppButtons, state: FSMContext, chat_fixt_fact
     ):
-        # chat: Chat = await chat_fixt_fact(user_id)
-        # key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
-        # storage_state = await dispatcher.fsm.storage.get_state(key)
 
         handler_returns = await execute_callback_query_handler(user_id=user_id, data=data, state=state)
         with expectation:
-            # assert storage_state == ActionState.WAIT_CATEGORY_DATA
 
             assert isinstance(handler_returns, EditMessageText)
-            print(handler_returns.text)
 
             if answer_text == 'action_limit_text':
                 assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)

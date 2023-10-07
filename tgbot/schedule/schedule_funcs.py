@@ -1,6 +1,8 @@
 import asyncio
+import logging
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.types import FSInputFile
 from pandas import DataFrame
 from redis.asyncio import Redis
@@ -38,5 +40,10 @@ async def schedule_weekly_report(
             await create_fig(df_action=action_data, df_categories=category_data)
             await asyncio.sleep(3)
             document = FSInputFile(settings.WEEKLY_XLSX_FILE_NAME)
-            await bot.send_document(chat_id=user_id, document=document)
-            await asyncio.sleep(2)
+            try:
+                await bot.send_document(chat_id=user_id, document=document)
+                await asyncio.sleep(2)
+            except TelegramBadRequest:
+                logging.warning(f"Bot is blocked by user {user_id}")
+            except TelegramForbiddenError:
+                logging.error(f"Chat not found for user {user_id}")

@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from apscheduler.jobstores.redis import RedisJobStore
-from pydantic import Field, SecretStr
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -33,7 +33,7 @@ class TgBotSettings(BaseSettings):
     """
     Telegram Bot Settings
     """
-    BOT_TOKEN: SecretStr
+    BOT_TOKEN: str
     ADMIN_ID: int
     GROUP_ID: int
 
@@ -42,6 +42,8 @@ class ProjectSettings(BaseSettings):
     """
     Project Settings
     """
+    THROTTLING_RATE_LIMIT: int = Field(default=5)  # Maximum number of messages
+    THROTTLING_RATE_PERIOD: int = Field(default=10)  # Time period in seconds
     RU_LANG_CODE: str = Field(default='ru')
     EN_LANG_CODE: str = Field(default='en')
     GLOBAL_LANG_CODE: str = Field(default='en')

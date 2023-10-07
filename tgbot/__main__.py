@@ -9,6 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from config import settings
+from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
 from tgbot.utils.before_bot_start import add_admin, is_bot_admin
 from .handlers import register_common_handlers, register_tracker_handlers, \
     register_report_handlers, register_actions_handlers, register_categories_handlers
@@ -79,6 +80,8 @@ async def main() -> None:
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
     dp.update.middleware.register(ChatMemberMiddleware())
     dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
+    dp.update.middleware.register(ThrottlingMiddleware(limit=settings.THROTTLING_RATE_LIMIT,
+                                                       period=settings.THROTTLING_RATE_PERIOD))
 
     # Register handlers
     common_handlers_router = register_common_handlers()

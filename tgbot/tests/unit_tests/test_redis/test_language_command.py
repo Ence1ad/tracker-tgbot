@@ -23,7 +23,6 @@ class TestRedisGetLang:
     async def test_redis_hget_lang(self, user_id: int,  redis_cli: Redis, expectation, local: None | str):
         with expectation:
             lang = await redis_hget_lang(user_id, redis_cli, local)
-            print(lang)
             assert isinstance(lang, str)
             if local is None:
                 assert lang == settings.GLOBAL_LANG_CODE

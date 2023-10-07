@@ -8,6 +8,7 @@ use_bot_text = To use the bot, you need to register in the group:
 help_unknown_command_text = Sorry, I don't recognize that command. Please use '/help' to see available commands
 help_invalid_command_format_text = Invalid command format. Use '/help_<command>' to get help for specific commands.
 valid_data_text = ❗️ Please provide correct data ❗️
+throttling_text = ❗️ You are sending messages too quickly. Please wait. ❗️
 
 # for command_start_handler func
 user_in_db_text = 👋🏼 Hello friend! 🤖 I'm glad to see you again!
