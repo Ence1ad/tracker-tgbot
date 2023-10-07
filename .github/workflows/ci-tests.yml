@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,14 +53,6 @@ jobs:
         run: |
           sleep 10
 
-      - name: Check services
-        run: |
-          docker ps
-      - name: Lint with Ruff
-        run: |
-          ruff --output-format=github --target-version=py310 .
-        continue-on-error: true
-
       - name: Run tests
         env:
           LANG_CODE: ${{ matrix.lang-code }}
@@ -71,3 +63,22 @@ jobs:
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target-version: ["py310", "py311"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+
+      - name: Lint with Ruff
+        run: |
+          ruff --output-format=github --target-version=${{ matrix.target-version }} .
+        continue-on-error: true
