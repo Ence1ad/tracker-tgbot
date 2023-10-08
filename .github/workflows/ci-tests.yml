@@ -57,8 +57,9 @@ jobs:
         env:
           LANG_CODE: ${{ matrix.lang-code }}
         run: |
-#          pytest --cov=tgbot ./tests/ --db-url $PG_URL --redis $REDIS_URL --lang $LANG_CODE
           pytest --cov=tgbot ./tests/ --lang $LANG_CODE
+#          pytest --cov=tgbot ./tests/ --db-url $PG_URL --redis $REDIS_URL --lang $LANG_CODE
+           
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
