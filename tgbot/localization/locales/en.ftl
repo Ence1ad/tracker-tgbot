@@ -11,7 +11,7 @@ valid_data_text = ❗️ Please provide correct data ❗️
 throttling_text = ❗️ You are sending messages too quickly. Please wait. ❗️
 
 # for command_start_handler func
-user_in_db_text = 👋🏼 Hello friend! 🤖 I'm glad to see you again!
+user_in_db_text = 👋🏼 Greetings, my friend, 🤖 I am very glad to see you!
 new_user_text = Hello friend! What can I do for you?
 
 # text for categories handlers

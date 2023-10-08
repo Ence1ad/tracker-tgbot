@@ -13,7 +13,7 @@ async def _tracker_name(user_id: int) -> str | None:
     :param user_id: int: Identify the user
     :return: The name of the tracker
     """
-    name = f"{user_id}_tracker"
+    name = f"tracker:{user_id}"
     return name
 
 

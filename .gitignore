@@ -166,4 +166,4 @@ cython_debug/
 metrics_containers_data/*
 /postgres_data
 /redis_data
-
+/pg_backups

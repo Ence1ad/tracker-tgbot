@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from config import settings
-from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
+
 from tgbot.utils.before_bot_start import add_admin, is_bot_admin
 from .handlers import register_common_handlers, register_tracker_handlers, \
     register_report_handlers, register_actions_handlers, register_categories_handlers
@@ -17,7 +17,8 @@ from .handlers import register_common_handlers, register_tracker_handlers, \
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware, \
+from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
+from .middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware, \
     ButtonsMiddleware, ChatMemberMiddleware, TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job

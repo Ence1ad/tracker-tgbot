@@ -27,7 +27,7 @@ services:
       - CONFIG_FILE_PATH=/etc/pg_backup.config
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
-      - ./backups:/var/backups/
+      - ./pg_backups:/var/backups/
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
       - ./docker/postgres/pg_backup.config:/etc/pg_backup.config:ro
       - ./docker/postgres/pg_backup_rotated.sh:/usr/bin/pg_backup_rotated.sh:rw
@@ -211,7 +211,7 @@ volumes:
     driver: local
   postgres_data:
     driver: local
-  backups:
+  pg_backups:
     driver: local
 
 networks:
