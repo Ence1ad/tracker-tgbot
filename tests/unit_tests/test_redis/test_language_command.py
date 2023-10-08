@@ -4,7 +4,7 @@ from contextlib import nullcontext as does_not_raise
 
 from cache.redis_language_commands import redis_hget_lang, redis_hset_lang
 from config import settings
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio

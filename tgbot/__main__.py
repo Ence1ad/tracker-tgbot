@@ -18,7 +18,7 @@ from .handlers import register_common_handlers, register_tracker_handlers, \
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
 from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
-from .middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware, \
+from tgbot.middlewares import SchedulerMiddleware, DbSessionMiddleware, CacheMiddleware, \
     ButtonsMiddleware, ChatMemberMiddleware, TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 from tgbot.schedule.schedule_jobs import interval_sending_reports_job

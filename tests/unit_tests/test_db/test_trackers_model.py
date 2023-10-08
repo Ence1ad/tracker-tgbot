@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db.report.report_commands import select_weekly_trackers
 from db.tracker.tracker_db_command import create_tracker, select_tracker_duration, delete_tracker, select_stopped_trackers
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.usefixtures('add_data_to_db')

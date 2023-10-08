@@ -19,7 +19,7 @@ from db.base_model import AsyncSaBase
 from db.categories.categories_commands import create_category
 from db.tracker.tracker_db_command import create_tracker
 from db.users.users_commands import create_user
-from tgbot.tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_NAME, \
+from tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_NAME, \
     SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 
 
@@ -72,7 +72,7 @@ def redis_url(request):
 
 @pytest.fixture(scope="session")
 def _redis_url():
-    url = "redis://localhost:6379/11?protocol=3"
+    url = f"redis://:{settings.REDIS_PASSWORD}@localhost:6379/11?protocol=3"
     return url
 
 
@@ -128,11 +128,12 @@ async def redis_cli(redis_url):
 async def _database_url():
     url = URL.create(
         drivername="postgresql+asyncpg",
-        username='postgres',
+        username=settings.POSTGRES_USER,
+        password=settings.POSTGRES_PASSWORD,
         host='localhost',
         port=5432,
-        database='new'
-    ).render_as_string()
+        database='test_db'
+    ).render_as_string(hide_password=False)
     return url
 
 

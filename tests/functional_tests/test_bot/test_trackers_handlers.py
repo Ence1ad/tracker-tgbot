@@ -18,8 +18,8 @@ from db.actions.actions_db_commands import select_category_actions
 from db.categories.categories_commands import select_categories
 from db.report.report_commands import select_weekly_trackers
 from db.tracker.tracker_db_command import select_stopped_trackers, select_tracker_duration
-from tgbot.tests.functional_tests.test_bot.utils import TEST_CHAT
-from tgbot.tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
+from tests.functional_tests.test_bot.utils import TEST_CHAT
+from tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 from tgbot.handlers.categories_handlers.read_categories import _get_operation
 from tgbot.handlers.tracker_handlers.delete_tracker import _get_right_tracker_markup
 from tgbot.keyboards.app_buttons import AppButtons

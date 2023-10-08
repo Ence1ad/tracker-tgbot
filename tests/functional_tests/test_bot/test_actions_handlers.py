@@ -18,7 +18,7 @@ from config import settings
 from db.actions.actions_db_commands import select_category_actions, create_actions, delete_action
 from db.categories.categories_commands import select_categories
 
-from tgbot.tests.utils import MAIN_USER_ID, SECOND_USER_ID, CATEGORY_ID
+from tests.utils import MAIN_USER_ID, SECOND_USER_ID, CATEGORY_ID
 from tgbot.handlers.actions_handlers.read_actions import _actions_list, _get_action_operation
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import ActionOperation, CategoryCD, CategoryOperation, ActionCD

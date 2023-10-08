@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 from db.categories.categories_commands import create_category, select_categories, update_category, delete_category, \
     select_category_id
 from db.categories.categories_model import CategoriesModel
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.usefixtures('add_data_to_db')

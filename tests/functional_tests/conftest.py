@@ -1,7 +1,7 @@
 import pytest_asyncio
 
 from cache.redis_tracker_commands import redis_hmset_create_tracker, redis_delete_tracker
-from tgbot.tests.utils import USER_ID_WITH_TRACKER_LIMIT
+from tests.utils import USER_ID_WITH_TRACKER_LIMIT
 
 
 @pytest_asyncio.fixture(scope='class')

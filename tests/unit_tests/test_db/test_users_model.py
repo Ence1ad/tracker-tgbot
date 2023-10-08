@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from db.users.user_model import UserModel
 from db.users.users_commands import create_user, delete_user
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio

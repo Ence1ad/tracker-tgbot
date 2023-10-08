@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
 from db import ActionsModel
 from db.actions.actions_db_commands import create_actions, select_category_actions, delete_action, update_action_name
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.usefixtures('add_data_to_db')

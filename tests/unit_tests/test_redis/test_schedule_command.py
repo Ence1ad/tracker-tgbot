@@ -5,7 +5,7 @@ from redis import DataError
 from redis.asyncio import Redis
 
 from cache.redis_schedule_command import redis_sadd_user_id, is_redis_sismember_user, redis_smembers_users
-from tgbot.tests.utils import MAIN_USER_ID
+from tests.utils import MAIN_USER_ID
 
 
 @pytest.mark.asyncio

@@ -36,8 +36,8 @@ jobs:
             sed -i "s/BOT_TOKEN=.*/BOT_TOKEN=${{ secrets.MY_BOT_TOKEN }}/" .env
             source .env
           fi
-          echo "PG_URL=postgresql+asyncpg://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/test_db" >> "$GITHUB_ENV"
-          echo "REDIS_URL=redis://:$REDIS_PASSWORD@localhost:6379/11" >> "$GITHUB_ENV"
+#          echo "PG_URL=postgresql+asyncpg://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/test_db" >> "$GITHUB_ENV"
+#          echo "REDIS_URL=redis://:$REDIS_PASSWORD@localhost:6379/11" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: |
@@ -57,7 +57,8 @@ jobs:
         env:
           LANG_CODE: ${{ matrix.lang-code }}
         run: |
-          pytest --cov=tgbot ./tgbot/tests/ --db-url $PG_URL --redis $REDIS_URL --lang $LANG_CODE
+#          pytest --cov=tgbot ./tests/ --db-url $PG_URL --redis $REDIS_URL --lang $LANG_CODE
+          pytest --cov=tgbot ./tests/ --lang $LANG_CODE
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3

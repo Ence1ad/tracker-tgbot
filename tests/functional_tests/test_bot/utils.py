@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 
-from tgbot.tests.utils import MAIN_USER_ID, LANG_CODE
+from tests.utils import MAIN_USER_ID, LANG_CODE
 
 TEST_USER = User(
     id=MAIN_USER_ID,
