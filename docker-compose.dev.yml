@@ -4,7 +4,7 @@ services:
 
   db:
     container_name: postgres_db
-    image: postgres:alpine
+    image: postgres:15.4
     restart: unless-stopped
     env_file: .env
     healthcheck:
@@ -23,9 +23,14 @@ services:
       - "pg_stat_statements.track=all"
     ports:
       - "5432:5432"
+    environment:
+      - CONFIG_FILE_PATH=/etc/pg_backup.config
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./backups:/var/backups/
       - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
+      - ./docker/postgres/pg_backup.config:/etc/pg_backup.config:ro
+      - ./docker/postgres/pg_backup_rotated.sh:/usr/bin/pg_backup_rotated.sh:rw
     deploy:
       resources:
         limits:
@@ -144,8 +149,10 @@ services:
     restart: on-failure
     env_file: .env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - bot_api
 
@@ -203,6 +210,8 @@ volumes:
   redis_data:
     driver: local
   postgres_data:
+    driver: local
+  backups:
     driver: local
 
 networks:
