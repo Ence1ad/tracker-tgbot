@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  tgbot:
+    container_name: tgbot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./reports:/usr/src/app/reports
+    restart: on-failure
+    env_file: .env
+    ports:
+      - '443:8000'
+    networks:
+      - bot_api
+
+volumes:
+  reports:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
+
+  bot_api:
+    driver: bridge
