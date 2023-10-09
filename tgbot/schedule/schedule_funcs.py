@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.redis_tracker_commands import redis_delete_tracker, redis_hget_tracker_data, redis_decr_user_day_trackers
 from cache.redis_schedule_command import redis_smembers_users
 from config import settings
-from data_preparation.create_report import create_fig
-from data_preparation.pd_prepare import pd_action_data, pd_category_data
+from report_baker.create_report import create_fig
+from report_baker.pd_prepare import pd_action_data, pd_category_data
 from db.report.report_commands import select_weekly_trackers
 from db.tracker.tracker_db_command import delete_tracker
 

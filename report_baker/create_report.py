@@ -13,7 +13,7 @@ from openpyxl.chart.shapes import GraphicalProperties
 from openpyxl.drawing.fill import GradientFillProperties, GradientStop
 
 from config import settings
-from data_preparation.chart_date_title import DateTitle
+from report_baker.chart_date_title import DateTitle
 
 
 async def create_fig(df_action: DataFrame, df_categories: DataFrame,

@@ -2,7 +2,7 @@ import plotly.graph_objs as go
 import plotly.offline as pyo
 
 from config import settings
-from data_preparation.chart_date_title import DateTitle
+from report_baker.chart_date_title import DateTitle
 
 
 async def create_fig(df_action, df_categories, sheet_name=settings.WEEKLY_XLSX_FILE_NAME):
