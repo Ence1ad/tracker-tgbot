@@ -6,10 +6,11 @@ import pytest
 from redis.asyncio import Redis
 from redis.exceptions import DataError
 
+from cache.redis_report_commands import set_redis_name
 from cache.redis_tracker_commands import redis_hmset_create_tracker, \
     redis_hget_tracker_data, is_redis_hexists_tracker, redis_hgetall_started_tracker, redis_upd_tracker, \
     redis_delete_tracker, redis_decr_user_day_trackers, redis_expireat_midnight, redis_incr_user_day_trackers, \
-    redis_get_user_day_trackers, _tracker_name
+    redis_get_user_day_trackers
 from tests.utils import MAIN_USER_ID
 
 
@@ -41,7 +42,7 @@ class TestRedisTrackerCommands:
     ):
         with expectation:
             res: int = await redis_hmset_create_tracker(user_id, tracker_id, action_id, action_name, category_id,
-                                                      category_name, redis_client=redis_cli)
+                                                        category_name, redis_client=redis_cli)
             assert isinstance(res, (int, NoneType))
             assert res == 6
 
@@ -204,8 +205,8 @@ class TestRedisTrackerCommands:
             ('str', does_not_raise()),
         ]
     )
-    async def test_tracker_name(self, user_id: int, expectation):
+    async def test_set_redis_name(self, user_id: int, expectation):
         with expectation:
-            res = await _tracker_name(user_id)
+            res = set_redis_name(user_id)
             assert isinstance(res, str)
-            assert res == await _tracker_name(user_id)
+            assert res == set_redis_name(user_id)

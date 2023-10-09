@@ -10,8 +10,9 @@ from aiogram.methods import SendMessage, EditMessageText, SendDocument
 from redis.asyncio import Redis
 from sqlalchemy import cast, DATE
 
+from cache.redis_report_commands import set_redis_name
 from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_get_user_day_trackers, \
-    redis_incr_user_day_trackers, redis_hget_tracker_data
+    redis_incr_user_day_trackers, redis_hget_tracker_data, TRACKER_CNT_PREFIX
 from config import settings
 from db import TrackerModel
 from db.actions.actions_db_commands import select_category_actions
@@ -164,7 +165,8 @@ class TestActionsHandlers:
                 assert handler_result.text == i18n.get(answer_text)
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_start(), i18n)
             else:
-                assert await redis_cli.get(str(user_id))  # check the redis_expireat_midnight func was started
+                name = set_redis_name(user_id, prefix=TRACKER_CNT_PREFIX)
+                assert await redis_cli.get(name)  # check the redis_expireat_midnight func was started
                 assert await redis_incr_user_day_trackers(user_id, redis_cli)
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
                 assert handler_result.text == i18n.get(answer_text, action_name=action_name)

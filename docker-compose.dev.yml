@@ -59,10 +59,17 @@ services:
     command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
     volumes:
       - ./redis_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100m
+        reservations:
+          cpus: '0.1'
+          memory: 40m
     networks:
       - monitoring
       - bot_api
-
 
   tgbot:
     container_name: tgbot
@@ -99,7 +106,7 @@ services:
       resources:
         limits:
           cpus: '0.2'
-          memory: 500M
+          memory: 50M
     networks:
       - monitoring
       - bot_api

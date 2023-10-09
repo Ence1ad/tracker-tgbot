@@ -33,7 +33,7 @@ async def start_bot(bot: Bot) -> None:
 
 async def main() -> None:
     # Initialize sqlalchemy session
-    async_session: async_sessionmaker[AsyncSession] = await create_async_session(url=settings.db_url, echo=False)
+    async_session: async_sessionmaker[AsyncSession] = await create_async_session(url=settings.db_url, echo=True)
 
     # Initialize bot
     bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='html')

@@ -3,18 +3,10 @@ from datetime import datetime as dt, time, date
 
 from redis.asyncio import Redis
 
+from cache.redis_report_commands import set_redis_name
 
-async def _tracker_name(user_id: int) -> str | None:
-
-    """
-    The _tracker_name function takes a user_id and returns the name of the tracker for that user.
-        The name is in the format: &lt;user_id&gt;_tracker
-
-    :param user_id: int: Identify the user
-    :return: The name of the tracker
-    """
-    name = f"tracker:{user_id}"
-    return name
+TRACKER_PREFIX = 'tracker'
+TRACKER_CNT_PREFIX = 'tracker_cnt'
 
 
 async def redis_hmset_create_tracker(user_id: int, tracker_id: int | str, action_id: int, action_name: str,
@@ -34,7 +26,7 @@ async def redis_hmset_create_tracker(user_id: int, tracker_id: int | str, action
     """
     if user_id is not None:
         call_date: dt = dt.now()
-        tracker_name: str = await _tracker_name(user_id)
+        tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
         res = await redis_client.hset(
             name=tracker_name,
             mapping={
@@ -59,7 +51,7 @@ async def redis_hget_tracker_data(user_id: int, redis_client: Redis, key: str) -
     :param key: str: Specify the key for which we want to retrieve data from redis
     :return: The value of the key in the hash
     """
-    tracker_name: str = await _tracker_name(user_id)
+    tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
     res = await redis_client.hget(name=tracker_name, key=key)
     return res if res else None
 
@@ -73,7 +65,7 @@ async def is_redis_hexists_tracker(user_id: int | str, redis_client: Redis) -> b
     :param redis_client: Redis: Pass the redis client to the function
     :return: A boolean value
     """
-    tracker_name: str = await _tracker_name(user_id)
+    tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
     tracker_exists = await redis_client.hexists(tracker_name, "start_time")
     return True if tracker_exists else False
 
@@ -87,7 +79,7 @@ async def redis_hgetall_started_tracker(user_id: int, redis_client: Redis) -> di
     :param redis_client: Redis: Pass in the redis client
     :return: A dictionary of all the
     """
-    tracker_name: str = await _tracker_name(user_id)
+    tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
     return await redis_client.hgetall(tracker_name)
 
 
@@ -104,7 +96,7 @@ async def redis_upd_tracker(user_id: int, redis_client: Redis, action_name: str 
     :return: 0 if the tracker data was successfully updated, 1 if not
 
     """
-    tracker_name: str = await _tracker_name(user_id)
+    tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
     tracker_data = await redis_client.hgetall(tracker_name)
     if tracker_data:
         res = await redis_hmset_create_tracker(
@@ -128,7 +120,7 @@ async def redis_delete_tracker(user_id: int, redis_client: Redis) -> int | None:
     :param redis_client: Redis: Pass the redis_client object to the function
     :return: 1 if removing tracker was successfully, 0 if not
     """
-    tracker_name: str = await _tracker_name(user_id)
+    tracker_name: str = set_redis_name(user_id, TRACKER_PREFIX)
     if await is_redis_hexists_tracker(user_id, redis_client):
         res: int = await redis_client.delete(tracker_name)
         return res
@@ -144,7 +136,8 @@ async def redis_incr_user_day_trackers(user_id: int, redis_client: Redis) -> int
     :param redis_client: Redis: Pass in the redis client object
     :return: The number of times the user has called it in a day
     """
-    return await redis_client.incr(name=str(user_id), amount=1)
+    tracker_cnt_name: str = set_redis_name(user_id, TRACKER_CNT_PREFIX)
+    return await redis_client.incr(name=tracker_cnt_name, amount=1)
 
 
 async def redis_decr_user_day_trackers(user_id: int, redis_client: Redis) -> int:
@@ -160,7 +153,8 @@ async def redis_decr_user_day_trackers(user_id: int, redis_client: Redis) -> int
     """
     user_tracker_cnt = await redis_get_user_day_trackers(user_id, redis_client)
     if user_tracker_cnt and (int(user_tracker_cnt) > 0):
-        return await redis_client.decr(name=str(user_id), amount=1)
+        tracker_cnt_name: str = set_redis_name(user_id, TRACKER_CNT_PREFIX)
+        return await redis_client.decr(name=tracker_cnt_name, amount=1)
 
 
 async def redis_get_user_day_trackers(user_id: int | str, redis_client: Redis) -> bytes | None:
@@ -171,7 +165,8 @@ async def redis_get_user_day_trackers(user_id: int | str, redis_client: Redis) -
     :param redis_client: Redis: Pass the redis client to this function
     :return: The number of user's trackers
     """
-    return await redis_client.get(str(user_id))
+    tracker_cnt_name: str = set_redis_name(user_id, TRACKER_CNT_PREFIX)
+    return await redis_client.get(tracker_cnt_name)
 
 
 async def redis_expireat_midnight(user_id: int, redis_client: Redis, day_time: None | time = None) -> bool:
@@ -183,15 +178,16 @@ async def redis_expireat_midnight(user_id: int, redis_client: Redis, day_time: N
 
     :param user_id: int: Identify the user in redis
     :param redis_client: Redis: Pass the redis client to the function
-    :param day_time: None | time: Set the time of day when the key expires
+    :param day_time: Optional[time]: Set the time of day when the key expires
     :return: True if the deletion was successfully, False if not
 
     """
     today = date.today()
     if not day_time:
-        # set midnight time
+        # Set midnight time
         when_time = time.max
     else:
         when_time = day_time
     today_midnight = datetime.datetime.combine(today, when_time)
-    return await redis_client.expireat(name=str(user_id), when=today_midnight)
+    tracker_cnt_name: str = set_redis_name(user_id, TRACKER_CNT_PREFIX)
+    return await redis_client.expireat(name=tracker_cnt_name, when=today_midnight)

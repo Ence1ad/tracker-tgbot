@@ -7,7 +7,8 @@ from pytest_asyncio.plugin import FactoryFixtureFunction
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from cache.redis_language_commands import redis_hget_lang
+from cache.redis_language_commands import redis_hget_lang, LANG_PREFIX
+from cache.redis_report_commands import set_redis_name
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from config import settings
 
@@ -25,6 +26,7 @@ from tgbot.utils.jinja_engine import render_template
 class TestCommonHandlers:
 
     NEW_USER = 9999999999
+
     @pytest.mark.parametrize(
         "user_id, command, answer_text, expectation",
         [
@@ -248,7 +250,8 @@ class TestCommonHandlers:
             lang_bot_settings
     ):
         handler_returns = await execute_callback_query_handler(user_id=user_id, data=data)
-        lang_code_after: str = await redis_cli.hget(name='lang', key=str(user_id))
+        name = set_redis_name(user_id, prefix=LANG_PREFIX)
+        lang_code_after: str = await redis_cli.hget(name=name, key=str(user_id))
         with expectation:
             assert isinstance(handler_returns, (AnswerCallbackQuery, SendMessage))
             assert handler_returns.text is not None

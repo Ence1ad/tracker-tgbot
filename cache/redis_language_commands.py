@@ -1,17 +1,9 @@
 from redis.asyncio import Redis
 
+from cache.redis_report_commands import set_redis_name
 from config import settings
 
-
-def _set_name(name: str = "lang") -> str:
-    """
-    The _set_name function is a helper function that sets the name of the redis
-        database table. It defaults to &quot;users&quot; if no argument is passed in.
-
-    :param name: str: Define the name of the function
-    :return: The name of the collection
-    """
-    return name
+LANG_PREFIX = 'lang'
 
 
 async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None = None) -> str:
@@ -24,8 +16,8 @@ async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None 
     :param local: None | str: Set the default language to english
     :return: The language code for the user
     """
-    name = _set_name()
-    lang_code: bytes | str = await redis_client.hget(name=name, key=str(user_id))
+    lang_name: str = set_redis_name(user_id, LANG_PREFIX)
+    lang_code: bytes | str = await redis_client.hget(name=lang_name, key=str(user_id))
     if isinstance(lang_code, bytes):
         lang_code = lang_code.decode(encoding='utf-8')
         return lang_code
@@ -45,6 +37,5 @@ async def redis_hset_lang(user_id: int,  redis_client: Redis, lang_code: str | b
     :return: The number of fields that were changed
     """
     if lang_code is not None:
-        name = _set_name()
-        return await redis_client.hset(name=name, key=str(user_id), value=lang_code)
-
+        lang_name: str = set_redis_name(user_id, LANG_PREFIX)
+        return await redis_client.hset(name=lang_name, key=str(user_id), value=lang_code)

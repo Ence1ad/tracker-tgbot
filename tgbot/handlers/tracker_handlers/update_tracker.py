@@ -3,6 +3,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_hget_tracker_data, redis_delete_tracker
 from db.tracker.tracker_db_command import select_tracker_duration
 from tgbot.keyboards.inline_kb import menu_inline_kb
@@ -66,6 +67,8 @@ async def stop_tracker_yes_handler(call: CallbackQuery, db_session: async_sessio
                                                      title='stop_tracker_text')
         # delete tracker from redis db
         await redis_delete_tracker(user_id, redis_client)
+        # Set the flag that reports need to update
+        await redis_set_report_need_upd(user_id, redis_client, value=1)
         return await call.message.edit_text(text=track_text, reply_markup=markup)
     else:
         markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)

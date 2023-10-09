@@ -18,6 +18,15 @@ from data_preparation.chart_date_title import DateTitle
 
 async def create_fig(df_action: DataFrame, df_categories: DataFrame,
                      sheet_name: str = settings.WEEKLY_XLSX_FILE_NAME) -> None:
+    """
+    The create_fig function creates a bar chart and pie chart from the dataframes
+        passed to it.
+
+    :param df_action: DataFrame: Pass the dataframe to the function
+    :param df_categories: DataFrame: Pass the dataframe to the function
+    :param sheet_name: str: Specify the name of the file that will be created
+    :return: Nothing, but it creates a workbook object
+    """
     wb: Workbook = Workbook()
     create_bar_charts(df=df_action, wb=wb)
     create_pie_chart(df=df_categories, wb=wb)
@@ -25,6 +34,13 @@ async def create_fig(df_action: DataFrame, df_categories: DataFrame,
 
 
 def create_bar_charts(*, df: DataFrame, wb: Workbook) -> None:
+    """
+    The create_bar_charts function creates a bar chart for each action in the dataframe.
+
+    :param df: DataFrame: Pass the dataframe to the function
+    :param wb: Workbook: Pass the workbook object to the function
+    :return: None
+    """
     ws: Worksheet = wb.active
     ws.title = f"bars(week - {DateTitle.week})"
     for row in dataframe_to_rows(df, index=True, header=True):
@@ -51,6 +67,13 @@ def create_bar_charts(*, df: DataFrame, wb: Workbook) -> None:
 
 
 def simple_stack_chart(chart: BarChart, ws: Worksheet) -> None:
+    """
+    Add to wb simple bar chart
+
+    :param chart: BarChart: Pass the chart object to the function
+    :param ws: Worksheet: Specify the worksheet that the chart will be added to
+    :return: A simple bar chart
+    """
     chart1 = deepcopy(chart)
     chart1.type = "col"
     chart1.style = 10
@@ -59,6 +82,13 @@ def simple_stack_chart(chart: BarChart, ws: Worksheet) -> None:
 
 
 def horizontal_bar_chart(chart: BarChart, ws: Worksheet) -> None:
+    """
+    Add to wb horizontal bar chart
+
+    :param chart: BarChart: Pass the chart object to the function
+    :param ws: Worksheet: Specify the worksheet that the chart will be added to
+    :return: A horizontal bar chart
+    """
     chart2 = deepcopy(chart)
     chart2.style = 10
     chart2.type = "bar"
@@ -68,6 +98,13 @@ def horizontal_bar_chart(chart: BarChart, ws: Worksheet) -> None:
 
 #
 def stacked_chart(chart: BarChart, ws: Worksheet) -> None:
+    """
+    Add to wb stacked chart
+
+    :param chart: BarChart: Pass the chart object to the function
+    :param ws: Worksheet: Specify the worksheet that the chart will be added to
+    :return: A stacked bar chart
+    """
     chart3 = deepcopy(chart)
     chart3.type = "col"
     chart3.style = 10
@@ -78,6 +115,13 @@ def stacked_chart(chart: BarChart, ws: Worksheet) -> None:
 
 
 def percent_stacked_chart(chart: BarChart, ws: Worksheet) -> None:
+    """
+    Add to wb percent stacked chart
+
+    :param chart: BarChart: Pass the chart object to the function
+    :param ws: Worksheet: Specify the worksheet that the chart will be added to
+    :return: A percent stacked bar chart
+    """
     chart4 = deepcopy(chart)
     chart4.type = "bar"
     chart4.style = 10
@@ -88,6 +132,13 @@ def percent_stacked_chart(chart: BarChart, ws: Worksheet) -> None:
 
 
 def create_pie_chart(*, df: DataFrame, wb: Workbook) -> None:
+    """
+    The create_pie_chart function creates a pie chart of the dataframe passed to it.
+
+    :param df: DataFrame: Pass a dataframe to the function
+    :param wb: Workbook: Create a new worksheet in the workbook
+    :return: None
+    """
     ws: Worksheet = wb.create_sheet(title=f"pie(week - {DateTitle.week})")
     for row in dataframe_to_rows(df, index=True, header=True):
         ws.append(row)
@@ -105,6 +156,13 @@ def create_pie_chart(*, df: DataFrame, wb: Workbook) -> None:
 
 
 def gradient_pie(pie: PieChart, ws: Worksheet) -> None:
+    """
+    Add to wb gradient pie chart
+
+    :param pie: PieChart: Pass in the pie chart object
+    :param ws: Worksheet: Add the chart to a specific worksheet
+    :return: None
+    """
     # Cut the first slice out of the pie and apply a gradient to it
     slice_ = DataPoint(idx=0, explosion=20, spPr=GraphicalProperties(
         gradFill=GradientFillProperties(
