@@ -1,3 +1,5 @@
+welcome_group_text = Welcome to our group!
+farewell_group_text =  has been removed from the group!
 canceling_text = Your action has been canceled
 exit_text = See you soon!
 options_text = Select the button

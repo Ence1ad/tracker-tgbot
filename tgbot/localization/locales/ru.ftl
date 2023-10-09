@@ -1,3 +1,6 @@
+
+welcome_group_text = Добро пожаловать в группу!
+farewell_group_text =  был(а) удален(а) из группы!
 canceling_text = Ваше действие было отменено
 exit_text = До скорой встречи!
 options_text = Выберите кнопку
