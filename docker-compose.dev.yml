@@ -78,6 +78,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    ports:
+      - '443:8000'
     networks:
       - bot_api
 
@@ -160,8 +162,6 @@ services:
     container_name: alertmanager
     image: prom/alertmanager
     hostname: alertmanager
-    user: root
-    env_file: .env
     restart: unless-stopped
     depends_on:
       - prometheus

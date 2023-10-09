@@ -23,25 +23,26 @@ ENV APP_HOME /usr/src/app
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Metadata labels
-LABEL maintainer="Your Name <fantminer@gmail.com>"
+LABEL maintainer="<fantminer@gmail.com>"
 LABEL version="0.0.3"
 
 # Create a non-root user and set working directory
-RUN groupadd -r mygroup && useradd -r -g mygroup myuser
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 WORKDIR $APP_HOME
 
-#VOLUME $APP_HOME/reports
 # Copy the entrypoint script
 COPY entrypoint.sh $APP_HOME
+COPY bot_healthcheck.sh $APP_HOME
 # Copy application code
 COPY . .
 
-# Set ownership
-RUN chown -R myuser:mygroup $APP_HOME
-# Set permissions for entrypoint script
+# Set permissions for entrypoint and healthcheck scripts
 RUN chmod +x $APP_HOME/entrypoint.sh
+RUN chmod +x $APP_HOME/bot_healthcheck.sh
 
 # Switch to the myuser user
-#USER myuser
+USER appuser
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=4 CMD $APP_HOME/bot_healthcheck.sh
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
