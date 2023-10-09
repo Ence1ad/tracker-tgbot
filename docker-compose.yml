@@ -2,6 +2,33 @@ version: '3.8'
 
 services:
 
+  redis:
+    container_name: redis_db
+    image: redis:7.2.1
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+    env_file: .env
+    ports:
+      - '6379:6379'
+    command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
+    volumes:
+      - ./redis_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100m
+        reservations:
+          cpus: '0.1'
+          memory: 40m
+    networks:
+      - bot_api
+
   tgbot:
     container_name: tgbot
     build:
@@ -16,13 +43,14 @@ services:
     networks:
       - bot_api
 
+
+
 volumes:
   reports:
     driver: local
+  redis_data:
+    driver: local
 
 networks:
-  monitoring:
-    driver: bridge
-
   bot_api:
     driver: bridge
