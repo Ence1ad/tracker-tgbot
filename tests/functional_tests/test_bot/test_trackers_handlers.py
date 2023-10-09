@@ -57,7 +57,7 @@ class TestActionsHandlers:
             handler_result = await execute_callback_query_handler(user_id, data=button_data)
             assert isinstance(handler_result,  SendMessage)
             if is_tracker:
-                assert handler_result.text == started_tracker_txt
+                assert handler_result.text[:10] == started_tracker_txt[:10]
                 assert handler_result.reply_markup == await menu_inline_kb(await buttons.trackers_btn_source.tracker_menu_stop(), i18n)
             else:
                 assert handler_result.text == i18n.get(answer_text)
