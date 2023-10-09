@@ -32,4 +32,12 @@ async def delete_tracker_job(scheduler: ContextSchedulerDecorator, user_id: int,
 async def interval_sending_reports_job(scheduler: ContextSchedulerDecorator,
                                        func: Callable[[Any], None] = schedule_weekly_report) -> Job:
 
+    """
+    The interval_sending_reports_job function is a job that runs every Sunday at 23:50.
+    It calls the schedule_weekly_report function, which sends out weekly reports to all users.
+
+    :param scheduler: ContextSchedulerDecorator: Add a job to the scheduler
+    :param func: Callable[[Any]: Specify the function that will be called by the scheduler
+    :return: A job object, which is a class that represents the scheduled job
+    """
     return scheduler.add_job(func=func, trigger='cron', day_of_week='sun', hour=23, minute=50)

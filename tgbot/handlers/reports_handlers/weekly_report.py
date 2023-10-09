@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from aiogram.types import CallbackQuery, FSInputFile, Message, InlineKeyboardMarkup
 from fluentogram import TranslatorRunner
 from pandas import DataFrame
@@ -31,9 +33,12 @@ async def get_weekly_report(call: CallbackQuery, db_session: async_sessionmaker[
     if report:
         action_data: DataFrame = await pd_action_data(report)
         category_data: DataFrame = await pd_category_data(report)
-        await create_fig(df_action=action_data, df_categories=category_data)
+        if not Path.exists(Path(f'{settings.USER_REPORT_DIR}{user_id}')):
+            Path.mkdir(Path(f"{settings.USER_REPORT_DIR}{user_id}"))
+        sheet_name = f"{settings.USER_REPORT_DIR}{user_id}/{settings.WEEKLY_XLSX_FILE_NAME}"
+        await create_fig(df_action=action_data, df_categories=category_data, sheet_name=sheet_name)
         await call.message.delete()
-        document: FSInputFile = FSInputFile(settings.WEEKLY_XLSX_FILE_NAME)
+        document: FSInputFile = FSInputFile(sheet_name)
         return await call.bot.send_document(caption=i18n.get('send_report_text'), chat_id=call.from_user.id,
                                             document=document)
     else:

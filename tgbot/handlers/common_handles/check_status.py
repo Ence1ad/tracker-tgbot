@@ -1,8 +1,12 @@
+import shutil
+from pathlib import Path
+
 from aiogram.types import ChatMemberUpdated, Message
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.redis_schedule_command import redis_sadd_user_id, redis_srem_user_id
+from config import settings
 from db.users.users_commands import delete_user, create_user
 
 
@@ -44,5 +48,7 @@ async def remove_user_handler(event: ChatMemberUpdated, redis_client: Redis,
     user_id = event.new_chat_member.user.id
     await redis_srem_user_id(user_id, redis_client)
     await delete_user(user_id, db_session)
+    if Path.exists(Path(f'{settings.USER_REPORT_DIR}{user_id}')):
+        shutil.rmtree(Path(f'{settings.USER_REPORT_DIR}{user_id}'))
     msg = await event.answer(f"{event.new_chat_member.user.first_name} был(а) удален(а) из группы!")
     return msg

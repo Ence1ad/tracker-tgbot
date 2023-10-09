@@ -43,6 +43,44 @@ services:
       - monitoring
       - bot_api
 
+  redis:
+    container_name: redis_db
+    image: redis:alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+    env_file: .env
+    ports:
+      - '6379:6379'
+    command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - monitoring
+      - bot_api
+
+
+  tgbot:
+    container_name: tgbot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./reports:/usr/src/app/reports
+    restart: on-failure
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bot_api
+
   postgres_exporter:
     container_name: exporter_container
     image: prometheuscommunity/postgres-exporter
@@ -77,7 +115,6 @@ services:
       - prometheus
     networks:
       - monitoring
-
 
   prometheus:
     container_name: prometheus
@@ -118,43 +155,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-
-  redis:
-    container_name: redis_db
-    image: redis:alpine
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      timeout: 5s
-      interval: 10s
-      retries: 5
-      start_period: 5s
-    restart: always
-    env_file: .env
-    ports:
-      - '6379:6379'
-    command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
-    volumes:
-      - ./redis_data:/data
-    networks:
-      - monitoring
-      - bot_api
-
-  tgbot:
-    container_name: tgbot
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/usr/src/app
-    restart: on-failure
-    env_file: .env
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - bot_api
 
   alertmanager:
     container_name: alertmanager
@@ -212,6 +212,8 @@ volumes:
   postgres_data:
     driver: local
   pg_backups:
+    driver: local
+  reports:
     driver: local
 
 networks:

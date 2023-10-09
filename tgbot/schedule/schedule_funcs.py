@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
+from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import FSInputFile
 from pandas import DataFrame
 from redis.asyncio import Redis
@@ -25,7 +25,10 @@ async def schedule_delete_tracker(bot: Bot, user_id: int, redis_client: Redis,
         await delete_tracker(user_id, tracker_id=int(tracker_id), db_session=async_session)
         await redis_delete_tracker(user_id, redis_client)
         await redis_decr_user_day_trackers(user_id, redis_client)
-        await bot.send_message(chat_id=user_id, text=f'{action_name} -> {msg_text}')
+        try:
+            await bot.send_message(chat_id=user_id, text=f'{action_name} -> {msg_text}')
+        except TelegramForbiddenError as ex:
+            logging.exception(ex)
 
 
 async def schedule_weekly_report(
@@ -39,11 +42,10 @@ async def schedule_weekly_report(
             category_data: DataFrame = await pd_category_data(report)
             await create_fig(df_action=action_data, df_categories=category_data)
             await asyncio.sleep(3)
-            document = FSInputFile(settings.WEEKLY_XLSX_FILE_NAME)
+            doc_path = f"{settings.USER_REPORT_DIR}{user_id}/{settings.WEEKLY_XLSX_FILE_NAME}"
+            document = FSInputFile(doc_path)
             try:
                 await bot.send_document(chat_id=user_id, document=document)
                 await asyncio.sleep(2)
-            except TelegramBadRequest:
-                logging.warning(f"Bot is blocked by user {user_id}")
-            except TelegramForbiddenError:
-                logging.error(f"Chat not found for user {user_id}")
+            except TelegramForbiddenError as ex:
+                logging.exception(ex)
