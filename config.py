@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class LoggingSettings(BaseSettings):
@@ -9,6 +10,19 @@ class LoggingSettings(BaseSettings):
     """
     LEVEL: int
     FORMAT: str
+
+
+class PostgresSettings(BaseSettings):
+    """
+    PostgreSQL Settings
+    """
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str
+    DB_USER: str
+    DB_USER_PASS: str
 
 
 class RedisSettings(BaseSettings):
@@ -30,7 +44,7 @@ class TgBotSettings(BaseSettings):
     GROUP_ID: int
 
 
-class Settings(LoggingSettings, RedisSettings, TgBotSettings,  BaseSettings):
+class Settings(LoggingSettings, PostgresSettings, RedisSettings, TgBotSettings,  BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
     @property
@@ -42,6 +56,23 @@ class Settings(LoggingSettings, RedisSettings, TgBotSettings,  BaseSettings):
         :return: A string containing the connection url for a redis database
         """
         return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}?protocol=3"
+
+    @property
+    def db_url(self) -> str:
+        """
+        The db_url function returns a string that is the URL for connecting to the database.
+
+        :param self: Reference the class itself
+        :return: A string that is a connection url for the database
+        """
+        return URL.create(
+            drivername="postgresql+asyncpg",
+            username=self.DB_USER,
+            password=self.DB_USER_PASS,
+            host=self.POSTGRES_HOST,
+            port=self.POSTGRES_PORT,
+            database=self.POSTGRES_DB
+        ).render_as_string(hide_password=False)
 
 
 @lru_cache

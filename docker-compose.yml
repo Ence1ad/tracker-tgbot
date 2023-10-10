@@ -2,6 +2,42 @@ version: '3.8'
 
 services:
 
+  db:
+    container_name: postgres_db
+    image: postgres:15.4
+    restart: unless-stopped
+    env_file: .env
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+    ports:
+      - "5432:5432"
+    environment:
+      - CONFIG_FILE_PATH=/etc/pg_backup.config
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 4g
+        reservations:
+          cpus: '0.25'
+          memory: 2g
+    networks:
+      - bot_api
+
   redis:
     container_name: redis_db
     image: redis:7.2.1
@@ -49,6 +85,8 @@ volumes:
   reports:
     driver: local
   redis_data:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:
