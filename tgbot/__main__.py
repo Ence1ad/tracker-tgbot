@@ -44,7 +44,7 @@ async def main() -> None:
     # redis_client: Redis = Redis(connection_pool=settings.create_redis_pool)
     storage: RedisStorage = RedisStorage(redis=redis_client)
 
-    # Initialize apscheduler
+    # Initialize translator
     translator = Translator()
 
     # Initialize buttons
