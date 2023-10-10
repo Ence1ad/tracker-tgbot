@@ -12,6 +12,7 @@ from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers
 from tgbot.localization.localize import Translator
+from tgbot.middlewares.db_middleware import DbSessionMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
@@ -36,6 +37,9 @@ async def main() -> None:
                                       redis_client=redis_client, storage=storage, async_session=async_session)
     # Initialize dispatcher
     dp: Dispatcher = Dispatcher(storage=storage)
+
+    # Register middlewares
+    dp.update.middleware.register(DbSessionMiddleware(async_session))
 
     # Register handlers
     common_handlers_router = register_common_handlers()
