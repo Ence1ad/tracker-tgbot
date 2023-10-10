@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from apscheduler.jobstores.redis import RedisJobStore
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -73,6 +74,27 @@ class Settings(LoggingSettings, PostgresSettings, RedisSettings, TgBotSettings, 
             port=self.POSTGRES_PORT,
             database=self.POSTGRES_DB
         ).render_as_string(hide_password=False)
+
+    @property
+    def scheduler_job_stores(self) -> dict[str, RedisJobStore]:
+        """
+        The scheduler_job_stores function is used to configure the job stores that are available to the scheduler.
+        The function should return a dictionary of job store configurations, keyed by name.
+
+        :param self: Represent the instance of the class
+        :return: A dictionary with a single key-value pair
+        """
+        scheduler_job_stores = {
+            'default': RedisJobStore(
+                jobs_key='dispatched_trips_jobs',
+                run_times_key='dispatched_trips_running',
+                host=self.REDIS_HOST,
+                db=self.REDIS_DB,
+                port=self.REDIS_PORT,
+                password=self.REDIS_PASSWORD,
+            )
+        }
+        return scheduler_job_stores
 
 
 @lru_cache

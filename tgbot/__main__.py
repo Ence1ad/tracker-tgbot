@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers
+from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
 async def main() -> None:
@@ -26,6 +27,9 @@ async def main() -> None:
     # Initialize redis storage
     storage: RedisStorage = RedisStorage(redis=redis_client)
 
+    # Initialize scheduler
+    scheduler = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores,
+                                      redis_client=redis_client, storage=storage, async_session=async_session)
     # Initialize dispatcher
     dp: Dispatcher = Dispatcher(storage=storage)
 
