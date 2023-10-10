@@ -7,6 +7,7 @@
 ![](https://img.shields.io/badge/version-0.0.3%20-brightgreen?style=flat-square)
 [![CI](https://github.com/Ence1ad/tracker-tgbot/actions/workflows/ci-tests.yml/badge.svg?branch=dev)](https://github.com/Ence1ad/tracker-tgbot/actions/workflows/ci-tests.yml)
 [![codecov](https://codecov.io/gh/Ence1ad/tracker-tgbot/graph/badge.svg?token=XK6RVDC1YB)](https://codecov.io/gh/Ence1ad/tracker-tgbot)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![](https://img.shields.io/github/forks/Ence1ad/tracker-tgbot?style=flat-square)
 ![](https://img.shields.io/github/stars/Ence1ad/tracker-tgbot?style=flat-square)
 [![telegram](https://img.shields.io/badge/Telegram-Join-blue)](https://t.me/)
