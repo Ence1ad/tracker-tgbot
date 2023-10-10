@@ -1,9 +1,12 @@
+from pathlib import Path
 from typing import Optional, Any, Dict
 
-from jinja2 import Environment, PackageLoader, select_autoescape, Template
+from jinja2 import Environment, select_autoescape, Template, FileSystemLoader
 
+
+path = Path(__file__).parent.parent / 'templates'
 env = Environment(
-    loader=PackageLoader('template_engine', 'templates'),
+    loader=FileSystemLoader(Path(path)),
     autoescape=select_autoescape(['html'])
 )
 
