@@ -6,15 +6,15 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 
 class DbSessionMiddleware(BaseMiddleware):
-    """
-    Initialize the DbSessionMiddleware.
-
-    :param session_pool: An async sessionmaker for creating database sessions.
-    :type session_pool: async_sessionmaker[AsyncSession]
-
-    This middleware is responsible for managing database sessions using the provided session pool.
-    """
     def __init__(self, session_pool: async_sessionmaker[AsyncSession]) -> None:
+        """
+        Initialize the DbSessionMiddleware.
+
+        :param session_pool: An async sessionmaker for creating database sessions.
+        :type session_pool: async_sessionmaker[AsyncSession]
+
+        This middleware is responsible for managing database sessions using the provided session pool.
+        """
         super().__init__()
         self.session_pool = session_pool
 
@@ -31,7 +31,7 @@ class DbSessionMiddleware(BaseMiddleware):
         :type handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]]
 
         :param event: The incoming Telegram event.
-        :type event: TelegramObject
+        :type event: Update
 
         :param data: Data associated with the event.
         :type data: Dict[str, Any]

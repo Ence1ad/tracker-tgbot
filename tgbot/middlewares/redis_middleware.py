@@ -6,16 +6,16 @@ from redis.asyncio import Redis
 
 
 class CacheMiddleware(BaseMiddleware):
-    """
-    Initialize the CacheMiddleware.
-
-    :param redis_client: The Redis cache client used for caching.
-    :type redis_client: Redis
-
-    This middleware is responsible for managing the Redis cache client, allowing for caching and
-    retrieval of data during bot operation.
-    """
     def __init__(self, redis_client: Redis) -> None:
+        """
+        Initialize the CacheMiddleware.
+
+        :param redis_client: The Redis cache client used for caching.
+        :type redis_client: Redis
+
+        This middleware is responsible for managing the Redis cache client, allowing for caching and
+        retrieval of data during bot operation.
+        """
         super().__init__()
         self.redis_client = redis_client
 
@@ -31,8 +31,8 @@ class CacheMiddleware(BaseMiddleware):
         :param handler: The event handler function to be called.
         :type handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]]
 
-        :param event: The incoming CallbackQuery event.
-        :type event: CallbackQuery
+        :param event: The incoming Telegram event.
+        :type event: Update
 
         :param data: Data associated with the event.
         :type data: Dict[str, Any]
