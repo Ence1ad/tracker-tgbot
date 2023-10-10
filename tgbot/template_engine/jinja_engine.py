@@ -4,7 +4,8 @@ from typing import Optional, Any, Dict
 from jinja2 import Environment, select_autoescape, Template, FileSystemLoader
 
 
-path = Path(__file__).parent.parent / 'templates'
+# path = Path(__file__).parent.parent / 'templates'
+path = 'tgbot/template_engine/templates'
 env = Environment(
     loader=FileSystemLoader(Path(path)),
     autoescape=select_autoescape(['html'])
