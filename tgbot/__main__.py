@@ -11,8 +11,10 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers
+from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
 from tgbot.middlewares.apscheduler_middleware import SchedulerMiddleware
+from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.middlewares.db_middleware import DbSessionMiddleware
 from tgbot.middlewares.redis_middleware import CacheMiddleware
 from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
@@ -32,6 +34,9 @@ async def main() -> None:
     # Initialize redis storage
     storage: RedisStorage = RedisStorage(redis=redis_client)
 
+    # Initialize buttons
+    buttons = AppButtons()
+
     # Initialize translator
     translator = Translator()
 
@@ -42,6 +47,7 @@ async def main() -> None:
     dp: Dispatcher = Dispatcher(storage=storage)
 
     # Register middlewares
+    dp.update.middleware.register(ButtonsMiddleware(buttons))
     dp.update.middleware.register(CacheMiddleware(redis_client))
     dp.update.middleware.register(DbSessionMiddleware(async_session))
     dp.update.middleware.register(SchedulerMiddleware(scheduler))
