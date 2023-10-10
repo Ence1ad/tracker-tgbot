@@ -19,7 +19,7 @@ from tgbot.keyboards.inline_kb import start_menu_inline_kb, menu_inline_kb
 from tgbot.utils.answer_text import started_tracker_text
 from tgbot.utils.bot_commands import CommandName
 from tests.utils import MAIN_USER_ID
-from tgbot.utils.jinja_engine import render_template
+from tgbot.template_engine.jinja_engine import render_template
 
 
 @pytest.mark.asyncio

@@ -16,7 +16,7 @@ async def my_commands(bot: Bot) -> None:
     The my_commands function is used to set the commands that will be shown in the bot's profile.
 
     :param bot: Bot: Access the bot's methods
-    :return: A list of botcommand objects
+    :return: A list of bot command objects
     """
     commands = [
         BotCommand(
@@ -38,5 +38,3 @@ async def my_commands(bot: Bot) -> None:
     ]
 
     await bot.set_my_commands(commands, BotCommandScopeDefault())
-
-

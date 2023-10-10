@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 
 from cache.redis_language_commands import redis_hget_lang
 from config import settings
-from tgbot.utils.jinja_engine import render_template
+from tgbot.template_engine.jinja_engine import render_template
 
 
 async def command_help_handler(message: Message, redis_client: Redis, i18n: TranslatorRunner) -> Message:

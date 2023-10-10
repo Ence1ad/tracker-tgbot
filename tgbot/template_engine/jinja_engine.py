@@ -3,7 +3,7 @@ from typing import Optional, Any, Dict
 from jinja2 import Environment, PackageLoader, select_autoescape, Template
 
 env = Environment(
-    loader=PackageLoader('tgbot', 'templates'),
+    loader=PackageLoader('template_engine', 'templates'),
     autoescape=select_autoescape(['html'])
 )
 

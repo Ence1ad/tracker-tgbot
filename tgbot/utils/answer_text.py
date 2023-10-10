@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 from cache.redis_tracker_commands import redis_hgetall_started_tracker
 from datetime import datetime as dt, timedelta
 
-from tgbot.utils.jinja_engine import render_template
+from tgbot.template_engine.jinja_engine import render_template
 
 
 async def _prepare_tracker_data(user_id: int, redis_client: Redis) -> dict:
