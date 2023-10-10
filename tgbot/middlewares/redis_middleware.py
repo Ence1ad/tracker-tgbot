@@ -12,8 +12,8 @@ class CacheMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
-            event: CallbackQuery,
+            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            event: Update,
             data: Dict[str, Any],
     ) -> Awaitable[Any]:
 
