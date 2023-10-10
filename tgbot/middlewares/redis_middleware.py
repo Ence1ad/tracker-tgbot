@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import CallbackQuery
+from aiogram.types import Update
 from redis.asyncio import Redis
 
 
