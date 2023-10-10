@@ -12,8 +12,8 @@ class DbSessionMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-            event: TelegramObject,
+            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            event: Update,
             data: Dict[str, Any],
     ) -> Awaitable[Any]:
 
