@@ -6,8 +6,8 @@ from fluentogram import TranslatorHub, FluentTranslator
 
 from config import settings
 
-ru_file_path = Path('tgbot/localization/locales/ru.ftl')
-en_file_path = Path('tgbot/localization/locales/en.ftl')
+ru_file_path = Path('tgbot/localization/locale/ru.ftl')
+en_file_path = Path('tgbot/localization/locale/en.ftl')
 
 
 @dataclass
