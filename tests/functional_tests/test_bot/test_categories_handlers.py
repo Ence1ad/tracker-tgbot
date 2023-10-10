@@ -43,7 +43,8 @@ class TestCategoriesHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'category_limit_text', does_not_raise()),
+            (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'category_limit_text',
+             does_not_raise()),
             (MAIN_USER_ID, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'new_category_text',
              pytest.raises(AssertionError)),
             (12345, AppButtons.categories_btn_source.CREATE_CATEGORIES.name, 'new_category_text', does_not_raise()),
@@ -113,12 +114,14 @@ class TestCategoriesHandlers:
         "user_id, data, answer_text, expectation",
         [
             (12345, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'empty_categories_text', does_not_raise()),
-            (12345, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'show_categories_text', pytest.raises(AssertionError)),
+            (12345, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'show_categories_text',
+             pytest.raises(AssertionError)),
             (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'show_categories_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, 'empty_categories_text',
              pytest.raises(AssertionError)),
             (MAIN_USER_ID, AppButtons.general_btn_source.CATEGORIES_BTN.name, '', pytest.raises(AssertionError)),
-            (12345, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text', pytest.raises(AssertionError)),
+            (12345, AppButtons.general_btn_source.ACTIONS_BTN.name, 'empty_categories_text',
+             pytest.raises(AssertionError)),
         ]
     )
     async def test_display_categories(self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
@@ -190,7 +193,8 @@ class TestCategoriesHandlers:
                 categories_with_actions = await select_categories_with_actions(user_id, db_session)
                 if not categories_with_actions:
                     assert handler_returns.text == i18n.get(answer_text)
-                    assert handler_returns.reply_markup == await menu_inline_kb(await buttons.general_btn_source.main_menu_buttons(), i18n)
+                    assert handler_returns.reply_markup == await menu_inline_kb(
+                        await buttons.general_btn_source.main_menu_buttons(), i18n)
                 else:
                     assert handler_returns.text == i18n.get(answer_text)
                     assert handler_returns.reply_markup == await callback_factories_kb(categories_with_actions,
@@ -205,7 +209,7 @@ class TestCategoriesHandlers:
         "user_id, data, answer_text, expectation",
         [
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.UPD, category_id=2, category_name='cat_name'),
-             'new_category_text',  does_not_raise()),
+             'new_category_text', does_not_raise()),
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.UPD, category_id=2, category_name='cat_name'),
              'categories_is_fake_text', pytest.raises(AssertionError)),
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.READ, category_id=1, category_name='1'),
@@ -215,7 +219,7 @@ class TestCategoriesHandlers:
         ]
     )
     async def test_prompt_category_name(
-            self,  user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
+            self, user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
             i18n, data: CategoryCD, redis_storage, bot
     ):
         handler_returns = await execute_callback_query_handler(user_id, data=data.pack())
@@ -276,7 +280,7 @@ class TestCategoriesHandlers:
         "user_id, data, answer_text, expectation",
         [
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.DEL, category_id=1, category_name='1').pack(),
-             'rm_category_text',  does_not_raise()),
+             'rm_category_text', does_not_raise()),
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.DEL, category_id=1, category_name='1').pack(),
              'categories_is_fake_text', does_not_raise()),
             (MAIN_USER_ID, CategoryCD(operation=CategoryOperation.READ, category_id=1, category_name='1').pack(),
@@ -291,8 +295,8 @@ class TestCategoriesHandlers:
             i18n, redis_cli, data,
     ):
         await redis_hmset_create_tracker(
-                user_id=MAIN_USER_ID, tracker_id='1', action_id=1, action_name='some_name',
-                category_id=1, category_name='0', redis_client=redis_cli)
+            user_id=MAIN_USER_ID, tracker_id='1', action_id=1, action_name='some_name',
+            category_id=1, category_name='0', redis_client=redis_cli)
 
         handler_returns = await execute_callback_query_handler(user_id, data=data)
         with expectation:
@@ -302,4 +306,3 @@ class TestCategoriesHandlers:
             assert handler_returns.reply_markup == await menu_inline_kb(
                 await buttons.categories_btn_source.category_menu_buttons(), i18n
             )
-

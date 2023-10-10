@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from config import settings
 
 from tgbot.utils.before_bot_start import add_admin, is_bot_admin
-from .handlers import register_common_handlers, register_tracker_handlers, \
+from tgbot.handlers import register_common_handlers, register_tracker_handlers, \
     register_report_handlers, register_actions_handlers, register_categories_handlers
 
 

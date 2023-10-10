@@ -17,7 +17,6 @@ from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_hget_tr
 from config import settings
 from db.actions.actions_db_commands import select_category_actions, create_actions, delete_action
 from db.categories.categories_commands import select_categories
-
 from tests.utils import MAIN_USER_ID, SECOND_USER_ID, CATEGORY_ID
 from tgbot.handlers.actions_handlers.read_actions import _actions_list, _get_action_operation
 from tgbot.keyboards.app_buttons import AppButtons
@@ -45,19 +44,26 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, state, operation, answer_text, expectation",
         [
-            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category', does_not_raise()),
-            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text', does_not_raise()),
-            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category', pytest.raises(FluentReferenceError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ, 'empty_actions_text', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.GET_NAME, CategoryOperation.READ, 'empty_actions_text', pytest.raises(AssertionError)),
+            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
+             does_not_raise()),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
+             does_not_raise()),
+            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text',
+             does_not_raise()),
+            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
+             pytest.raises(FluentReferenceError)),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text',
+             pytest.raises(AssertionError)),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ, 'empty_actions_text',
+             pytest.raises(AssertionError)),
+            (SECOND_USER_ID, ActionState.GET_NAME, CategoryOperation.READ, 'empty_actions_text',
+             pytest.raises(AssertionError)),
 
         ]
     )
     async def test_actions_main_menu_handler(
-            self,  user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
-            i18n,  bot, buttons, db_session, state: FSMContext, operation: Enum, db_category_factory,
+            self, user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
+            i18n, bot, buttons, db_session, state: FSMContext, operation: Enum, db_category_factory,
             dispatcher: Dispatcher, chat_fixt_fact
     ):
         # Create category if user don't have it
@@ -76,7 +82,8 @@ class TestActionsHandlers:
         with expectation:
             handler_returns = await execute_callback_query_handler(user_id, data=data.pack(), state=state)
             assert isinstance(handler_returns, EditMessageText)
-            assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+            assert handler_returns.reply_markup == await menu_inline_kb(
+                await buttons.actions_btn_source.action_menu_buttons(), i18n)
             if actions:
                 actions_list_text = await _actions_list(actions)
                 assert handler_returns.text == i18n.get(answer_text, category_name=category_name,
@@ -87,13 +94,15 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text', does_not_raise()),
+            (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
+             does_not_raise()),
             (SECOND_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'show_action_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'show_action_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
              pytest.raises(AssertionError)),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, '', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text', pytest.raises(AssertionError)),
+            (SECOND_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
+             pytest.raises(AssertionError)),
         ]
     )
     async def test_display_actions(
@@ -116,7 +125,8 @@ class TestActionsHandlers:
                 actions_list_text = await _actions_list(actions)
                 assert handler_returns.text == i18n.get(answer_text, category_name=category_name,
                                                         new_line='\n', actions_list_text=actions_list_text)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
             else:
                 assert isinstance(handler_returns, EditMessageText)
                 assert handler_returns.text == i18n.get(answer_text)
@@ -127,17 +137,21 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, state, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, 'action_limit_text', does_not_raise()),
-            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, 'new_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, 'new_action_text', does_not_raise()),
-            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, None, pytest.raises(AssertionError)),
+            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
+             'action_limit_text', does_not_raise()),
+            (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
+             'new_action_text', does_not_raise()),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
+             'new_action_text', does_not_raise()),
+            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, None,
+             pytest.raises(AssertionError)),
 
         ]
     )
     async def test_prompt_name_4_new_action_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
             execute_callback_query_handler, create_actions_more_than_limit,
-            i18n: TranslatorRunner, buttons: AppButtons, state: FSMContext, chat_fixt_fact
+            i18n: TranslatorRunner, buttons: AppButtons, state: FSMContext
     ):
 
         handler_returns = await execute_callback_query_handler(user_id=user_id, data=data, state=state)
@@ -146,7 +160,8 @@ class TestActionsHandlers:
             assert isinstance(handler_returns, EditMessageText)
 
             if answer_text == 'action_limit_text':
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
                 assert handler_returns.text == i18n.get(answer_text, action_limit=settings.USER_ACTIONS_LIMIT)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
@@ -159,11 +174,13 @@ class TestActionsHandlers:
             (SECOND_USER_ID, ActionState.GET_NAME, 'my_new_action', 'action_exists_text', does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.GET_NAME, None, 'new_valid_action_name', pytest.raises(AssertionError)),
             (SECOND_USER_ID, ActionState.GET_NAME, 'not_exist!', 'action_exists_text', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, 'best_action', 'added_new_action_text', pytest.raises(AssertionError)),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, 'best_action', 'added_new_action_text',
+             pytest.raises(AssertionError)),
         ]
     )
     async def test_create_action_handler(
-            self, user_id: int, answer_text: str, new_action_name: str, expectation: does_not_raise,  buttons: AppButtons,
+            self, user_id: int, answer_text: str, new_action_name: str, expectation: does_not_raise,
+            buttons: AppButtons,
             execute_message_handler, i18n: TranslatorRunner, state: FSMContext, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
@@ -178,12 +195,13 @@ class TestActionsHandlers:
                 assert handler_returns.text == i18n.get(answer_text, new_action_name=new_action_name)
             else:
                 assert handler_returns.text == i18n.get(answer_text, new_action_valid_name=new_action_name)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
         [
-            (MAIN_USER_ID, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'select_action_text',  does_not_raise()),
+            (MAIN_USER_ID, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'select_action_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.actions_btn_source.DELETE_ACTIONS.name, 'select_action_text', does_not_raise()),
             # Todo разобраться!
             # (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'empty_actions_text', does_not_raise()),
@@ -208,7 +226,8 @@ class TestActionsHandlers:
             if actions:
                 assert handler_returns.reply_markup == await callback_factories_kb(actions, operation)
             else:
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
             assert handler_returns.text == i18n.get(answer_text)
 
     @pytest.mark.parametrize(
@@ -216,12 +235,13 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', does_not_raise()),
             (SECOND_USER_ID, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', does_not_raise()),
-            (USER_WITHOUT_ACTION, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', pytest.raises(AssertionError)),
+            (USER_WITHOUT_ACTION, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text',
+             pytest.raises(AssertionError)),
         ]
     )
     async def test_prompt_new_action_name(
-            self,  user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
-            i18n,  bot, buttons, db_session, state: FSMContext, operation: Enum, db_category_factory,
+            self, user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
+            i18n, bot, buttons, db_session, state: FSMContext, operation: Enum,
             dispatcher: Dispatcher, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
@@ -255,12 +275,13 @@ class TestActionsHandlers:
     )
     async def test_upd_action_name(
             self, user_id: int, new_action_name: str, state: FSMContext, expectation: does_not_raise,
-            execute_message_handler, i18n: TranslatorRunner,  answer_text: str,
-            buttons: AppButtons, redis_cli,  create_tracker_fixt_fact, chat_fixt_fact
+            execute_message_handler, i18n: TranslatorRunner, answer_text: str,
+            buttons: AppButtons, redis_cli, create_tracker_fixt_fact, chat_fixt_fact
     ):
 
         if user_id == MAIN_USER_ID:
-            await create_tracker_fixt_fact(user_id,  category_id=1, category_name='new_cat', action_id='10', action_name=new_action_name,
+            await create_tracker_fixt_fact(user_id, category_id=1, category_name='new_cat', action_id='10',
+                                           action_name=new_action_name,
                                            tracker_id='1')
         chat: Chat = await chat_fixt_fact(user_id)
         test_message = Message(message_id=123456, date=datetime.now(), chat=chat, text=new_action_name)
@@ -274,24 +295,27 @@ class TestActionsHandlers:
                 assert handler_returns.text == i18n.get(answer_text, new_action_name=new_action_name)
             else:
                 assert handler_returns.text == i18n.get(answer_text)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
                 if user_id == MAIN_USER_ID:
-                    assert await redis_hget_tracker_data(user_id, redis_client=redis_cli, key='action_name')\
-                            == str(new_action_name).encode(encoding='utf-8')
+                    assert await redis_hget_tracker_data(user_id, redis_client=redis_cli, key='action_name') \
+                           == str(new_action_name).encode(encoding='utf-8')
 
     @pytest.mark.parametrize(
         "user_id, state, operation, answer_text, expectation",
         [
             (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'rm_action_text', does_not_raise()),
             (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'rm_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'action_not_exists_text', does_not_raise()),
-            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER, 'rm_action_text', pytest.raises(AssertionError)),
+            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'action_not_exists_text',
+             does_not_raise()),
+            (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER, 'rm_action_text',
+             pytest.raises(AssertionError)),
         ]
     )
     async def test_delete_action_handler(
             self, user_id: int, answer_text: str, expectation: does_not_raise, state,
             execute_callback_query_handler, buttons: AppButtons, dispatcher, bot,
-            i18n, redis_cli, create_tracker_fixt_fact, operation, db_session, chat_fixt_fact
+            i18n, redis_cli, operation, db_session, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
         key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
@@ -313,5 +337,6 @@ class TestActionsHandlers:
                 assert handler_returns.text == i18n.get(answer_text)
             else:
                 assert handler_returns.text == i18n.get(answer_text, action_name=action_name)
-                assert handler_returns.reply_markup == await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
+                assert handler_returns.reply_markup == await menu_inline_kb(
+                    await buttons.actions_btn_source.action_menu_buttons(), i18n)
                 assert await is_redis_hexists_tracker(user_id, redis_client=redis_cli) is False
