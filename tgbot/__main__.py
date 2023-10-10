@@ -14,6 +14,7 @@ from tgbot.handlers import register_common_handlers
 from tgbot.localization.localize import Translator
 from tgbot.middlewares.db_middleware import DbSessionMiddleware
 from tgbot.middlewares.redis_middleware import CacheMiddleware
+from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
@@ -42,7 +43,8 @@ async def main() -> None:
     # Register middlewares
     dp.update.middleware.register(CacheMiddleware(redis_client))
     dp.update.middleware.register(DbSessionMiddleware(async_session))
-
+    dp.update.middleware.register(ThrottlingMiddleware(limit=settings.THROTTLING_RATE_LIMIT,
+                                                       period=settings.THROTTLING_RATE_PERIOD))
     # Register handlers
     common_handlers_router = register_common_handlers()
     dp.include_routers(common_handlers_router)
