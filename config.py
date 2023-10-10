@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from apscheduler.jobstores.redis import RedisJobStore
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -26,6 +27,15 @@ class PostgresSettings(BaseSettings):
     DB_USER_PASS: str
 
 
+class ProjectSettings(BaseSettings):
+    """
+    Project Settings
+    """
+    RU_LANG_CODE: str = Field(default='ru')
+    EN_LANG_CODE: str = Field(default='en')
+    GLOBAL_LANG_CODE: str = Field(default='en')
+
+
 class RedisSettings(BaseSettings):
     """
     Redis Settings
@@ -45,7 +55,7 @@ class TgBotSettings(BaseSettings):
     GROUP_ID: int
 
 
-class Settings(LoggingSettings, PostgresSettings, RedisSettings, TgBotSettings,  BaseSettings):
+class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings, TgBotSettings,  BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
     @property
