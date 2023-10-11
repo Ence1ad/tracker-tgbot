@@ -4,6 +4,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import redis_upd_tracker
 from db.actions.actions_db_commands import update_action_name, select_category_actions
 from tgbot.utils.validators import valid_name
@@ -66,6 +67,7 @@ async def update_action_name_handler(message: Message, state: FSMContext, db_ses
         if new_valid_action_name := await valid_name(user_actions, new_action_name):
             await update_action_name(user_id=user_id, action_id=action_id, new_action_name=new_valid_action_name,
                                      db_session=db_session)
+            await redis_set_report_need_upd(user_id=user_id, redis_client=redis_client, value=1)
             await redis_upd_tracker(user_id=user_id, redis_client=redis_client, action_name=new_action_name)
             return await message.answer(text=i18n.get('upd_action_text'), reply_markup=markup)
         else:

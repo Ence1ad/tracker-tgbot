@@ -4,6 +4,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import redis_delete_tracker
 from db.categories.categories_commands import delete_category
 from tgbot.keyboards.app_buttons import AppButtons
@@ -33,6 +34,7 @@ async def delete_category_handler(
     markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.categories_btn_source.category_menu_buttons(),
                                                         i18n)
     await redis_delete_tracker(user_id, redis_client)
+    await redis_set_report_need_upd(user_id=user_id, redis_client=redis_client, value=1)
     returning: int = await delete_category(user_id, category_id, db_session)
     if returning:
         await state.clear()

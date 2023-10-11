@@ -3,6 +3,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import redis_delete_tracker
 from db.actions.actions_db_commands import delete_action
 from tgbot.keyboards.app_buttons import AppButtons
@@ -31,6 +32,7 @@ async def delete_action_handler(
     action_name: str = callback_data.action_name
     markup: InlineKeyboardMarkup = await menu_inline_kb(await buttons.actions_btn_source.action_menu_buttons(), i18n)
     await redis_delete_tracker(user_id, redis_client)
+    await redis_set_report_need_upd(user_id=user_id, redis_client=redis_client, value=1)
     db_returning: int = await delete_action(user_id, action_id, db_session)
     if db_returning:
         return await call.message.edit_text(text=i18n.get('rm_action_text', action_name=action_name),

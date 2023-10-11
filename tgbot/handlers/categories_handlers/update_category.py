@@ -5,6 +5,7 @@ from redis.asyncio import Redis
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import redis_upd_tracker
 from db.categories.categories_commands import update_category, select_categories, select_category_id
 from tgbot.keyboards.app_buttons import AppButtons
@@ -63,6 +64,7 @@ async def upd_category_name(message: Message, state: FSMContext, db_session: asy
         categories: list[Row] = await select_categories(user_id, db_session)  # If message a text
         if new_category_valid_name := await valid_name(categories, new_category_name):
             await update_category(user_id, category_id, new_category_valid_name, db_session)
+            await redis_set_report_need_upd(user_id=user_id, redis_client=redis_client, value=1)
             await redis_upd_tracker(user_id, redis_client, category_name=new_category_name)
             return await message.answer(text=i18n.get('upd_category_text', new_category_name=new_category_name),
                                         reply_markup=markup)

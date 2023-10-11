@@ -4,6 +4,7 @@ from redis.asyncio import Redis
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from cache.redis_report_commands import redis_set_report_need_upd
 from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_decr_user_day_trackers
 from db.tracker.tracker_db_command import select_stopped_trackers, delete_tracker
 from tgbot.keyboards.app_buttons import AppButtons
@@ -46,6 +47,7 @@ async def delete_tracker_handler(
     returning: int = await delete_tracker(user_id=user_id, tracker_id=tracker_id, db_session=db_session)
     if returning:
         await redis_decr_user_day_trackers(user_id, redis_client)
+        await redis_set_report_need_upd(user_id=user_id, redis_client=redis_client, value=1)
         return await call.message.edit_text(text=i18n.get('delete_tracker_text'), reply_markup=markup)
     else:
         return await call.message.edit_text(text=i18n.get('already_delete_tracker_text'), reply_markup=markup)
