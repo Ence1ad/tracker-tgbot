@@ -85,6 +85,7 @@ services:
 
   prometheus:
     container_name: prometheus
+    user: "1000:1000"
     image: prom/prometheus:latest
     restart: unless-stopped
     command:
@@ -106,6 +107,24 @@ services:
           cpus: '0.5'   # Adjust as needed
           memory: '512M'  # Adjust as needed
 
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager
+    user: "1000:1000"
+    hostname: alertmanager
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager/data
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./prometheus/alertmanager/:/etc/alertmanager/
+      - ./alertmanager_data:/alertmanager/
+    networks:
+      - monitoring
 
 volumes:
   reports:
@@ -117,6 +136,8 @@ volumes:
   pg_backups:
     driver: local
   prom_data:
+    driver: local
+  alertmanager_data:
     driver: local
 
 
