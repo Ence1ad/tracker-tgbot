@@ -36,7 +36,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit test / coverage reports_handlers
 htmlcov/
 .tox/
 .nox/
@@ -120,8 +120,10 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+!.env.example
+*.env*
 .venv
+*.session
 env/
 venv/
 ENV/
@@ -160,7 +162,6 @@ cython_debug/
 .idea/
 .ruff_cache
 .pytest_cache
-/metrics_containers_data
 /postgres_data
 /redis_data
 /pg_backups

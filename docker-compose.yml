@@ -83,6 +83,28 @@ services:
     networks:
       - bot_api
 
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus/
+      - ./prom_data:/prometheus
+    networks:
+      - monitoring
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'   # Adjust as needed
+          memory: '512M'  # Adjust as needed
 
 
 volumes:
@@ -94,7 +116,13 @@ volumes:
     driver: local
   pg_backups:
     driver: local
+  prom_data:
+    driver: local
+
 
 networks:
   bot_api:
+    driver: bridge
+
+  monitoring:
     driver: bridge
