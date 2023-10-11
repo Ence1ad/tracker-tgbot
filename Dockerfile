@@ -24,7 +24,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Metadata labels
 LABEL maintainer="<fantminer@gmail.com>"
-LABEL version="alpha 0.0.1"
+LABEL version="0.0.1"
 
 # Create a non-root user and set working directory
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
@@ -32,13 +32,17 @@ WORKDIR $APP_HOME
 
 # Copy the entrypoint script
 COPY entrypoint.sh $APP_HOME
+COPY container_conf/telegram_bot_api/bot_healthcheck.sh $APP_HOME
 # Copy application code
 COPY . .
 
 # Set permissions for entrypoint and healthcheck scripts
 RUN chmod +x $APP_HOME/entrypoint.sh
+RUN chmod +x $APP_HOME/bot_healthcheck.sh
 
 # Switch to the myuser user
 USER appuser
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=4 CMD $APP_HOME/bot_healthcheck.sh
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

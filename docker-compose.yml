@@ -92,6 +92,8 @@ volumes:
     driver: local
   postgres_data:
     driver: local
+  pg_backups:
+    driver: local
 
 networks:
   bot_api:
