@@ -32,7 +32,7 @@ WORKDIR $APP_HOME
 
 # Copy the entrypoint script
 COPY entrypoint.sh $APP_HOME
-COPY bot_healthcheck.sh $APP_HOME
+COPY container_conf/telegram_bot_api/bot_healthcheck.sh $APP_HOME
 # Copy application code
 COPY . .
 

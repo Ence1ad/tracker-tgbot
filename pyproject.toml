@@ -1,3 +1,9 @@
+[tool.pytest.ini_options]
+addopts = "--tb=short --cov=tgbot --cov=db --cov=cache"
+testpaths = [
+    "tests",
+    ]
+
 [tool.ruff]
 select = [
   "E",   # pycodestyle
