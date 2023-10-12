@@ -110,6 +110,22 @@ services:
           cpus: '0.5'   # Adjust as needed
           memory: '512M'  # Adjust as needed
 
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./container_conf/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf  # Mount the custom Nginx configuration
+    networks:
+      - monitoring
+
   alertmanager:
     container_name: alertmanager
     image: prom/alertmanager
