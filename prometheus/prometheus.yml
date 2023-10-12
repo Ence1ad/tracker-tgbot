@@ -20,6 +20,7 @@ alerting:
 rule_files:
    - 'rules_prometheus.yml'
    - 'rules_redis.yml'
+   - 'rules_pg_export.yml'
 
 scrape_configs:
   - job_name: prometheus
@@ -30,3 +31,7 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: [ 'redis_exporter:9121' ]
+  - job_name: postgres-exporter
+    scrape_interval: 15s
+    static_configs:
+      - targets: [ 'postgres_exporter:9187' ]
