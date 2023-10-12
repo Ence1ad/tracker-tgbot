@@ -1,0 +1,195 @@
+groups:
+  - name: node_exporter_alert
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Instance {{ .instance }} down"
+          description: "{{ .instance }} of job {{ .job }} has been down for more than 5 minutes."
+
+      #==========CPU==================================================================
+      - alert: NodeCPUUsage
+        expr: (100 - (irate(node_cpu{mode="idle"}[5m]) * 100)) > 50
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: High CPU usage detected CPU usage is above 75%
+          description: Alerts when the CPU usage exceeds 50% for more than 2 minutes.
+
+      # ==============Memory==========================================================
+      - alert: NodeSwapUsageSwap
+        expr: (((node_memory_SwapTotal-node_memory_SwapFree)/node_memory_SwapTotal)*100) > 30
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: Swap usage detected Swap usage usage is above 50%
+          description: Alerts when swap space usage exceeds 30% for more than 2 minutes.
+
+      - alert: NodeMemoryUsageMemFree
+        expr: (((node_memory_MemTotal-node_memory_MemFree-node_memory_Cached)/(node_memory_MemTotal)*100)) > 30
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: High memory usage detected, Memory usage is above 50%
+          description: Alerts when memory usage (excluding cache) exceeds 30% for more than 2 minutes.
+
+      #==============Load=============================================================
+      - alert: nodeLoad1
+        expr: node_load1{job="<instance_address>"} > 0.7
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: Load
+          description: Alerts when the 1-minute load average exceeds 0.7 for more than 1 minute.
+
+      #================Disk space Used ================================================
+      - alert: diskSpaceUsed
+        expr: (100.0 - 100 * (node_filesystem_avail / node_filesystem_size)) > 80
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: Disk space userd 80
+          description: Alerts when disk space usage exceeds 80% for more than 10 minutes.
+
+      #=============nodeContrack========================================
+      - alert: nodeContrack
+        expr: node_nf_conntrack_entries > 200
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: nodeContrack
+          description: Alerts when the number of connection tracking entries exceeds 200 for more than 10 minutes.
+
+      #=============nodeCntextSwitches ========================================
+      - alert: nodeCntextSwitches
+        expr: irate(node_context_switches[5m]) > 100
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: nodeCntextSwitches
+          description: Alerts when the rate of context switches exceeds 100 per 5 minutes.
+
+      #=============Disk Utilization per Device ========================================
+      - alert: DiskUtilizationPerDevice
+        expr: irate(node_disk_io_time_ms[5m])/10 > 0.2
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskUtilizationPerDevice
+          description: Alerts when disk I/O time per device exceeds 0.2 (indicating high utilization) for more than 5 minutes.
+
+      #============Disk IOs per Device ========================================
+      - alert: DiskIOsPerDeviceRead
+        expr: irate(node_disk_reads_completed[5m]) >10
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+          description: Alerts when the rate of disk read I/Os exceeds 10 per 5 minutes.
+
+      - alert: DiskIOsPerDeviceWrite
+        expr: irate(node_disk_writes_completed[5m]) > 10
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+          description: Alerts when the rate of disk write I/Os exceeds 10 per 5 minutes.
+
+      #===========Disk Throughput per Device========================================
+      - alert: DiskThroughputPerDeviceReads
+        expr: irate(node_disk_sectors_read[5m]) * 512 >10000000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+          description: Alerts when the rate of disk read throughput exceeds 10 MB/s for more than 5 minutes.
+
+      - alert: DiskThroughputPerDeviceWrites
+        expr: irate(node_disk_sectors_written[5m]) * 512 > 10000000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: DiskIOsPerDevice
+          description: Alerts when the rate of disk write throughput exceeds 10 MB/s for more than 5 minutes.
+
+      #===========Network Traffic========================================
+      - alert: NetworkTrafficReceive
+        expr: irate(node_network_receive_bytes[5m])*8 > 5000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: NetworkTrafficReceive
+          description: Alerts when network traffic receive rate exceeds 5 Kbps for more than 5 minutes.
+
+      - alert: NetworkTrafficTransmit
+        expr: irate(node_network_transmit_bytes[5m])*8 > 5000
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: NetworkTrafficTransmit
+          description: Alerts when network traffic transmit rate exceeds 5 Kbps for more than 5 minutes.
+
+
+      #===========Netstat========================================
+      - alert: Netstat
+        expr: node_netstat_Tcp_CurrEstab > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Netstat
+          description: Alerts when the number of current TCP connections (CurrEstab) exceeds 20 for more than 5 minutes.
+
+      #===========UDP Stats============================
+      - alert: UDPStatsInDatagrams
+        expr: irate(node_netstat_Udp_InDatagrams[5m]) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+          description: Alerts when the rate of incoming UDP datagrams exceeds 50 per 5 minutes.
+
+      - alert: UDPStatsInErrors
+        expr: irate(node_netstat_Udp_InErrors[5m]) > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+          description: Alerts when the rate of UDP input errors exceeds 20 per 5 minutes.
+
+      - alert: UDPStatsOutDatagrams
+        expr: irate(node_netstat_Udp_OutDatagrams[5m]) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+          description: Alerts when the rate of outgoing UDP datagrams exceeds 50 per 5 minutes.
+
+      - alert: UDPStatsNoPorts
+        expr: irate(node_netstat_Udp_NoPorts[5m]) > 20
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: UDPStats
+          description: Alerts when the rate of UDP packets received for nonexistent ports exceeds
