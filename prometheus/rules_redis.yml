@@ -1,0 +1,102 @@
+groups:
+  - name: redis_exporter_alerts
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis down (instance {{ $labels.instance }})
+          description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert triggers when the Redis exporter is unable to connect to the Redis instance. It indicates that Redis is not responding.
+
+      - alert: RedisDisconnectedSlaves
+        expr: count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis disconnected slaves (instance {{ $labels.instance }})
+          description: "Redis not replicating for all slaves. Consider reviewing the redis replication status.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert detects when multiple Redis slaves become disconnected from the master. It may indicate a problem with replication.
+
+      - alert: RedisReplicationBroken
+        expr: delta(redis_connected_slaves[1m]) < 0
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis replication broken (instance {{ $labels.instance }})
+          description: "Redis instance lost a slave\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert triggers when the number of connected Redis slaves decreases significantly in a short time, indicating a potential replication issue.
+
+      - alert: RedisClusterFlapping
+        expr: changes(redis_connected_slaves[1m]) > 1
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis cluster flapping (instance {{ $labels.instance }})
+          description: "Changes have been detected in Redis replica connection. This can occur when replica nodes lose connection to the master and reconnect (a.k.a flapping).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert identifies instances where the number of connected Redis slaves changes rapidly, indicating instability in the Redis cluster.
+
+      - alert: RedisMissingBackup
+        expr: time() - redis_rdb_last_save_timestamp_seconds > 60 * 60 * 24
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis missing backup (instance {{ $labels.instance }})
+          description: "Redis has not been backuped for 24 hours\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert indicates when Redis hasn't performed a backup (RDB save) in the last 24 hours.
+
+      - alert: RedisOutOfSystemMemory
+        expr: redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis out of system memory (instance {{ $labels.instance }})
+          description: "Redis is running out of system memory (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert triggers when the Redis instance is using over 90% of the available system memory. It could indicate a memory-related issue.
+
+      - alert: RedisOutOfConfiguredMaxmemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis out of configured maxmemory (instance {{ $labels.instance }})
+          description: "Redis is running out of configured maxmemory (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert detects when Redis is using more than 90% of its configured maxmemory setting, indicating potential data eviction or performance issues.
+
+      - alert: RedisTooManyConnections
+        expr: redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis too many connections (instance {{ $labels.instance }})
+          description: "Redis instance has too many connections\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert triggers when the number of connected clients to Redis exceeds 1000, indicating a high load or potential resource contention.
+
+      - alert: RedisNotEnoughConnections
+        expr: redis_connected_clients < 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis not enough connections (instance {{ $labels.instance }})
+          description: "Redis instance should have more connections (> 5)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert identifies instances where there are fewer than 1 connected client, which could indicate a connection or configuration issue.
+
+      - alert: RedisRejectedConnections
+        expr: increase(redis_rejected_connections_total[1m]) > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Redis rejected connections (instance {{ $labels.instance }})
+          description: "Some connections to Redis has been rejected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          # This alert triggers when there's an increase in the number of rejected client connections in the last minute.
