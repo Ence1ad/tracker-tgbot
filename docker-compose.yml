@@ -87,6 +87,7 @@ services:
 
   prometheus:
     container_name: prometheus
+    hostname: prometheus
     user: "1000:1000"
     image: prom/prometheus:latest
     restart: unless-stopped
@@ -96,7 +97,8 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
-      - '--web.external-url=http://localhost:80/prometheus/'
+      - '--web.external-url=/prometheus/'
+      - '--web.route-prefix=/prometheus/'
     ports:
       - "9090:9090"
     volumes:
@@ -120,9 +122,35 @@ services:
       - prometheus
     ports:
       - "80:80"
-#      - "443:443"
     volumes:
       - ./container_conf/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf  # Mount the custom Nginx configuration
+    networks:
+      - monitoring
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_DOMAIN=localhost:80
+      - GF_SERVER_ROOT_URL=http://localhost/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - monitoring
 
@@ -212,6 +240,8 @@ volumes:
   prom_data:
     driver: local
   alertmanager_data:
+    driver: local
+  grafana_data:
     driver: local
 
 
