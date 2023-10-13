@@ -5,7 +5,7 @@ check_health() {
   url="$1"
 
   # Make a request to the provided URL
-  response=$(curl -s "$url")
+  response=$(curl -skIL "$url")
 
   # Check if the response contains the "OK" field
   if [ -n "$(echo "$response" | grep 'OK')" ]; then
@@ -18,4 +18,4 @@ check_health() {
 }
 
 # Check the health of the Nginx server
-check_health "http://localhost/health"
+check_health "https://localhost/health"

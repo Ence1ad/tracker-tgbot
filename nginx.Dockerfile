@@ -11,6 +11,10 @@ ENV APP_HOME /usr/src/app
 WORKDIR $APP_HOME
 # Remove the default Nginx configuration file
 RUN rm /etc/nginx/conf.d/default.conf
+RUN mkdir -p /root/certs/example.com
+
+# Generate a self-signed SSL/TLS certificate
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /root/certs/example.com/selfsigned.key -out /root/certs/example.com/selfsigned.crt -subj "/C=US/ST=State/L=City/O=Organization/OU=Organizational Unit/CN=example.com"
 
 COPY container_conf/nginx/nginx_healthcheck.sh $APP_HOME
 RUN chmod +x $APP_HOME/nginx_healthcheck.sh
