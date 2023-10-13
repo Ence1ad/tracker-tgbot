@@ -102,8 +102,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus:/etc/prometheus/
-      - ./prom_data:/prometheus
+      - ./monitoring/prometheus:/etc/prometheus/
+      - ./monitoring/prom_data:/prometheus
     networks:
       - monitoring
     deploy:
@@ -115,7 +115,7 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: .
+      context: ./monitoring/
       dockerfile: nginx.Dockerfile
     restart: unless-stopped
     depends_on:
@@ -124,7 +124,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./container_conf/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf  # Mount the custom Nginx configuration
+      - ./monitoring/container_conf/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf  # Mount the custom Nginx configuration
     networks:
       - monitoring
 
@@ -136,8 +136,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - ./grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
+      - ./monitoring/grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
     environment:
@@ -169,8 +169,8 @@ services:
     ports:
       - "9093:9093"
     volumes:
-      - ./prometheus/alertmanager/:/etc/alertmanager/
-      - ./alertmanager_data:/alertmanager/
+      - ./monitoring/prometheus/alertmanager/:/etc/alertmanager/
+      - ./monitoring/alertmanager_data:/alertmanager/
     networks:
       - monitoring
 
@@ -237,7 +237,7 @@ services:
     ports:
       - "9443:9443"
     volumes:
-      - ./portainer_data:/data
+      - ./monitoring/portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - monitoring
