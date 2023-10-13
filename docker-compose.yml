@@ -229,6 +229,19 @@ services:
     networks:
       - monitoring
 
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9443:9443"
+    volumes:
+      - ./portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - monitoring
+
 volumes:
   reports:
     driver: local
@@ -243,6 +256,8 @@ volumes:
   alertmanager_data:
     driver: local
   grafana_data:
+    driver: local
+  portainer_data:
     driver: local
 
 
