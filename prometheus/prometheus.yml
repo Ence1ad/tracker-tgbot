@@ -18,10 +18,11 @@ alerting:
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
-   - 'rules_prometheus.yml'
-   - 'rules_redis_exporter.yml'
-   - 'rules_pg_exporter.yml'
-   - 'rules_node_exporter.yml'
+   - './rules/rules_prometheus.yml'
+   - './rules/rules_redis_exporter.yml'
+   - './rules/rules_pg_exporter.yml'
+   - './rules/rules_node_exporter.yml'
+   - './rules/rules_nginx_exporter.yml'
 
 scrape_configs:
   - job_name: prometheus
@@ -49,3 +50,5 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: [ 'alertmanager:9093' ]
+
+
