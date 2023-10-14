@@ -2,89 +2,6 @@ version: '3.8'
 
 services:
 
-  db:
-    container_name: postgres_db
-    image: postgres:15.4
-    restart: unless-stopped
-    env_file: .env
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
-      timeout: 5s
-      interval: 10s
-      retries: 5
-      start_period: 10s
-    command:
-      - "postgres"
-      - "-c"
-      - "shared_preload_libraries=pg_stat_statements"
-      - "-c"
-      - "pg_stat_statements.max=10000"
-      - "-c"
-      - "pg_stat_statements.track=all"
-    ports:
-      - "5432:5432"
-    environment:
-      - CONFIG_FILE_PATH=/etc/pg_backup.config
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-      - ./pg_backups:/var/backups/
-      - ./container_conf/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
-      - ./container_conf/postgres/pg_backup.config:/etc/pg_backup.config:ro
-      - ./container_conf/postgres/pg_backup_rotated.sh:/usr/bin/pg_backup_rotated.sh:rw
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 4g
-        reservations:
-          cpus: '0.25'
-          memory: 2g
-    networks:
-      - bot_api
-      - monitoring
-
-  redis:
-    container_name: redis_db
-    image: redis:7.2.1
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      timeout: 5s
-      interval: 10s
-      retries: 5
-      start_period: 5s
-    restart: always
-    env_file: .env
-    ports:
-      - '6379:6379'
-    command: redis-server --maxmemory 41943040 --port $REDIS_PORT --save 3600 1 300 100 60 10000 --loglevel warning --requirepass $REDIS_PASSWORD
-    volumes:
-      - ./redis_data:/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 100m
-        reservations:
-          cpus: '0.1'
-          memory: 40m
-    networks:
-      - monitoring
-      - bot_api
-
-  tgbot:
-    container_name: tgbot
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./reports:/usr/src/app/reports
-    restart: on-failure
-    env_file: .env
-    ports:
-      - '8443:8000'
-    networks:
-      - bot_api
-
   prometheus:
     container_name: prometheus
     hostname: prometheus
@@ -243,14 +160,6 @@ services:
       - monitoring
 
 volumes:
-  reports:
-    driver: local
-  redis_data:
-    driver: local
-  postgres_data:
-    driver: local
-  pg_backups:
-    driver: local
   prom_data:
     driver: local
   alertmanager_data:
@@ -260,10 +169,10 @@ volumes:
   portainer_data:
     driver: local
 
-
 networks:
   bot_api:
-    driver: bridge
-
+#    name: bot_api
+    external: true
   monitoring:
-    driver: bridge
+#    name: monitoring
+    external: true
