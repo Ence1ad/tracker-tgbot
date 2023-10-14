@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from cache.redis_schedule_command import redis_sadd_user_id, redis_srem_user_id
+from cache.user_redis_utils import redis_sadd_user_id, redis_srem_user_id
 from config import settings
 from db.users.users_commands import delete_user, create_user
 
