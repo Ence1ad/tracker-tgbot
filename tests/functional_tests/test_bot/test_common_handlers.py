@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from pytest_asyncio.plugin import FactoryFixtureFunction
 from redis.asyncio import Redis
 
-from cache.redis_language_commands import redis_hget_lang, LANG_PREFIX
+from cache.language_redis_manager import redis_hget_lang, LANG_PREFIX
 from cache.redis_report_commands import set_redis_name
 from cache.redis_tracker_commands import is_redis_hexists_tracker
 from config import settings

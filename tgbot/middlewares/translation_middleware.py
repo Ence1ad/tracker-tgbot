@@ -6,7 +6,7 @@ from aiogram.types import Update, User
 from fluentogram import TranslatorHub, TranslatorRunner
 from redis.asyncio import Redis
 
-from cache.redis_language_commands import redis_hget_lang
+from cache.language_redis_manager import redis_hget_lang
 from tgbot.localization.localize import Translator
 
 

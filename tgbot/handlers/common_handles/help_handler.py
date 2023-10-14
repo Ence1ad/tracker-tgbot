@@ -2,7 +2,7 @@ from aiogram.types import Message
 from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 
-from cache.redis_language_commands import redis_hget_lang
+from cache.language_redis_manager import redis_hget_lang
 from config import settings
 from tgbot.template_engine.jinja_engine import render_template
 

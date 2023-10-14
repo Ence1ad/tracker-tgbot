@@ -2,7 +2,7 @@ import pytest
 from redis.asyncio import Redis
 from contextlib import nullcontext as does_not_raise
 
-from cache.redis_language_commands import redis_hget_lang, redis_hset_lang
+from cache.language_redis_manager import redis_hget_lang, redis_hset_lang
 from config import settings
 from tests.utils import MAIN_USER_ID
 

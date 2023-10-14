@@ -2,7 +2,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 
-from cache.redis_language_commands import redis_hget_lang, redis_hset_lang
+from cache.language_redis_manager import redis_hget_lang, redis_hset_lang
 from config import settings
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
