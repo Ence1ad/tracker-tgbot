@@ -8,8 +8,8 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import User, Chat
 from cache.trackers_redis_manager import redis_hmset_create_tracker
 from config import settings
-from tests.functional_tests.mocked_bot import MockedBot
-from tests.functional_tests.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
+from tests.integration.mocked_bot import MockedBot
+from tests.integration.test_bot.utils import get_update, get_callback_query, get_message, TEST_CHAT
 from tgbot.handlers import register_common_handlers, register_actions_handlers, register_categories_handlers, \
     register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons

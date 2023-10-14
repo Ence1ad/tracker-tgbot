@@ -1,6 +1,4 @@
 import pytest_asyncio
-import sqlalchemy as sa
-from sqlalchemy import Result
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
@@ -8,22 +6,25 @@ from db import UserModel
 from db.operations.actions_operations import create_actions
 from db.operations.categories_operations import create_category
 from db.operations.tracker_operations import create_tracker
-from db.operations.users_operations import create_user
 from tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_NAME, \
     SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 
 
 @pytest_asyncio.fixture(scope='class')
-async def db_user_factory(db_session: async_sessionmaker[AsyncSession]):
-    async def _db_user_factory(user_id):
-        async with db_session as db_sess:
-            stmt: Result = await db_sess.execute(sa.select(UserModel).where(UserModel.user_id == user_id))
-            user = stmt.scalar_one_or_none()
-        if user is None:
-            user_obj = await create_user(user_id=user_id, first_name='', last_name='', username='',
-                                         db_session=db_session)
-            return user_obj.user_id
-    return _db_user_factory
+async def db_user_factory(db_session: AsyncSession):
+    async def _create_user(user_id, first_name='some_name', last_name='', username=''):
+        user = await db_session.execute(
+            UserModel.__table__.insert().values(
+                user_id=user_id,
+                first_name=first_name,
+                last_name=last_name,
+                username=username
+            ).returning(UserModel)
+        )
+        await db_session.commit()
+        return user.scalars().one().user_id
+
+    return _create_user
 
 
 @pytest_asyncio.fixture(scope='class')

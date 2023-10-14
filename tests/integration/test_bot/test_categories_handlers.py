@@ -16,8 +16,8 @@ from config import settings
 from db.operations.actions_operations import create_actions
 from db.operations.categories_operations import select_categories, create_category, delete_category, \
     select_categories_with_actions
-from tests.functional_tests.mocked_bot import MockedBot
-from tests.functional_tests.test_bot.utils import TEST_CHAT
+from tests.integration.mocked_bot import MockedBot
+from tests.integration.test_bot.utils import TEST_CHAT
 from tests.utils import MAIN_USER_ID
 from tgbot.handlers.categories_handlers.read_categories import _categories_list, _get_operation
 from tgbot.keyboards.app_buttons import AppButtons
