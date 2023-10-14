@@ -7,17 +7,15 @@ from sqlalchemy import URL
 
 
 class LoggingSettings(BaseSettings):
-    """
-    Logging Settings
-    """
+    """Logging Settings."""
+
     LEVEL: int
     FORMAT: str
 
 
 class PostgresSettings(BaseSettings):
-    """
-    PostgreSQL Settings
-    """
+    """PostgreSQL Settings."""
+
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
@@ -28,20 +26,19 @@ class PostgresSettings(BaseSettings):
 
 
 class ProjectSettings(BaseSettings):
-    """
-    Project Settings
-    """
+    """Project Settings."""
+
     THROTTLING_RATE_LIMIT: int = Field(default=10)  # Maximum number of messages
     THROTTLING_RATE_PERIOD: int = Field(default=10)  # Time period in seconds
     RU_LANG_CODE: str = Field(default='ru')
     EN_LANG_CODE: str = Field(default='en')
     GLOBAL_LANG_CODE: str = Field(default='en')
+    USER_REPORT_DIR: str = Field(default='./reports/')
 
 
 class RedisSettings(BaseSettings):
-    """
-    Redis Settings
-    """
+    """Redis Settings."""
+
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_DB: int
@@ -49,9 +46,8 @@ class RedisSettings(BaseSettings):
 
 
 class TgBotSettings(BaseSettings):
-    """
-    Telegram Bot Settings
-    """
+    """Telegram Bot Settings."""
+
     BOT_TOKEN: str
     ADMIN_ID: int
     GROUP_ID: int
@@ -91,6 +87,7 @@ class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings
     def scheduler_job_stores(self) -> dict[str, RedisJobStore]:
         """
         The scheduler_job_stores function is used to configure the job stores that are available to the scheduler.
+
         The function should return a dictionary of job store configurations, keyed by name.
 
         :param self: Represent the instance of the class
@@ -112,7 +109,7 @@ class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings
 @lru_cache
 def get_settings() -> Settings:
     """
-    Returns an instance of the Settings class.
+    Return an instance of the Settings class.
 
     The Settings class contains all the settings for this project,
     and it's used by other modules to access those settings.

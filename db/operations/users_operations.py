@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models.user_model import UserModel
 
 
-async def create_user(user_id: int, first_name: str, last_name: str, username: str,
-                      db_session: AsyncSession) -> UserModel:
+async def create_user(user_id: int, first_name: str, last_name: str | None,
+                      username: str | None, db_session: AsyncSession) -> UserModel:
     """
     Create a new user record in the database and return the corresponding UserModel object.
 

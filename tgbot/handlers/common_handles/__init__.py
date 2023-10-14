@@ -1,26 +1,41 @@
 from aiogram import Router, F
-from aiogram.filters import Command, ChatMemberUpdatedFilter, JOIN_TRANSITION, LEAVE_TRANSITION
-from aiogram.fsm.state import any_state
+from aiogram.filters import Command, ChatMemberUpdatedFilter, JOIN_TRANSITION,\
+    LEAVE_TRANSITION
 
 from config import settings
 
 
 def register_common_handlers() -> Router:
     """
+    Register common message and callback handlers for your Telegram bot.
 
-    The register_common_handlers function is a router that handles all the common related callbacks.
-    It registers handlers for:
-        - displaying the main menu of the bot;
-        - canceling user's state;
-        - getting description of the bot operation;
-        - getting user settings;
+    This function sets up various handlers for your bot to handle messages and events,
+     including:
+    - Starting the bot.
+    - Cancelling the current action.
+    - Exiting from a menu.
+    - Providing help.
+    - Managing user settings.
+    - Adding and removing users from the group.
+    - Handling language settings.
 
-    :return: A router object
-
+    :return: A configured Router object with the registered handlers.
     """
     from .start_handler import command_start_handler
+    from .user_group_status import add_user_handler, remove_user_handler
 
     router = Router()
+    router.message.filter(F.chat.id == F.from_user.id)
+    router.chat_member.filter(F.chat.id == settings.GROUP_ID)
+    router.chat_member.register(
+        add_user_handler,
+        ChatMemberUpdatedFilter(member_status_changed=JOIN_TRANSITION)
+    )
+    router.chat_member.register(
+        remove_user_handler,
+        ChatMemberUpdatedFilter(member_status_changed=LEAVE_TRANSITION)
+    )
+
     router.message.register(command_start_handler, Command('start', ignore_case=True))
 
     return router
