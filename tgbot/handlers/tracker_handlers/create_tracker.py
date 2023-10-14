@@ -7,7 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_tracker_commands import redis_hmset_create_tracker, redis_incr_user_day_trackers, \
+from cache.trackers_redis_manager import redis_hmset_create_tracker, redis_incr_user_day_trackers, \
     redis_expireat_midnight, is_redis_hexists_tracker, redis_get_user_day_trackers
 from config import settings
 from db.actions.actions_db_commands import select_category_actions

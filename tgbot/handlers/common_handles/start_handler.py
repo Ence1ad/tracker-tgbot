@@ -4,7 +4,7 @@ from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_tracker_commands import is_redis_hexists_tracker
+from cache.trackers_redis_manager import is_redis_hexists_tracker
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import start_menu_inline_kb
 from tgbot.utils.answer_text import started_tracker_text

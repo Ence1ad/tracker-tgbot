@@ -1,6 +1,6 @@
 import pytest_asyncio
 
-from cache.redis_tracker_commands import redis_hmset_create_tracker, redis_delete_tracker
+from cache.trackers_redis_manager import redis_hmset_create_tracker, redis_delete_tracker
 from tests.utils import USER_ID_WITH_TRACKER_LIMIT
 
 

@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.reports_redis_manager import redis_set_report_need_upd
-from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_hget_tracker_data, redis_delete_tracker
+from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_hget_tracker_data, redis_delete_tracker
 from db.tracker.tracker_db_command import select_tracker_duration
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.keyboards.app_buttons import AppButtons

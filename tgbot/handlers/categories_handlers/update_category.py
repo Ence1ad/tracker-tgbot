@@ -6,7 +6,7 @@ from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.reports_redis_manager import redis_set_report_need_upd
-from cache.redis_tracker_commands import redis_upd_tracker
+from cache.trackers_redis_manager import redis_upd_tracker
 from db.categories.categories_commands import update_category, select_categories, select_category_id
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD

@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.reports_redis_manager import redis_set_report_need_upd
-from cache.redis_tracker_commands import redis_delete_tracker
+from cache.trackers_redis_manager import redis_delete_tracker
 from db.actions.actions_db_commands import delete_action
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import ActionCD

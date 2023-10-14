@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from fluentogram import TranslatorRunner
 from redis.asyncio import Redis
 
-from cache.redis_tracker_commands import is_redis_hexists_tracker
+from cache.trackers_redis_manager import is_redis_hexists_tracker
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.utils.answer_text import started_tracker_text
 from tgbot.keyboards.inline_kb import menu_inline_kb

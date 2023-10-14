@@ -11,7 +11,7 @@ from aiogram.types import Message, Chat
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from cache.redis_tracker_commands import redis_hmset_create_tracker, is_redis_hexists_tracker
+from cache.trackers_redis_manager import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
 from db.actions.actions_db_commands import create_actions
 from db.categories.categories_commands import select_categories, create_category, delete_category, \

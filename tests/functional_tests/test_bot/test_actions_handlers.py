@@ -13,7 +13,7 @@ from fluent_compiler.errors import FluentReferenceError
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from cache.redis_tracker_commands import is_redis_hexists_tracker, redis_hget_tracker_data
+from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_hget_tracker_data
 from config import settings
 from db.actions.actions_db_commands import select_category_actions, create_actions, delete_action
 from db.categories.categories_commands import select_categories
