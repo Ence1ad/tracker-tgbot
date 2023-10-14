@@ -18,6 +18,7 @@ from tgbot.middlewares.button_middleware import ButtonsMiddleware
 from tgbot.middlewares.db_middleware import DbSessionMiddleware
 from tgbot.middlewares.redis_middleware import CacheMiddleware
 from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
+from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
@@ -50,6 +51,7 @@ async def main() -> None:
     dp.update.middleware.register(ButtonsMiddleware(buttons))
     dp.update.middleware.register(CacheMiddleware(redis_client))
     dp.update.middleware.register(DbSessionMiddleware(async_session))
+    dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
     dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ThrottlingMiddleware(limit=settings.THROTTLING_RATE_LIMIT,
                                                        period=settings.THROTTLING_RATE_PERIOD))
