@@ -1,5 +1,3 @@
-
-
 import pytest
 import pytest_asyncio
 from aiogram import Dispatcher
@@ -54,18 +52,18 @@ def buttons():
 
 
 @pytest_asyncio.fixture()
-async def scheduler(async_session, redis_storage, bot, redis_cli):
+async def scheduler(async_session_fixture, redis_storage, bot, redis_cli):
     schedule = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_cli,
-                                      storage=redis_storage, async_session=async_session,
+                                      storage=redis_storage, async_session=async_session_fixture,
                                       # t_hub=translator.t_hub
                                       )
     return schedule
 
 @pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_session,  redis_storage, scheduler):
+async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_session_fixture,  redis_storage, scheduler):
     dp = Dispatcher(storage=redis_storage)
     translator = Translator(global_lang=lang_bot_settings)
-    dp.update.middleware.register(DbSessionMiddleware(async_session))
+    dp.update.middleware.register(DbSessionMiddleware(async_session_fixture))
     dp.update.middleware.register(CacheMiddleware(redis_cli))
     dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
@@ -83,7 +81,6 @@ async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_ses
     finally:
         await bot.session.close()
         await dp.emit_shutdown()
-
 
 
 @pytest_asyncio.fixture()

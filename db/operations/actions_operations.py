@@ -1,18 +1,18 @@
 from sqlalchemy import select, delete, update
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 from db.models.action_model import ActionsModel
 
 
 async def create_actions(user_id: int, action_name: str, category_id: int,
-                         db_session: async_sessionmaker[AsyncSession]) -> ActionsModel:
+                         db_session: AsyncSession) -> ActionsModel:
     """
     The create_actions function creates a new action in the database.
 
     :param user_id: int: Identify the user who is creating the action
     :param action_name: str: Create the action name
     :param category_id: int: Create a new action
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: The ActionsModel object
     """
     async with db_session as session:
@@ -28,7 +28,7 @@ async def create_actions(user_id: int, action_name: str, category_id: int,
         return action_obj
 
 
-async def select_category_actions(user_id: int, category_id: int, db_session: async_sessionmaker[AsyncSession]
+async def select_category_actions(user_id: int, category_id: int, db_session: AsyncSession
                                   ) -> list[Row[int, str]]:
 
     """
@@ -41,7 +41,7 @@ async def select_category_actions(user_id: int, category_id: int, db_session: as
 
     :param user_id: int: Identify the user
     :param category_id: int: Filter the actions by category_id
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: A list of rows(tuples) with the action_id and action_name
     """
     async with db_session as session:
@@ -58,7 +58,7 @@ async def select_category_actions(user_id: int, category_id: int, db_session: as
 
 
 async def update_action_name(user_id: int, action_id: int, new_action_name: str,
-                             db_session: async_sessionmaker[AsyncSession]) -> int | None:
+                             db_session: AsyncSession) -> int | None:
 
     """
     The update_action_name function updates the action_name of an existing action.
@@ -66,7 +66,7 @@ async def update_action_name(user_id: int, action_id: int, new_action_name: str,
     :param user_id: int: Identify the user who is updating an action
     :param action_id: int: Identify the action to be updated
     :param new_action_name: str: Pass in the new action name
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: one if the update row was successful, none if not
     """
     async with db_session as session:
@@ -82,13 +82,13 @@ async def update_action_name(user_id: int, action_id: int, new_action_name: str,
             return returning.scalar_one_or_none()
 
 
-async def delete_action(user_id: int, action_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+async def delete_action(user_id: int, action_id: int, db_session: AsyncSession) -> int | None:
     """
     The delete_action function deletes an action from the database.
 
     :param user_id: int: Identify the user who is deleting an action
     :param action_id: int: Specify the action_id of the action to be deleted
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: one if the deleted action or none if no action was deleted
     """
     async with db_session as session:

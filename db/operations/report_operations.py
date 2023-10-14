@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, Date, Float
 from sqlalchemy import select, extract, cast, func, and_, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
 from config import settings
@@ -9,14 +9,14 @@ from db.models.action_model import ActionsModel
 from db.models.tracker_model import TrackerModel
 
 
-async def select_weekly_trackers(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[Row[str, int]]:
+async def select_weekly_trackers(user_id: int, db_session: AsyncSession) -> list[Row[str, int]]:
 
     """
     The select_weekly_trackers function is used to obtain the weekly report of a user.
     The function returns a list of tuples containing the action name, category name, day of week and duration.
 
     :param user_id: int: Identify the user
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: A list of tuples, where each tuple is a row from the database
     """
     async with db_session as session:

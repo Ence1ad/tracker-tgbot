@@ -154,15 +154,15 @@ async def create_drop_models(async_sqlalchemy_engine):
 
 
 @pytest_asyncio.fixture(scope='class')
-async def async_session(async_sqlalchemy_engine):
+async def async_session_fixture(async_sqlalchemy_engine):
     async with async_sqlalchemy_engine.begin():
         async_session = async_sessionmaker(async_sqlalchemy_engine, class_=AsyncSession, expire_on_commit=False)
         yield async_session
 
 
 @pytest_asyncio.fixture(scope='class')
-async def db_session(async_session):
-    async with async_session() as db_session:
+async def db_session_fixture(async_session_fixture):
+    async with async_session_fixture() as db_session:
         yield db_session
 
 

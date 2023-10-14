@@ -11,7 +11,7 @@ from aiogram.methods import EditMessageText, SendMessage
 from aiogram.types import Message, Chat
 from fluent_compiler.errors import FluentReferenceError
 from fluentogram import TranslatorRunner
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_hget_tracker_data
 from config import settings
@@ -31,15 +31,15 @@ class TestActionsHandlers:
     USER_WITHOUT_ACTION = 12345
 
     @pytest_asyncio.fixture(scope="class")
-    async def create_actions_more_than_limit(self, db_session: async_sessionmaker[AsyncSession]):
+    async def create_actions_more_than_limit(self, db_session_fixture: AsyncSession):
         user_id = MAIN_USER_ID
         for name in range(settings.USER_ACTIONS_LIMIT):
-            await create_actions(user_id=user_id, category_id=CATEGORY_ID, action_name=str(name), db_session=db_session)
+            await create_actions(user_id=user_id, category_id=CATEGORY_ID, action_name=str(name), db_session=db_session_fixture)
         try:
             yield
         finally:
             for act_id in range(settings.USER_ACTIONS_LIMIT):
-                await delete_action(user_id=user_id, action_id=act_id + 1, db_session=db_session)
+                await delete_action(user_id=user_id, action_id=act_id + 1, db_session=db_session_fixture)
 
     @pytest.mark.parametrize(
         "user_id, state, operation, answer_text, expectation",
@@ -63,13 +63,13 @@ class TestActionsHandlers:
     )
     async def test_actions_main_menu_handler(
             self, user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
-            i18n, bot, buttons, db_session, state: FSMContext, operation: Enum, db_category_factory,
+            i18n, bot, buttons, db_session_fixture, state: FSMContext, operation: Enum, db_category_factory,
             dispatcher: Dispatcher, chat_fixt_fact
     ):
         # Create category if user don't have it
         await db_category_factory(user_id)
 
-        categories_lst = await select_categories(user_id, db_session)
+        categories_lst = await select_categories(user_id, db_session_fixture)
         category_id = categories_lst[0].category_id
         category_name = categories_lst[0].category_name
         data = CategoryCD(operation=operation, category_id=category_id, category_name=category_name)
@@ -78,7 +78,7 @@ class TestActionsHandlers:
         key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
         await dispatcher.fsm.storage.set_data(key=key,
                                               data={'category_id': category_id, "category_name": category_name})
-        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session_fixture)
         with expectation:
             handler_returns = await execute_callback_query_handler(user_id, data=data.pack(), state=state)
             assert isinstance(handler_returns, EditMessageText)
@@ -108,7 +108,7 @@ class TestActionsHandlers:
     async def test_display_actions(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise, dispatcher: Dispatcher,
             execute_callback_query_handler, i18n: TranslatorRunner, bot, chat_fixt_fact,
-            db_session: async_sessionmaker[AsyncSession], buttons: AppButtons,
+            db_session_fixture: AsyncSession, buttons: AppButtons,
     ):
         chat: Chat = await chat_fixt_fact(user_id)
         state: FSMContext = dispatcher.fsm.get_context(bot=bot, chat_id=chat.id, user_id=user_id)
@@ -116,7 +116,7 @@ class TestActionsHandlers:
 
         category_id = state_data['category_id']
         category_name = state_data['category_name']
-        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session_fixture)
 
         with expectation:
             handler_returns = await execute_callback_query_handler(user_id, data=data)
@@ -211,7 +211,7 @@ class TestActionsHandlers:
     )
     async def test_collect_actions_btn_source_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
-            execute_callback_query_handler, buttons: AppButtons, i18n, db_session,
+            execute_callback_query_handler, buttons: AppButtons, i18n, db_session_fixture,
             dispatcher, bot, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
@@ -219,7 +219,7 @@ class TestActionsHandlers:
         state_data = await dispatcher.fsm.storage.get_data(key)
         category_id = state_data['category_id']
         operation = await _get_action_operation(data, buttons)
-        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+        actions = await select_category_actions(user_id, category_id=category_id, db_session=db_session_fixture)
         handler_returns = await execute_callback_query_handler(user_id, data)
         with expectation:
             assert isinstance(handler_returns, (SendMessage, EditMessageText))
@@ -241,7 +241,7 @@ class TestActionsHandlers:
     )
     async def test_prompt_new_action_name(
             self, user_id: int, answer_text: str, expectation: does_not_raise, execute_callback_query_handler,
-            i18n, bot, buttons, db_session, state: FSMContext, operation: Enum,
+            i18n, bot, buttons, db_session_fixture, state: FSMContext, operation: Enum,
             dispatcher: Dispatcher, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
@@ -249,7 +249,7 @@ class TestActionsHandlers:
         state_data = await dispatcher.fsm.storage.get_data(key)
         category_id = state_data['category_id']
         category_name = state_data['category_name']
-        actions_lst = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+        actions_lst = await select_category_actions(user_id, category_id=category_id, db_session=db_session_fixture)
         data = None
         if actions_lst:
             action_id = actions_lst[0].action_id
@@ -315,13 +315,13 @@ class TestActionsHandlers:
     async def test_delete_action_handler(
             self, user_id: int, answer_text: str, expectation: does_not_raise, state,
             execute_callback_query_handler, buttons: AppButtons, dispatcher, bot,
-            i18n, redis_cli, operation, db_session, chat_fixt_fact
+            i18n, redis_cli, operation, db_session_fixture, chat_fixt_fact
     ):
         chat: Chat = await chat_fixt_fact(user_id)
         key = StorageKey(bot_id=bot.id, chat_id=chat.id, user_id=user_id)
         state_data = await dispatcher.fsm.storage.get_data(key)
         category_id = state_data['category_id']
-        actions_lst = await select_category_actions(user_id, category_id=category_id, db_session=db_session)
+        actions_lst = await select_category_actions(user_id, category_id=category_id, db_session=db_session_fixture)
         data = action_name = ''
         if actions_lst:
             action_id = actions_lst[0].action_id

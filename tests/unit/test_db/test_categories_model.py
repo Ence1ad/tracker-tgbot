@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
@@ -29,13 +29,13 @@ class TestCategories:
     )
     async def test_create_category(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             category_name: str,
             expectation: does_not_raise,
     ):
         with expectation:
-            category_obj: CategoriesModel = await create_category(user_id, category_name, db_session=db_session)
+            category_obj: CategoriesModel = await create_category(user_id, category_name, db_session=db_session_fixture)
             assert isinstance(category_obj, CategoriesModel)
             assert category_obj.category_name == category_name
             assert category_obj.user_id == user_id
@@ -50,10 +50,10 @@ class TestCategories:
         ]
     )
     async def test_select_categories(
-            self, db_session: async_sessionmaker[AsyncSession], user_id: int, expectation: does_not_raise,
+            self, db_session_fixture: AsyncSession, user_id: int, expectation: does_not_raise,
     ):
         with expectation:
-            categories_fetchall = await select_categories(user_id, db_session=db_session)
+            categories_fetchall = await select_categories(user_id, db_session=db_session_fixture)
             assert categories_fetchall
 
     @pytest.mark.parametrize(
@@ -66,10 +66,10 @@ class TestCategories:
         ]
     )
     async def test_select_categories_with_actions(
-            self, db_session: async_sessionmaker[AsyncSession], user_id: int, expectation: does_not_raise,
+            self, db_session_fixture: AsyncSession, user_id: int, expectation: does_not_raise,
     ):
         with expectation:
-            categories_fetchall = await select_categories(user_id, db_session=db_session)
+            categories_fetchall = await select_categories(user_id, db_session=db_session_fixture)
             assert isinstance(categories_fetchall, list)
             assert categories_fetchall
 
@@ -87,11 +87,11 @@ class TestCategories:
         ]
     )
     async def test_select_category_id(
-            self, db_session: async_sessionmaker[AsyncSession], user_id: int, category_name: str,
+            self, db_session_fixture: AsyncSession, user_id: int, category_name: str,
             expectation: does_not_raise
     ):
         with expectation:
-            category_id = await select_category_id(user_id, category_name, db_session)
+            category_id = await select_category_id(user_id, category_name, db_session_fixture)
             assert isinstance(category_id, int)
             assert category_id
 
@@ -113,14 +113,14 @@ class TestCategories:
     )
     async def test_update_category(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             category_id: int,
             new_category_name: str,
             expectation: does_not_raise,
     ):
         with expectation:
-            res_id_scalar_one_or_none = await update_category(user_id, category_id, new_category_name, db_session)
+            res_id_scalar_one_or_none = await update_category(user_id, category_id, new_category_name, db_session_fixture)
             assert res_id_scalar_one_or_none == 1
 
     @pytest.mark.parametrize(
@@ -137,11 +137,11 @@ class TestCategories:
     )
     async def test_delete_category(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             category_id: int,
             expectation: does_not_raise,
     ):
         with expectation:
-            res_id_scalar_one_or_none = await delete_category(user_id, category_id, db_session)
+            res_id_scalar_one_or_none = await delete_category(user_id, category_id, db_session_fixture)
             assert res_id_scalar_one_or_none == 1

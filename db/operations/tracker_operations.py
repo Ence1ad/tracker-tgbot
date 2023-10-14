@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from sqlalchemy.engine.row import Row
 from sqlalchemy import Date, desc
 from sqlalchemy import select, delete, update, func, cast
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
 from db.models.action_model import ActionsModel
@@ -11,7 +11,7 @@ from db.models.tracker_model import TrackerModel
 
 
 async def create_tracker(user_id: int, category_id: int, action_id: int,
-                         db_session: async_sessionmaker[AsyncSession]) -> TrackerModel:
+                         db_session: AsyncSession) -> TrackerModel:
     """
     Create a record in the trackers db table and return the obj
 
@@ -32,14 +32,14 @@ async def create_tracker(user_id: int, category_id: int, action_id: int,
         return tracker_obj
 
 
-async def select_stopped_trackers(user_id: int, db_session: async_sessionmaker[AsyncSession]
+async def select_stopped_trackers(user_id: int, db_session: AsyncSession
                                   ) -> list[Row[int, datetime, str]]:
     """
     The select_stopped_trackers function is used to select the last USER_TRACKERS_WEEKLY_LIMIT trackers that have been
     stopped by a user. The function takes in two arguments:
 
     :param user_id: int: Identify the user
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: A list of rows(tuples)
     """
     async with db_session as session:
@@ -60,14 +60,14 @@ async def select_stopped_trackers(user_id: int, db_session: async_sessionmaker[A
 
 
 async def select_tracker_duration(user_id: int, tracker_id: int,
-                                  db_session: async_sessionmaker[AsyncSession]) -> timedelta | None:
+                                  db_session: AsyncSession) -> timedelta | None:
 
     """
     The select_tracker_duration function is used to select the duration of a tracker.
 
     :param user_id: int: Identify the user
     :param tracker_id: int: Identify the tracker that is being updated
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: Duration (a timedelta object) if the update operation was successful, none if not
     """
     async with db_session as session:
@@ -90,14 +90,14 @@ async def select_tracker_duration(user_id: int, tracker_id: int,
             return duration_returning.scalar_one_or_none()
 
 
-async def delete_tracker(user_id: int, tracker_id: int, db_session: async_sessionmaker[AsyncSession]) -> int | None:
+async def delete_tracker(user_id: int, tracker_id: int, db_session: AsyncSession) -> int | None:
 
     """
     The delete_tracker function deletes a tracker from the database.
 
     :param user_id: int: Specify the user_id of the tracker to be deleted
     :param tracker_id: int: Specify which tracker to delete
-    :param db_session: async_sessionmaker[AsyncSession]: Pass the database session to the function
+    :param db_session: AsyncSession: Pass the database session to the function
     :return: one if the deleted row or none if no rows were deleted
     """
     async with db_session as session:

@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
@@ -27,7 +27,7 @@ class TestActions:
     )
     async def test_create_action(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             action_name: str,
             category_id: int,
@@ -35,7 +35,7 @@ class TestActions:
     ):
         with expectation:
             action_obj = await create_actions(user_id, category_id=category_id, action_name=action_name,
-                                              db_session=db_session)
+                                              db_session=db_session_fixture)
             assert isinstance(action_obj, ActionsModel)
             assert action_obj.action_name == action_name
 
@@ -54,13 +54,13 @@ class TestActions:
     )
     async def test_select_category_actions(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             category_id: int,
             expectation: does_not_raise,
     ):
         with expectation:
-            actions_fetchall = await select_category_actions(user_id, category_id, db_session=db_session)
+            actions_fetchall = await select_category_actions(user_id, category_id, db_session=db_session_fixture)
             assert actions_fetchall != []
 
     @pytest.mark.parametrize(
@@ -81,14 +81,14 @@ class TestActions:
     )
     async def test_update_action(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             action_id: int,
             new_action_name: str,
             expectation: does_not_raise
     ):
         with expectation:
-            res_id_scalar_one_or_none: int = await update_action_name(user_id, action_id, new_action_name, db_session)
+            res_id_scalar_one_or_none: int = await update_action_name(user_id, action_id, new_action_name, db_session_fixture)
             assert isinstance(res_id_scalar_one_or_none, int)
             assert res_id_scalar_one_or_none == 1
 
@@ -106,11 +106,11 @@ class TestActions:
     )
     async def test_delete_action(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             action_id: int,
             expectation: does_not_raise
     ):
         with expectation:
-            res_id_scalar_one_or_none = await delete_action(user_id, action_id, db_session)
+            res_id_scalar_one_or_none = await delete_action(user_id, action_id, db_session_fixture)
             assert res_id_scalar_one_or_none == 1

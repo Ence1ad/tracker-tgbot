@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
@@ -30,7 +30,7 @@ class TestTrackers:
     )
     async def test_create_tracker(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             action_id: int,
             category_id: int,
@@ -41,7 +41,7 @@ class TestTrackers:
                 user_id=user_id,
                 action_id=action_id,
                 category_id=category_id,
-                db_session=db_session
+                db_session=db_session_fixture
             )
             assert tracker_obj.user_id == user_id
             assert tracker_obj.duration is None
@@ -61,13 +61,13 @@ class TestTrackers:
              )
     async def test_stop_tracker(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             tracker_id: int,
             expectation: does_not_raise,
     ):
         with expectation:
-            duration_returning = await select_tracker_duration(user_id, tracker_id, db_session=db_session)
+            duration_returning = await select_tracker_duration(user_id, tracker_id, db_session=db_session_fixture)
             assert isinstance(duration_returning, timedelta)
 
     @pytest.mark.parametrize(
@@ -82,11 +82,11 @@ class TestTrackers:
     async def test_select_stopped_trackers(
             self,
             user_id: int,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             expectation: does_not_raise
     ):
         with expectation:
-            res_fetchall = await select_stopped_trackers(user_id, db_session=db_session)
+            res_fetchall = await select_stopped_trackers(user_id, db_session=db_session_fixture)
             assert res_fetchall != []
 
     @pytest.mark.parametrize(
@@ -101,11 +101,11 @@ class TestTrackers:
     async def test_get_report(
             self,
             user_id: int,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             expectation: does_not_raise
     ):
         with expectation:
-            res_fetchall = await select_weekly_trackers(user_id, db_session=db_session)
+            res_fetchall = await select_weekly_trackers(user_id, db_session=db_session_fixture)
             assert res_fetchall != []
 
     @pytest.mark.parametrize(
@@ -122,11 +122,11 @@ class TestTrackers:
              )
     async def test_delete_tracker(
             self,
-            db_session: async_sessionmaker[AsyncSession],
+            db_session_fixture: AsyncSession,
             user_id: int,
             tracker_id: int,
             expectation: does_not_raise,
     ):
         with expectation:
-            res_scalar_one_or_none = await delete_tracker(user_id, tracker_id, db_session=db_session)
+            res_scalar_one_or_none = await delete_tracker(user_id, tracker_id, db_session=db_session_fixture)
             assert res_scalar_one_or_none is not None

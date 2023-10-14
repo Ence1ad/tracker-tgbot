@@ -30,7 +30,7 @@ class TestUsers:
     )
     async def test_create_user(
             self,
-            db_session: AsyncSession,
+            db_session_fixture: AsyncSession,
             user_id: int,
             first_name: str,
             last_name: str,
@@ -38,7 +38,7 @@ class TestUsers:
             expectation: does_not_raise
     ):
         with expectation:
-            user_model = await create_user(user_id, first_name, last_name, username, db_session=db_session)
+            user_model = await create_user(user_id, first_name, last_name, username, db_session=db_session_fixture)
             assert isinstance(user_model, UserModel)
             assert user_model.user_id == user_id
             assert user_model.first_name == first_name
@@ -57,12 +57,12 @@ class TestUsers:
     )
     async def test_delete_user(
             self,
-            db_session: AsyncSession,
+            db_session_fixture: AsyncSession,
             user_id: int,
             expectation: does_not_raise
     ):
         with expectation:
-            result = await delete_user(user_id, db_session=db_session)
+            result = await delete_user(user_id, db_session=db_session_fixture)
             assert isinstance(result, int)
             assert result == user_id
 

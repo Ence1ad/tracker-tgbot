@@ -9,7 +9,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.methods import SendMessage, EditMessageText
 from aiogram.types import Message, Chat
 from fluentogram import TranslatorRunner
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache.trackers_redis_manager import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
@@ -30,15 +30,15 @@ from tgbot.utils.states import CategoryState
 @pytest.mark.asyncio
 class TestCategoriesHandlers:
     @pytest_asyncio.fixture(scope="class")
-    async def create_categories_more_than_limit(self, db_user_factory, db_session: async_sessionmaker[AsyncSession]):
+    async def create_categories_more_than_limit(self, db_user_factory, db_session_fixture: AsyncSession):
         user_id = await db_user_factory(MAIN_USER_ID)
         for name in range(settings.USER_CATEGORIES_LIMIT):
-            await create_category(user_id=user_id, category_name=str(name), db_session=db_session)
+            await create_category(user_id=user_id, category_name=str(name), db_session=db_session_fixture)
         try:
             yield
         finally:
             for cat_id in range(settings.USER_CATEGORIES_LIMIT):
-                await delete_category(user_id=user_id, category_id=cat_id + 1, db_session=db_session)
+                await delete_category(user_id=user_id, category_id=cat_id + 1, db_session=db_session_fixture)
 
     @pytest.mark.parametrize(
         "user_id, data, answer_text, expectation",
@@ -88,7 +88,7 @@ class TestCategoriesHandlers:
     async def test_create_category_handler(
             self, user_id: int, new_category_name: str, state: FSMContext, expectation: does_not_raise,
             execute_message_handler, i18n: TranslatorRunner, bot, db_user_factory, answer_text: str, chat_fixt_fact,
-            db_session: async_sessionmaker[AsyncSession], buttons: AppButtons, redis_storage):
+            db_session_fixture: AsyncSession, buttons: AppButtons, redis_storage):
         chat: Chat = await chat_fixt_fact(user_id)
         test_message = Message(message_id=1234, date=datetime.now(), chat=chat, text=new_category_name)
         await db_user_factory(user_id)
@@ -103,7 +103,7 @@ class TestCategoriesHandlers:
                 assert handler_returns.reply_markup == await menu_inline_kb(
                     await buttons.categories_btn_source.category_menu_buttons(), i18n
                 )
-                assert new_category_name == (await select_categories(user_id, db_session))[0].category_name
+                assert new_category_name == (await select_categories(user_id, db_session_fixture))[0].category_name
                 assert state_data == {}
             else:
                 assert isinstance(handler_returns, SendMessage)
@@ -126,9 +126,9 @@ class TestCategoriesHandlers:
     )
     async def test_display_categories(self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
                                       execute_callback_query_handler, i18n: TranslatorRunner, db_user_factory,
-                                      db_session: async_sessionmaker[AsyncSession], buttons: AppButtons):
+                                      db_session_fixture: AsyncSession, buttons: AppButtons):
         handler_returns = await execute_callback_query_handler(user_id, data)
-        categories = await select_categories(user_id, db_session)
+        categories = await select_categories(user_id, db_session_fixture)
         with expectation:
 
             columns_list_text = await _categories_list(categories)
@@ -174,23 +174,23 @@ class TestCategoriesHandlers:
     )
     async def test_categories_main_menu_handler(
             self, user_id: int, answer_text: str, data: str, expectation: does_not_raise,
-            execute_callback_query_handler, buttons: AppButtons, i18n, db_session,
+            execute_callback_query_handler, buttons: AppButtons, i18n, db_session_fixture,
     ):
         if user_id == 54321:
-            categories = await select_categories(user_id, db_session)
+            categories = await select_categories(user_id, db_session_fixture)
             if categories:
                 category_id = categories[0][0]
-                await create_actions(user_id, action_name='name', category_id=category_id, db_session=db_session)
+                await create_actions(user_id, action_name='name', category_id=category_id, db_session=db_session_fixture)
         handler_returns = await execute_callback_query_handler(user_id, data)
         operation = await _get_operation(data, buttons)
-        categories = await select_categories(user_id, db_session)
+        categories = await select_categories(user_id, db_session_fixture)
         with expectation:
             if categories and operation != CategoryOperation.READ_TRACKER:
                 assert isinstance(handler_returns, EditMessageText)
                 assert handler_returns.text == i18n.get(answer_text)
                 assert handler_returns.reply_markup == await callback_factories_kb(categories, operation)
             elif categories and operation == CategoryOperation.READ_TRACKER:
-                categories_with_actions = await select_categories_with_actions(user_id, db_session)
+                categories_with_actions = await select_categories_with_actions(user_id, db_session_fixture)
                 if not categories_with_actions:
                     assert handler_returns.text == i18n.get(answer_text)
                     assert handler_returns.reply_markup == await menu_inline_kb(
