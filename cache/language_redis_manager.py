@@ -1,6 +1,6 @@
 from redis.asyncio import Redis
 
-from cache.redis_report_commands import set_redis_name
+from cache.reports_redis_manager import set_redis_name
 from config import settings
 
 LANG_PREFIX = 'lang'

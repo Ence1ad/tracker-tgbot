@@ -3,7 +3,7 @@ from datetime import datetime as dt, time, date
 
 from redis.asyncio import Redis
 
-from cache.redis_report_commands import set_redis_name
+from cache.reports_redis_manager import set_redis_name
 
 TRACKER_PREFIX = 'tracker'
 TRACKER_CNT_PREFIX = 'tracker_cnt'

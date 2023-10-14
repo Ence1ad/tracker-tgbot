@@ -7,7 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from cache.redis_report_commands import redis_set_report_need_upd, redis_get_report_need_upd, redis_expireat_end_of_week
+from cache.reports_redis_manager import redis_set_report_need_upd, redis_get_report_need_upd, redis_expireat_end_of_week
 from config import settings
 from report_baker.pd_prepare import pd_action_data, pd_category_data
 from db.report.report_commands import select_weekly_trackers

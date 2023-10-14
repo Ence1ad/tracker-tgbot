@@ -3,7 +3,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 from redis import Redis
 
-from cache.redis_report_commands import redis_get_report_need_upd, redis_set_report_need_upd, \
+from cache.reports_redis_manager import redis_get_report_need_upd, redis_set_report_need_upd, \
     redis_expireat_end_of_week, set_redis_name, REPORT_PREFIX
 from tests.utils import MAIN_USER_ID
 
