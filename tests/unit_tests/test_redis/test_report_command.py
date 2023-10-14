@@ -4,7 +4,8 @@ import pytest
 from redis import Redis
 
 from cache.reports_redis_manager import redis_get_report_need_upd, redis_set_report_need_upd, \
-    redis_expireat_end_of_week, set_redis_name, REPORT_PREFIX
+    redis_expireat_end_of_week, REPORT_PREFIX
+from cache.redis_utils import set_redis_name
 from tests.utils import MAIN_USER_ID
 
 

@@ -2,25 +2,9 @@ import datetime
 from datetime import date, time
 from redis.asyncio import Redis
 
+from cache.redis_utils import set_redis_name
 
 REPORT_PREFIX = 'is_report_need_update'
-
-
-def set_redis_name(user_id: int, prefix: str = '') -> str:
-    """
-    Create name for redis data structure
-
-    The _set_name function takes a user_id and an optional prefix,
-    and returns the name of the key in Redis that will be used to store
-    the user's data. The default prefix is 'user', so if you don't pass one,
-    it'll use 'user:&lt;user_id&gt;' as the key.
-
-    :param user_id: int: Set the user_id to an integer
-    :param prefix: str: Set a prefix for the name of the user
-    :return: A string, the name of the user
-    """
-    name = f"{prefix}:{user_id}"
-    return name
 
 
 async def redis_set_report_need_upd(user_id: int, redis_client: Redis, value: int):

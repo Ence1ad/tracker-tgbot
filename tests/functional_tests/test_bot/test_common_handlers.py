@@ -7,7 +7,7 @@ from pytest_asyncio.plugin import FactoryFixtureFunction
 from redis.asyncio import Redis
 
 from cache.language_redis_manager import redis_hget_lang, LANG_PREFIX
-from cache.reports_redis_manager import set_redis_name
+from cache.redis_utils import set_redis_name
 from cache.trackers_redis_manager import is_redis_hexists_tracker
 from config import settings
 from tests.utils import MAIN_USER_ID

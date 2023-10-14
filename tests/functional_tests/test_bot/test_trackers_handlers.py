@@ -10,7 +10,7 @@ from aiogram.methods import SendMessage, EditMessageText, SendDocument
 from redis.asyncio import Redis
 from sqlalchemy import cast, DATE
 
-from cache.reports_redis_manager import set_redis_name
+from cache.redis_utils import set_redis_name
 from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_get_user_day_trackers, \
     redis_incr_user_day_trackers, redis_hget_tracker_data, TRACKER_CNT_PREFIX
 from config import settings

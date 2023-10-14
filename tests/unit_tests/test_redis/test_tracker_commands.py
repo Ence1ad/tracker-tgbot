@@ -6,7 +6,7 @@ import pytest
 from redis.asyncio import Redis
 from redis.exceptions import DataError
 
-from cache.reports_redis_manager import set_redis_name
+from cache.redis_utils import set_redis_name
 from cache.trackers_redis_manager import redis_hmset_create_tracker, \
     redis_hget_tracker_data, is_redis_hexists_tracker, redis_hgetall_started_tracker, redis_upd_tracker, \
     redis_delete_tracker, redis_decr_user_day_trackers, redis_expireat_midnight, redis_incr_user_day_trackers, \
