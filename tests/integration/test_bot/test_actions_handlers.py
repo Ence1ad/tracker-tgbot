@@ -17,7 +17,7 @@ from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_hget_tr
 from config import settings
 from db.operations.actions_operations import select_category_actions, create_actions, delete_action
 from db.operations.categories_operations import select_categories
-from tests.utils import MAIN_USER_ID, SECOND_USER_ID, CATEGORY_ID
+from tests.utils import MAIN_USER_ID, OTHER_USER_ID, CATEGORY_ID
 from tgbot.handlers.actions_handlers.read_actions import _actions_list, _get_action_operation
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import ActionOperation, CategoryCD, CategoryOperation, ActionCD
@@ -46,17 +46,17 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
              does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
              does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text',
              does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'selected_category',
              pytest.raises(FluentReferenceError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text',
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, CategoryOperation.READ, 'empty_actions_text',
              pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ, 'empty_actions_text',
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ, 'empty_actions_text',
              pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.GET_NAME, CategoryOperation.READ, 'empty_actions_text',
+            (OTHER_USER_ID, ActionState.GET_NAME, CategoryOperation.READ, 'empty_actions_text',
              pytest.raises(AssertionError)),
 
         ]
@@ -96,12 +96,12 @@ class TestActionsHandlers:
         [
             (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'show_action_text', does_not_raise()),
+            (OTHER_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'show_action_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'show_action_text', does_not_raise()),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
              pytest.raises(AssertionError)),
             (MAIN_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, '', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
+            (OTHER_USER_ID, AppButtons.actions_btn_source.USER_ACTIONS.name, 'empty_actions_text',
              pytest.raises(AssertionError)),
         ]
     )
@@ -141,7 +141,7 @@ class TestActionsHandlers:
              'action_limit_text', does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
              'new_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name,
              'new_action_text', does_not_raise()),
             (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, AppButtons.actions_btn_source.CREATE_ACTIONS.name, None,
              pytest.raises(AssertionError)),
@@ -169,12 +169,12 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, state, new_action_name, answer_text, expectation",
         [
-            (SECOND_USER_ID, ActionState.GET_NAME, 'my_new_action', 'added_new_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.GET_NAME, 'my_new_action', 'action_exists_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.GET_NAME, 'my_new_action', 'action_exists_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.GET_NAME, 'my_new_action', 'added_new_action_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.GET_NAME, 'my_new_action', 'action_exists_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.GET_NAME, 'my_new_action', 'action_exists_text', does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.GET_NAME, None, 'new_valid_action_name', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.GET_NAME, 'not_exist!', 'action_exists_text', pytest.raises(AssertionError)),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, 'best_action', 'added_new_action_text',
+            (OTHER_USER_ID, ActionState.GET_NAME, 'not_exist!', 'action_exists_text', pytest.raises(AssertionError)),
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, 'best_action', 'added_new_action_text',
              pytest.raises(AssertionError)),
         ]
     )
@@ -206,7 +206,7 @@ class TestActionsHandlers:
             # Todo разобраться!
             # (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'empty_actions_text', does_not_raise()),
             # (USER_WITHOUT_ACTION, AppButtons.actions_btn_source.DELETE_ACTIONS.name, 'empty_actions_text', does_not_raise()),
-            # (SECOND_USER_ID, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'empty_actions_text', does_not_raise()),
+            # (OTHER_USER_ID, AppButtons.actions_btn_source.UPDATE_ACTIONS.name, 'empty_actions_text', does_not_raise()),
         ]
     )
     async def test_collect_actions_btn_source_handler(
@@ -234,7 +234,7 @@ class TestActionsHandlers:
         "user_id, state, operation, answer_text, expectation",
         [
             (MAIN_USER_ID, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text', does_not_raise()),
             (USER_WITHOUT_ACTION, ActionState.UPDATE_NAME, ActionOperation.UPD, 'new_action_text',
              pytest.raises(AssertionError)),
         ]
@@ -268,8 +268,8 @@ class TestActionsHandlers:
     @pytest.mark.parametrize(
         "user_id, state, new_action_name, answer_text, expectation",
         [
-            (SECOND_USER_ID, ActionState.UPDATE_NAME, 'upd_action_name', 'upd_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.UPDATE_NAME, 'upd_action_name', 'action_exists_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.UPDATE_NAME, 'upd_action_name', 'upd_action_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.UPDATE_NAME, 'upd_action_name', 'action_exists_text', does_not_raise()),
             (MAIN_USER_ID, ActionState.UPDATE_NAME, 'best_act', 'upd_action_text', does_not_raise()),
         ]
     )
@@ -305,8 +305,8 @@ class TestActionsHandlers:
         "user_id, state, operation, answer_text, expectation",
         [
             (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'rm_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'rm_action_text', does_not_raise()),
-            (SECOND_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'action_not_exists_text',
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'rm_action_text', does_not_raise()),
+            (OTHER_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.DEL, 'action_not_exists_text',
              does_not_raise()),
             (MAIN_USER_ID, ActionState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER, 'rm_action_text',
              pytest.raises(AssertionError)),
@@ -327,7 +327,7 @@ class TestActionsHandlers:
             action_id = actions_lst[0].action_id
             action_name = actions_lst[0].action_name
             data = ActionCD(operation=operation, action_id=action_id, action_name=action_name)
-            if user_id == SECOND_USER_ID:
+            if user_id == OTHER_USER_ID:
                 data = ActionCD(operation=operation, action_id=14, action_name='my_new_action')
 
         handler_returns = await execute_callback_query_handler(user_id, data=data.pack(), state=state)

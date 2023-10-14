@@ -10,7 +10,7 @@ from ..base_model import AsyncSaBase
 class UserModel(AsyncSaBase):
     __tablename__ = 'users'
     user_id: Mapped[int] = mapped_column(BigInteger, autoincrement=False)
-    first_name: Mapped[Optional[str]] = mapped_column(String(64))
+    first_name: Mapped[str] = mapped_column(String(64))
     last_name: Mapped[Optional[str]] = mapped_column(String(64))
     username: Mapped[Optional[str]] = mapped_column(String(32))
     created_on: Mapped[datetime] = mapped_column(default=datetime.now)

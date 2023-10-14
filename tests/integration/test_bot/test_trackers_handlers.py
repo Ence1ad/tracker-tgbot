@@ -20,7 +20,7 @@ from db.operations.categories_operations import select_categories
 from db.operations.report_operations import select_weekly_trackers
 from db.operations.tracker_operations import select_stopped_trackers, select_tracker_duration
 from tests.integration.test_bot.utils import TEST_CHAT
-from tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
+from tests.utils import MAIN_USER_ID, OTHER_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 from tgbot.handlers.categories_handlers.read_categories import _get_operation
 from tgbot.handlers.tracker_handlers.delete_tracker import _get_right_tracker_markup
 from tgbot.keyboards.app_buttons import AppButtons
@@ -33,7 +33,7 @@ from tgbot.utils.states import TrackerState
 @pytest.mark.usefixtures('add_data_to_db', 'create_tracker_fixt')
 @pytest.mark.asyncio
 class TestActionsHandlers:
-    USER_WITHOUT_TRACKER = SECOND_USER_ID
+    USER_WITHOUT_TRACKER = OTHER_USER_ID
     USER_WITHOUT_CATEGORIES = 55555
 
     @pytest.mark.parametrize(
@@ -152,7 +152,7 @@ class TestActionsHandlers:
              does_not_raise()),
             (USER_ID_WITH_TRACKER_LIMIT, TrackerState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER,
              'not_enough_data_text', does_not_raise()),
-            (SECOND_USER_ID, TrackerState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER, 'new_tracker_text',
+            (OTHER_USER_ID, TrackerState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER, 'new_tracker_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, TrackerState.WAIT_CATEGORY_DATA, ActionOperation.READ_TRACKER,
              'new_tracker_text', pytest.raises(AssertionError)),  # this user don't have an actions
@@ -195,7 +195,7 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text',
+            (OTHER_USER_ID, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'answer_stop_tracker_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, AppButtons.trackers_btn_source.STOP_TRACKER_BTN.name, 'not_launched_tracker_text',
              does_not_raise()),  # this user don't have an actions
@@ -226,7 +226,7 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
+            (OTHER_USER_ID, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, AppButtons.general_btn_source.NO_BTN.name, 'options_text',
              does_not_raise()),  # this user don't have an actions
@@ -246,7 +246,7 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, AppButtons.general_btn_source.YES_BTN.name, 'stop_tracker_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_btn_source.YES_BTN.name, 'stop_tracker_text',
+            (OTHER_USER_ID, AppButtons.general_btn_source.YES_BTN.name, 'stop_tracker_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, AppButtons.general_btn_source.YES_BTN.name, 'not_launched_tracker_text',
              does_not_raise()),  # this user don't have an actions
@@ -283,7 +283,7 @@ class TestActionsHandlers:
              does_not_raise()),
             (MAIN_USER_ID, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
+            (OTHER_USER_ID, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name, 'daily_tracker_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, AppButtons.trackers_btn_source.DELETE_TRACKER_BTN.name,
              'empty_stopped_tracker_text',
@@ -314,7 +314,7 @@ class TestActionsHandlers:
              does_not_raise()),
             (MAIN_USER_ID, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
+            (OTHER_USER_ID, AppButtons.general_btn_source.REPORTS_BTN.name, 'options_text',
              does_not_raise()),
 
         ]
@@ -338,7 +338,7 @@ class TestActionsHandlers:
              does_not_raise()),
             (MAIN_USER_ID, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'send_report_text',
              does_not_raise()),
-            (SECOND_USER_ID, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'send_report_text',
+            (OTHER_USER_ID, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'send_report_text',
              does_not_raise()),
             (USER_WITHOUT_CATEGORIES, AppButtons.reports_btn_source.WEEKLY_REPORT_BTN.name, 'empty_trackers_text',
              does_not_raise()),  # this user don't have an actions
@@ -366,8 +366,8 @@ class TestActionsHandlers:
         [
             (MAIN_USER_ID, TrackerOperation.DEL, 'delete_tracker_text', does_not_raise()),
             (MAIN_USER_ID, TrackerOperation.DEL, 'already_delete_tracker_text', does_not_raise()),
-            (SECOND_USER_ID, TrackerOperation.DEL, 'delete_tracker_text', does_not_raise()),
-            (SECOND_USER_ID, TrackerOperation.DEL, 'already_delete_tracker_text', does_not_raise()),
+            (OTHER_USER_ID, TrackerOperation.DEL, 'delete_tracker_text', does_not_raise()),
+            (OTHER_USER_ID, TrackerOperation.DEL, 'already_delete_tracker_text', does_not_raise()),
         ]
     )
     async def test_delete_tracker_handler(
@@ -384,7 +384,7 @@ class TestActionsHandlers:
         data = None
         if user_id == MAIN_USER_ID:
             data = TrackerCD(operation=operation, tracker_id=4)
-        elif user_id == SECOND_USER_ID:
+        elif user_id == OTHER_USER_ID:
             data = TrackerCD(operation=operation, tracker_id=5)
 
         with expectation:

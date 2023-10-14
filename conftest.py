@@ -22,7 +22,7 @@ def pytest_addoption(parser):
 
     parser.addoption(
         "--redis",
-        default="store",
+        default=None,
         help="Use the given Redis URL for the connection to test_redis_db"
     )
 
