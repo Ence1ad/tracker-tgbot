@@ -54,10 +54,9 @@ def buttons():
 @pytest_asyncio.fixture()
 async def scheduler(async_session_fixture, redis_storage, bot, redis_cli):
     schedule = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores, redis_client=redis_cli,
-                                      storage=redis_storage, async_session=async_session_fixture,
-                                      # t_hub=translator.t_hub
-                                      )
+                                     storage=redis_storage, async_session=async_session_fixture)
     return schedule
+
 
 @pytest_asyncio.fixture()
 async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n, async_session_fixture,  redis_storage, scheduler):
@@ -130,6 +129,7 @@ async def chat_fixt_fact():
                            username: str = TEST_CHAT.username, **kwargs) -> Chat:
         return Chat(id=chat_id, type=chat_type, title=title, username=username, **kwargs)
     return _create_chat
+
 
 @pytest_asyncio.fixture
 async def set_state_data_fict_fact(chat_fixt_fact, dispatcher, bot):
