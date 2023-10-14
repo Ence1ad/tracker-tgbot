@@ -1,15 +1,6 @@
 from redis.asyncio import Redis
 
-
-async def _set_name(name: str = "users") -> str:
-    """
-    The _set_name function is a helper function that sets the name of the
-        database table. It defaults to &quot;users&quot; if no argument is passed in.
-
-    :param name: str: Define the name of the function
-    :return: The name of the collection
-    """
-    return name
+REDIS_SET_NAME: str = "users"
 
 
 async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
@@ -21,8 +12,7 @@ async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
     :param redis_client: Redis: Pass a redis client object to the function
     :return: 1 if adding the user id was successfully, 0 if not
     """
-    name: str = await _set_name()
-    return await redis_client.sadd(name, user_id)
+    return await redis_client.sadd(REDIS_SET_NAME, user_id)
 
 
 async def redis_srem_user_id(user_id: int, redis_client: Redis) -> int:
@@ -33,8 +23,7 @@ async def redis_srem_user_id(user_id: int, redis_client: Redis) -> int:
     :param redis_client: Redis: Pass in a redis client object
     :return: 1 if removing the user id was successfully, 0 if not
     """
-    name: str = await _set_name()
-    return await redis_client.srem(name, user_id)
+    return await redis_client.srem(REDIS_SET_NAME, user_id)
 
 
 async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | None:
@@ -45,8 +34,7 @@ async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | N
     :param redis_client: Redis: Pass the redis client object to the function
     :return:True if the user id in the redis set, False if not
     """
-    name: str = await _set_name()
-    user_exists = await redis_client.sismember(name=name, value=str(user_id))
+    user_exists = await redis_client.sismember(name=REDIS_SET_NAME, value=str(user_id))
     return True if user_exists else False
 
 
@@ -58,6 +46,5 @@ async def redis_smembers_users(redis_client: Redis) -> set | None:
     :param redis_client: Redis: Pass the redis client object
     :return: A set of users
     """
-    name: str = await _set_name()
-    members = await redis_client.smembers(name=name)
+    members = await redis_client.smembers(name=REDIS_SET_NAME)
     return members if members else None
