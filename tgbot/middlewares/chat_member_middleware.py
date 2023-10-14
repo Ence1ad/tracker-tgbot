@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from cache.user_redis_utils import is_redis_sismember_user, redis_sadd_user_id
+from cache.users_redis_manager import is_redis_sismember_user, redis_sadd_user_id
 from config import settings
 from db.users.users_commands import create_user
 

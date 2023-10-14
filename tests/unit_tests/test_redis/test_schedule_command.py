@@ -4,7 +4,7 @@ from contextlib import nullcontext as does_not_raise
 from redis import DataError
 from redis.asyncio import Redis
 
-from cache.user_redis_utils import redis_sadd_user_id, is_redis_sismember_user, redis_smembers_users
+from cache.users_redis_manager import redis_sadd_user_id, is_redis_sismember_user, redis_smembers_users
 from tests.utils import MAIN_USER_ID
 
 

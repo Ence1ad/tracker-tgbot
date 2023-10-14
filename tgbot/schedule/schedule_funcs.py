@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.trackers_redis_manager import redis_delete_tracker, redis_hget_tracker_data, redis_decr_user_day_trackers
-from cache.user_redis_utils import redis_smembers_users
+from cache.users_redis_manager import redis_smembers_users
 from config import settings
 from report_baker.create_report import create_fig
 from report_baker.pd_prepare import pd_action_data, pd_category_data

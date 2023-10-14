@@ -4,7 +4,7 @@ from aiogram import Bot
 from aiogram.types import ChatMemberAdministrator
 from sqlalchemy.exc import IntegrityError
 
-from cache.user_redis_utils import redis_sadd_user_id
+from cache.users_redis_manager import redis_sadd_user_id
 from db.users.users_commands import create_user
 
 
