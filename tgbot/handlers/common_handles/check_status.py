@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.users_redis_manager import redis_sadd_user_id, redis_srem_user_id
 from config import settings
-from db.users.users_commands import delete_user, create_user
+from db.operations.users_operations import delete_user, create_user
 
 
 async def add_user_handler(event: ChatMemberUpdated, redis_client: Redis, db_session: async_sessionmaker[AsyncSession],

@@ -1,7 +1,7 @@
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .user_model import UserModel
+from db.models.user_model import UserModel
 
 
 async def create_user(user_id: int, first_name: str, last_name: str, username: str,

@@ -5,7 +5,7 @@ from aiogram.types import ChatMemberAdministrator
 from sqlalchemy.exc import IntegrityError
 
 from cache.users_redis_manager import redis_sadd_user_id
-from db.users.users_commands import create_user
+from db.operations.users_operations import create_user
 
 
 async def add_admin(admin_id, db_session, redis_client):

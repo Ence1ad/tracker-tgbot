@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError
 
-from db.users.user_model import UserModel
-from db.users.users_commands import create_user, delete_user
+from db.models.user_model import UserModel
+from db.operations.users_operations import create_user, delete_user
 from tests.utils import MAIN_USER_ID
 
 

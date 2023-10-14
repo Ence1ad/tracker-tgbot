@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.users_redis_manager import is_redis_sismember_user, redis_sadd_user_id
 from config import settings
-from db.users.users_commands import create_user
+from db.operations.users_operations import create_user
 
 
 class ChatMemberMiddleware(BaseMiddleware):
