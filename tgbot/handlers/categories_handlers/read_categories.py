@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from db.categories.categories_commands import select_categories, select_categories_with_actions
+from db.operations.categories_operations import select_categories, select_categories_with_actions
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryOperation
 from tgbot.keyboards.inline_kb import menu_inline_kb, callback_factories_kb

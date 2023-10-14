@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.trackers_redis_manager import redis_hmset_create_tracker, redis_incr_user_day_trackers, \
     redis_expireat_midnight, is_redis_hexists_tracker, redis_get_user_day_trackers
 from config import settings
-from db.actions.actions_db_commands import select_category_actions
-from db.tracker.tracker_db_command import create_tracker
+from db.operations.actions_operations import select_category_actions
+from db.operations.tracker_operations import create_tracker
 from tgbot.handlers.categories_handlers.read_categories import categories_main_menu_handler
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import ActionCD, CategoryCD, ActionOperation

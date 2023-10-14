@@ -13,8 +13,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.trackers_redis_manager import redis_hmset_create_tracker, is_redis_hexists_tracker
 from config import settings
-from db.actions.actions_db_commands import create_actions
-from db.categories.categories_commands import select_categories, create_category, delete_category, \
+from db.operations.actions_operations import create_actions
+from db.operations.categories_operations import select_categories, create_category, delete_category, \
     select_categories_with_actions
 from tests.functional_tests.mocked_bot import MockedBot
 from tests.functional_tests.test_bot.utils import TEST_CHAT

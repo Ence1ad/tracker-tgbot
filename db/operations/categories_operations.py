@@ -2,8 +2,8 @@ from sqlalchemy import select, delete, update, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.engine.row import Row
 
-from .categories_model import CategoriesModel
-from .. import ActionsModel
+from db.models.category_model import CategoriesModel
+from db import ActionsModel
 
 
 async def create_category(user_id: int, category_name: str,

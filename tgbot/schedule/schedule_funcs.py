@@ -13,8 +13,8 @@ from cache.users_redis_manager import redis_smembers_users
 from config import settings
 from report_baker.create_report import create_fig
 from report_baker.pd_prepare import pd_action_data, pd_category_data
-from db.report.report_commands import select_weekly_trackers
-from db.tracker.tracker_db_command import delete_tracker
+from db.operations.report_operations import select_weekly_trackers
+from db.operations.tracker_operations import delete_tracker
 
 
 async def schedule_delete_tracker(bot: Bot, user_id: int, redis_client: Redis,

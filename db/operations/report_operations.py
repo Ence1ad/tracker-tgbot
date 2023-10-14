@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.engine.row import Row
 
 from config import settings
-from .. import CategoriesModel
-from ..actions.actions_models import ActionsModel
-from ..tracker.tracker_model import TrackerModel
+from db import CategoriesModel
+from db.models.action_model import ActionsModel
+from db.models.tracker_model import TrackerModel
 
 
 async def select_weekly_trackers(user_id: int, db_session: async_sessionmaker[AsyncSession]) -> list[Row[str, int]]:

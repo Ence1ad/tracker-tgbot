@@ -15,10 +15,10 @@ from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_get_use
     redis_incr_user_day_trackers, redis_hget_tracker_data, TRACKER_CNT_PREFIX
 from config import settings
 from db import TrackerModel
-from db.actions.actions_db_commands import select_category_actions
-from db.categories.categories_commands import select_categories
-from db.report.report_commands import select_weekly_trackers
-from db.tracker.tracker_db_command import select_stopped_trackers, select_tracker_duration
+from db.operations.actions_operations import select_category_actions
+from db.operations.categories_operations import select_categories
+from db.operations.report_operations import select_weekly_trackers
+from db.operations.tracker_operations import select_stopped_trackers, select_tracker_duration
 from tests.functional_tests.test_bot.utils import TEST_CHAT
 from tests.utils import MAIN_USER_ID, SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT
 from tgbot.handlers.categories_handlers.read_categories import _get_operation

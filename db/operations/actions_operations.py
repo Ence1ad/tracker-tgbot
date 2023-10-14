@@ -1,7 +1,7 @@
 from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.engine.row import Row
-from .actions_models import ActionsModel
+from db.models.action_model import ActionsModel
 
 
 async def create_actions(user_id: int, action_name: str, category_id: int,

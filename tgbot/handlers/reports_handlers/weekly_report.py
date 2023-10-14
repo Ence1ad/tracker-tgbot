@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from cache.reports_redis_manager import redis_set_report_need_upd, redis_get_report_need_upd, redis_expireat_end_of_week
 from config import settings
 from report_baker.pd_prepare import pd_action_data, pd_category_data
-from db.report.report_commands import select_weekly_trackers
+from db.operations.report_operations import select_weekly_trackers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from report_baker.create_report import create_fig

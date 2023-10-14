@@ -14,10 +14,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from config import settings
 from db import UserModel
-from db.actions.actions_db_commands import create_actions
+from db.operations.actions_operations import create_actions
 from db.base_model import AsyncSaBase
-from db.categories.categories_commands import create_category
-from db.tracker.tracker_db_command import create_tracker
+from db.operations.categories_operations import create_category
+from db.operations.tracker_operations import create_tracker
 from db.operations.users_operations import create_user
 from tests.utils import MAIN_USER_ID, ACTION_NAME, CATEGORY_NAME, \
     SECOND_USER_ID, USER_ID_WITH_TRACKER_LIMIT

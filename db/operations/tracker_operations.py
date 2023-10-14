@@ -6,8 +6,8 @@ from sqlalchemy import select, delete, update, func, cast
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from config import settings
-from ..actions.actions_models import ActionsModel
-from .tracker_model import TrackerModel
+from db.models.action_model import ActionsModel
+from db.models.tracker_model import TrackerModel
 
 
 async def create_tracker(user_id: int, category_id: int, action_id: int,

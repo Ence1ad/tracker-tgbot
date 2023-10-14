@@ -5,7 +5,7 @@ from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from config import settings
-from db.categories.categories_commands import create_category, select_categories
+from db.operations.categories_operations import create_category, select_categories
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb
 from tgbot.utils.states import CategoryState

@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
-from db.report.report_commands import select_weekly_trackers
-from db.tracker.tracker_db_command import create_tracker, select_tracker_duration, delete_tracker, select_stopped_trackers
+from db.operations.report_operations import select_weekly_trackers
+from db.operations.tracker_operations import create_tracker, select_tracker_duration, delete_tracker, select_stopped_trackers
 from tests.utils import MAIN_USER_ID
 
 

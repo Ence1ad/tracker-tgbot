@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
-from db.categories.categories_commands import create_category, select_categories, update_category, delete_category, \
+from db.operations.categories_operations import create_category, select_categories, update_category, delete_category, \
     select_category_id
-from db.categories.categories_model import CategoriesModel
+from db.models.category_model import CategoriesModel
 from tests.utils import MAIN_USER_ID
 
 

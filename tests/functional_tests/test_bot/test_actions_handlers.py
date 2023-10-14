@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from cache.trackers_redis_manager import is_redis_hexists_tracker, redis_hget_tracker_data
 from config import settings
-from db.actions.actions_db_commands import select_category_actions, create_actions, delete_action
-from db.categories.categories_commands import select_categories
+from db.operations.actions_operations import select_category_actions, create_actions, delete_action
+from db.operations.categories_operations import select_categories
 from tests.utils import MAIN_USER_ID, SECOND_USER_ID, CATEGORY_ID
 from tgbot.handlers.actions_handlers.read_actions import _actions_list, _get_action_operation
 from tgbot.keyboards.app_buttons import AppButtons

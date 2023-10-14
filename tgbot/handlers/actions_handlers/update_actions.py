@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.reports_redis_manager import redis_set_report_need_upd
 from cache.trackers_redis_manager import redis_upd_tracker
-from db.actions.actions_db_commands import update_action_name, select_category_actions
+from db.operations.actions_operations import update_action_name, select_category_actions
 from tgbot.utils.validators import valid_name
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.inline_kb import menu_inline_kb

@@ -3,7 +3,7 @@ from sqlalchemy import Integer, String, Column, ForeignKey, BigInteger, UniqueCo
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import settings
-from ..base_model import AsyncSaBase
+from db.base_model import AsyncSaBase
 
 
 class ActionsModel(AsyncSaBase):

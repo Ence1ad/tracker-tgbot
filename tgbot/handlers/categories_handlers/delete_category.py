@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from cache.reports_redis_manager import redis_set_report_need_upd
 from cache.trackers_redis_manager import redis_delete_tracker
-from db.categories.categories_commands import delete_category
+from db.operations.categories_operations import delete_category
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD
 from tgbot.keyboards.inline_kb import menu_inline_kb
