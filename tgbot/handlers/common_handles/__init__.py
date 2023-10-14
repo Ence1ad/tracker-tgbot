@@ -25,7 +25,7 @@ def register_common_handlers() -> Router:
     from .exit_handler import exit_menu_handler
     from .help_handler import command_help_handler
     from .settings_handler import command_settings_handler, language_settings, set_user_lang
-    from .check_status import add_user_handler, remove_user_handler
+    from .user_group_status import add_user_handler, remove_user_handler
 
     router = Router()
     router.message.filter(F.chat.id == F.from_user.id)
