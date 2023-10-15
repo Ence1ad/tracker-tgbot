@@ -7,7 +7,8 @@ def set_redis_name(user_id: int, prefix: str = '') -> str:
     optional prefix with the user's ID.
 
     :param user_id: int: The user's unique identifier.
-    :param prefix: str: An optional prefix to include in the name (default is an empty string).
+    :param prefix: str: An optional prefix to include in the name (default is an empty
+    string).
     :return: str: The constructed Redis key name.
     """
     name = f"{prefix}:{user_id}"
