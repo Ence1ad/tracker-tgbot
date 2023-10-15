@@ -21,6 +21,7 @@ from tgbot.middlewares.redis_middleware import CacheMiddleware
 from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
 from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
+from tgbot.utils.bot_commands import bot_commands
 
 
 async def main() -> None:
@@ -47,6 +48,9 @@ async def main() -> None:
                                       redis_client=redis_client, storage=storage, async_session=async_session)
     # Initialize dispatcher
     dp: Dispatcher = Dispatcher(storage=storage)
+
+    # Get commands
+    await bot_commands(bot)
 
     # Register middlewares
     dp.update.middleware.register(ButtonsMiddleware(buttons))
