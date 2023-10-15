@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,15 +36,9 @@ class TestUsers:
             (1000000010, 123, 123, 123, pytest.raises(DBAPIError)),
         ]
     )
-    async def test_create_user(
-            self,
-            db_session_fixture: AsyncSession,
-            user_id: int,
-            first_name: str,
-            last_name: str,
-            username: str,
-            expectation: does_not_raise
-    ):
+    async def test_create_user(self, db_session_fixture: AsyncSession, user_id: int,
+                               first_name: str, last_name: str, username: str,
+                               expectation: Any) -> None:
         """
         Test the 'create_user' function for user creation.
 
@@ -54,7 +50,7 @@ class TestUsers:
         :param first_name: str: The user's first name.
         :param last_name: str: The user's last name.
         :param username: str: The user's username.
-        :param expectation: does_not_raise: An expectation for test outcome.
+        :param expectation: Any: An expectation for test outcome.
         :param db_session_fixture: AsyncSession: A fixture for the database session.
 
         :return: None
@@ -83,8 +79,8 @@ class TestUsers:
             self,
             db_session_fixture: AsyncSession,
             user_id: int,
-            expectation: does_not_raise
-    ):
+            expectation: Any
+    ) -> None:
         """
         Test the 'delete_user' function for user deletion.
 
@@ -93,7 +89,7 @@ class TestUsers:
         returns the expected result and handles exceptions properly.
 
         :param user_id: int: The user ID for testing.
-        :param expectation: does_not_raise: An expectation for test outcome.
+        :param expectation: Any: An expectation for test outcome.
         :param db_session_fixture: AsyncSession: A fixture for the database session.
 
         :return: None

@@ -11,13 +11,15 @@ async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None 
     """
     Retrieve the language code for a user from Redis.
 
-    This function fetches the language code associated with a user from a Redis database.
-    If no language code is found, it returns the default global language code or the provided local code.
+    This function fetches the language code associated with a user from a Redis
+    database. If no language code is found, it returns the default global language code
+    or the provided local code.
 
     :param user_id: int: The unique identifier of the user.
     :param redis_client: Redis: An instance of a Redis client.
     :param local: str | None: An optional local language code (default is None).
-    :return: str: The language code for the user or the local language code if specified.
+    :return: str: The language code for the user or the local language code if
+    specified.
     """
     lang_name: str = set_redis_name(user_id, LANG_PREFIX)
     lang_code: bytes | str = await redis_client.hget(name=lang_name, key=str(user_id))
@@ -42,7 +44,6 @@ async def redis_hset_lang(user_id: int,  redis_client: Redis, lang_code: str | b
     :param lang_code: str | bytes: The language code to set for the user.
     :return: int: The number of fields that were changed (0 if no changes occurred).
     """
-    if lang_code is not None:
-        lang_name: str = set_redis_name(user_id, LANG_PREFIX)
-        return await redis_client.hset(name=lang_name, key=str(user_id),
-                                       value=lang_code)
+    lang_name: str = set_redis_name(user_id, LANG_PREFIX)
+    return await redis_client.hset(name=lang_name, key=str(user_id),
+                                   value=str(lang_code))
