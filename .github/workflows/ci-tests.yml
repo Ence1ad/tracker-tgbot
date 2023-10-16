@@ -32,11 +32,11 @@ jobs:
         run: |
           mv .env.example .env  # Rename the example .env file to .env (if needed)
           # Ensure the .env file exists in the current directory and export all variables
-          if [ -f .env ]; then
-            # Replace the existing BOT_TOKEN value with the one from GitHub Secrets
-            sed -i "s/BOT_TOKEN=.*/BOT_TOKEN=${{ secrets.MY_BOT_TOKEN }}/" .env
-            source .env
-          fi
+          # if [ -f .env ]; then
+          #   # Replace the existing BOT_TOKEN value with the one from GitHub Secrets
+          #   sed -i "s/BOT_TOKEN=.*/BOT_TOKEN=${{ secrets.MY_BOT_TOKEN }}/" .env
+          #   source .env
+          # fi
 #          echo "PG_URL=postgresql+asyncpg://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/test_db" >> "$GITHUB_ENV"
 #          echo "REDIS_URL=redis://:$REDIS_PASSWORD@localhost:6379/11" >> "$GITHUB_ENV"
 
