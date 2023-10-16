@@ -48,7 +48,7 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
-          docker-compose -f ./docker-compose.dev.yml up -d db redis tgbot
+          docker-compose -f ./docker-compose.dev.yml up --build -d db redis tgbot
 
       - name: Wait for services to start
         run: |
