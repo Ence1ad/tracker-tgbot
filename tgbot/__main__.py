@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 import redis.asyncio as redis
+from aiogram.exceptions import TelegramAPIError
 from redis.asyncio import Redis
 
 from aiogram.fsm.storage.redis import RedisStorage
@@ -21,7 +22,7 @@ from tgbot.middlewares.redis_middleware import CacheMiddleware
 from tgbot.middlewares.throttling_middleware import ThrottlingMiddleware
 from tgbot.middlewares.translation_middleware import TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
-from tgbot.utils.bot_commands import bot_commands
+from tgbot.utils.before_bot_start import start_bot, is_bot_admin
 
 
 async def main() -> None:
@@ -29,7 +30,9 @@ async def main() -> None:
     bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='html')
 
     # Initialize sqlalchemy session
-    async_session: async_sessionmaker[AsyncSession] = await create_async_session(url=settings.db_url, echo=True)
+    async_session: async_sessionmaker[AsyncSession] = await create_async_session(
+        url=settings.db_url, echo=True
+    )
 
     # Initialize redis
     redis_client: Redis = redis.from_url(settings.cache_url)
@@ -45,13 +48,25 @@ async def main() -> None:
 
     # Initialize scheduler
     scheduler = await setup_scheduler(bot=bot, jobstores=settings.scheduler_job_stores,
-                                      redis_client=redis_client, storage=storage, async_session=async_session)
+                                      redis_client=redis_client, storage=storage,
+                                      async_session=async_session)
     # Initialize dispatcher
     dp: Dispatcher = Dispatcher(storage=storage)
 
-    # Get commands
-    await bot_commands(bot)
+    try:
+        await is_bot_admin(bot, settings.GROUP_ID)
+    except (TelegramAPIError, PermissionError) as error:
+        error_msg = f"Error with main group: {error}"
+        try:
+            await bot.send_message(settings.ADMIN_ID, error_msg)
+        finally:
+            logging.exception(error_msg)
+            return
 
+    # Get commands
+    await start_bot(bot)
+
+    dp.startup.register(start_bot)
     # Register middlewares
     dp.update.middleware.register(ButtonsMiddleware(buttons))
     dp.update.middleware.register(CacheMiddleware(redis_client))
@@ -59,8 +74,10 @@ async def main() -> None:
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
     dp.update.middleware.register(ChatMemberMiddleware())
     dp.update.middleware.register(SchedulerMiddleware(scheduler))
-    dp.update.middleware.register(ThrottlingMiddleware(limit=settings.THROTTLING_RATE_LIMIT,
-                                                       period=settings.THROTTLING_RATE_PERIOD))
+    dp.update.middleware.register(ThrottlingMiddleware(
+        limit=settings.THROTTLING_RATE_LIMIT,
+        period=settings.THROTTLING_RATE_PERIOD)
+    )
     # Register handlers
     common_handlers_router = register_common_handlers()
     dp.include_routers(common_handlers_router)

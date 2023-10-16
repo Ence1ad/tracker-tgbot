@@ -30,9 +30,9 @@ class ProjectSettings(BaseSettings):
 
     THROTTLING_RATE_LIMIT: int = Field(default=10)  # Maximum number of messages
     THROTTLING_RATE_PERIOD: int = Field(default=10)  # Time period in seconds
-    RU_LANG_CODE: str = Field(default='ru')
-    EN_LANG_CODE: str = Field(default='en')
-    GLOBAL_LANG_CODE: str = Field(default='en')
+    RU_LANG_CODE: str = Field(default='ru')  # ISO 639-1 language code
+    EN_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
+    GLOBAL_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
     USER_REPORT_DIR: str = Field(default='./reports/')
 
 
