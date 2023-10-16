@@ -7,33 +7,25 @@ from db.base_model import AsyncSaBase
 
 
 class UserModel(AsyncSaBase):
-    """SQLAlchemy model representing user data.
+    """Represents a user in the database.
 
-    This class defines an SQLAlchemy model for storing user data in a database.
-    It includes fields such as user ID, first name, last name, username, and the date
-    and time the user was created.
+    :cvar __tablename__: The name of the database table for users.
+    :cvar user_id: The unique identifier for the user (primary key).
+    :cvar first_name: The user's first name (limited to 64 characters).
+    :cvar last_name: The user's last name (limited to 64 characters, nullable).
+    :cvar username: The user's username (limited to 32 characters, nullable).
+    :cvar created_on: The timestamp when the user was created (default is the current
+    timestamp).
 
-    **Attributes**:
+    - `__tablename__`: 'users' - The name of the table.
+    - `user_id`: Unique identifier for the user (primary key).
+    - `first_name`: The user's first name (limited to 64 characters).
+    - `last_name`: The user's last name (limited to 64 characters, nullable).
+    - `username`: The user's username (limited to 32 characters, nullable).
+    - `created_on`: The timestamp when the user was created.
 
-    - ``user_id`` (Mapped[int]): The primary key representing the user's ID.
-    - ``first_name`` (Mapped[str]): The user's first name.
-    - ``last_name`` (Mapped[Optional[str]]): The user's last name (optional).
-    - ``username`` (Mapped[Optional[str]]): The user's username (optional).
-    - ``created_on`` (Mapped[datetime]): The date and time the user was created
-    (with a default value of the current time).
-
-    **Methods**:
-
-    - ``__str__()``: Returns a string representation of the user, which is the user's
-     ID.
-
-    **Table Name**:
-
-    - ``__tablename__`` (str): The name of the database table where user data is stored
-    (set to 'users').
-
-    This class inherits from AsyncSaBase, which is a base class for asynchronous
-    SQLAlchemy models.
+    This class represents user data in the database, including their names, username,
+    and creation timestamp.
     """
 
     __tablename__ = 'users'
