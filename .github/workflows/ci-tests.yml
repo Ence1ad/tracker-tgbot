@@ -55,10 +55,8 @@ jobs:
           sleep 10
 
       - name: Run tests
-        env:
-          LANG_CODE: ${{ matrix.lang-code }}
         run: |
-          pytest --cov=tgbot ./tests/ --lang $LANG_CODE
+          pytest tests/ --lang ${{ matrix.lang-code }}
 #          pytest --cov=tgbot ./tests/ --db-url $PG_URL --redis $REDIS_URL --lang $LANG_CODE
            
 
