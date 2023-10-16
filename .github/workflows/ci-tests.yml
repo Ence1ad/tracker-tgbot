@@ -50,12 +50,9 @@ jobs:
         run: |
           docker-compose -f ./docker-compose.dev.yml up -d db redis
 
-      - name: Wait for Database Service
+      - name: Wait for services to start
         run: |
-          while ! nc -zv your-database-host 5432; do
-            echo "Waiting for the database service to be available..."
-            sleep 5
-          done
+          sleep 10
 
       - name: Run tests
         env:
