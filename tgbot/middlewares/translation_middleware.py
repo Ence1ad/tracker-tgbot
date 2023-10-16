@@ -1,4 +1,6 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any
+from collections.abc import Callable, Awaitable
+
 from aiogram import BaseMiddleware
 from aiogram.types import Update, User
 from fluentogram import TranslatorHub
@@ -8,8 +10,7 @@ from tgbot.localization.localize import Translator
 
 
 class TranslatorRunnerMiddleware(BaseMiddleware):
-    """
-    Middleware for language translation using Fluentogram.
+    """Middleware for language translation using Fluentogram.
 
     This middleware is designed to handle language translation for your bot
     using the Fluentogram library. It allows you to dynamically translate messages
@@ -18,9 +19,9 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
     :param translator: Translator: An instance of the Translator class
     that handles bot localization.
     """
+
     def __init__(self, translator: Translator) -> None:
-        """
-        Initialize the TranslatorRunnerMiddleware.
+        """Initialize the TranslatorRunnerMiddleware.
 
         This method is called when creating an instance of the middleware.
         It sets up the middleware with the provided `translator` for language
@@ -35,12 +36,11 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
             event: Update,
-            data: Dict[str, Any]
+            data: dict[str, Any]
     ) -> Awaitable[Any]:
-        """
-        Process the middleware for translating messages.
+        """Process the middleware for translating messages.
 
         This method is automatically called by Aiogram for each incoming update.
         It checks the user's preferred language stored in Redis, and based on that

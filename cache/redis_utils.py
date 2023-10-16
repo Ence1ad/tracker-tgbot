@@ -1,6 +1,5 @@
 def set_redis_name(user_id: int, prefix: str = '') -> str:
-    """
-    Create a Redis data structure name for a user.
+    """Create a Redis data structure name for a user.
 
     This function generates a unique name for a Redis key used to store data
     associated with a specific user. The name is constructed by combining the

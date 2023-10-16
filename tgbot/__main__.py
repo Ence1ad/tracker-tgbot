@@ -26,6 +26,21 @@ from tgbot.utils.before_bot_start import start_bot, is_bot_admin
 
 
 async def main() -> None:
+    """Initialize and run the Telegram bot along with necessary components and settings.
+
+    This function serves as the entry point for running the Telegram bot. It initializes
+    the bot, creates an SQLAlchemy session, sets up Redis storage, configures various
+    components such as buttons, translator, and scheduler, and registers middlewares and
+    handlers for the bot's functionality. The bot is then started, and the main function
+    enters a polling loop to handle incoming updates.
+
+    Note:
+    ----
+        Before running the bot, make sure to set up the required environment variables
+        and bot token.
+
+    :return: None
+    """
     # Initialize bot
     bot: Bot = Bot(settings.BOT_TOKEN, parse_mode='html')
 

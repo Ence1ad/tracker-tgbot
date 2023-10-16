@@ -13,9 +13,8 @@ from config import settings
 from db.base_model import AsyncSaBase
 
 
-def pytest_addoption(parser):
-    """
-    Add custom command-line options for pytest configuration.
+def pytest_addoption(parser) -> None:
+    """Add custom command-line options for pytest configuration.
 
     This function allows you to define custom command-line options that can be used
     to configure pytest behavior for your tests. The function adds options for
@@ -55,14 +54,14 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def event_loop():
-    """
-    Fixture providing an asyncio event loop for test sessions.
+    """Fixture providing an asyncio event loop for test sessions.
 
     This fixture creates and yields an asyncio event loop suitable for running
     asynchronous tests. It also ensures that the event loop policy is set correctly for
     Windows systems using Python 3.8 or higher.
 
-    :return: asyncio.AbstractEventLoop: An asyncio event loop for running asynchronous tests.
+    :return: asyncio.AbstractEventLoop: An asyncio event loop for running asynchronous
+    tests.
     """
     if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -74,8 +73,7 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 def redis_url(request):
-    """
-    Fixture providing the Redis URL for test Redis database connection.
+    """Fixture providing the Redis URL for test Redis database connection.
 
     This fixture retrieves the Redis URL from command-line options or a session
     fixture. If the URL is not provided, it falls back to the default Redis URL.
@@ -101,8 +99,7 @@ def redis_url(request):
 
 @pytest.fixture(scope="session")
 def _redis_url():
-    """
-    Fixture providing the default Redis URL for test Redis database connection.
+    """Fixture providing the default Redis URL for test Redis database connection.
 
     This fixture defines the default Redis URL used for connecting to the test Redis
     database. It includes the necessary connection details, such as host, port, and
@@ -110,14 +107,14 @@ def _redis_url():
 
     :return: str: The default Redis URL for the test Redis database connection.
     """
-    url = f"redis://:{settings.REDIS_PASSWORD}@localhost:{settings.REDIS_PORT}/11?protocol=3"
+    url = f"redis://:{settings.REDIS_PASSWORD}@localhost:{settings.REDIS_PORT}/" \
+          f"11?protocol=3"
     return url
 
 
 @pytest.fixture(scope="session")
 def database_url(request):
-    """
-    Fixture providing the database URL for test database connection.
+    """Fixture providing the database URL for test database connection.
 
     This fixture retrieves the database URL from command-line options or a session
     fixture. If the URL is not provided, it falls back to the default database URL.
@@ -143,8 +140,7 @@ def database_url(request):
 
 @pytest.fixture(scope="session")
 def lang_bot_settings(request):
-    """
-    Fixture providing the language code for bot tests.
+    """Fixture providing the language code for bot tests.
 
     This fixture retrieves the language code from command-line options or a session
     fixture. If the language code is not provided, it falls back to the default
@@ -170,8 +166,7 @@ def lang_bot_settings(request):
 
 @pytest.fixture(scope="session")
 def _lang_bot_settings():
-    """
-    Fixture providing the default language code for bot tests.
+    """Fixture providing the default language code for bot tests.
 
     This fixture defines the default language code used for configuring and running bot
     tests.
@@ -186,8 +181,7 @@ POSTGRES_DEFAULT_DB = "postgres"
 
 @pytest_asyncio.fixture(scope="session")
 async def _database_url():
-    """
-    Fixture providing the database URL for the test database connection.
+    """Fixture providing the database URL for the test database connection.
 
     This fixture constructs the database URL using configuration settings and returns
     it. The URL is used to connect to the PostgreSQL test database.
@@ -207,8 +201,7 @@ async def _database_url():
 
 @pytest_asyncio.fixture(scope='session')
 async def redis_cli(redis_url):
-    """
-    Fixture providing an asynchronous Redis client.
+    """Fixture providing an asynchronous Redis client.
 
     This fixture creates an asynchronous Redis client using the specified Redis URL.
     The client is used for interacting with the Redis database during tests.
@@ -224,8 +217,7 @@ async def redis_cli(redis_url):
 
 @pytest_asyncio.fixture(scope="session")
 async def setup_database(database_url, event_loop):
-    """
-    Fixture for setting up the test database.
+    """Fixture for setting up the test database.
 
     This fixture creates and configures the test database using the provided database
     URL. It also handles cleanup after tests by dropping the test database.
@@ -243,8 +235,7 @@ async def setup_database(database_url, event_loop):
 
 @pytest_asyncio.fixture(scope="session")
 async def async_sqlalchemy_engine(setup_database):
-    """
-    Fixture providing an asynchronous SQLAlchemy engine for the test database.
+    """Fixture providing an asynchronous SQLAlchemy engine for the test database.
 
     This fixture creates an asynchronous SQLAlchemy engine using the database URL
     obtained from the `setup_database` fixture. The engine is used for database
@@ -262,8 +253,7 @@ async def async_sqlalchemy_engine(setup_database):
 
 @pytest_asyncio.fixture(scope="module", autouse=True)
 async def create_drop_models(async_sqlalchemy_engine):
-    """
-    Fixture for creating and dropping database models.
+    """Fixture for creating and dropping database models.
 
     This fixture creates database models using SQLAlchemy. It runs the `create_all`
     method to create the database schema at the beginning of the test module and then
@@ -281,8 +271,7 @@ async def create_drop_models(async_sqlalchemy_engine):
 
 @pytest_asyncio.fixture(scope='class')
 async def async_session_fixture(async_sqlalchemy_engine):
-    """
-    Fixture providing an asynchronous SQLAlchemy session.
+    """Fixture providing an asynchronous SQLAlchemy session.
 
     This fixture creates an asynchronous SQLAlchemy session for the test database.
     The session is used for performing database operations during class-level tests.
@@ -298,8 +287,7 @@ async def async_session_fixture(async_sqlalchemy_engine):
 
 @pytest_asyncio.fixture(scope='class')
 async def db_session_fixture(async_session_fixture):
-    """
-    Fixture providing an asynchronous database session.
+    """Fixture providing an asynchronous database session.
 
     This fixture creates an asynchronous database session using the
     `async_session_fixture`. The session is used for performing database operations
@@ -313,8 +301,7 @@ async def db_session_fixture(async_session_fixture):
 
 
 async def create_database(url: str):
-    """
-    Create a new database in the PostgreSQL server.
+    """Create a new database in the PostgreSQL server.
 
     This function is used to create a new PostgreSQL database using the specified URL.
     It checks if the database already exists and, if not, creates the new database.
@@ -344,8 +331,7 @@ async def create_database(url: str):
 
 
 async def drop_database(url: URL):
-    """
-    Drop a database from the PostgreSQL server.
+    """Drop a database from the PostgreSQL server.
 
     This function is used to drop a PostgreSQL database based on the specified URL.
     It disconnects users and drops the database.

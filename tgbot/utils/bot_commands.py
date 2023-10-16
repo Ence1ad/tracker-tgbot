@@ -7,8 +7,7 @@ from config import settings
 
 
 class CommandName(Enum):
-    """
-    Enumeration of bot command names.
+    """Enumeration of bot command names.
 
     This enumeration defines the available command names as string constants.
     """
@@ -20,8 +19,7 @@ class CommandName(Enum):
 
 
 async def bot_commands(bot: Bot) -> bool:
-    """
-    Set custom bot commands.
+    """Set custom bot commands.
 
     This function sets custom bot commands along with their descriptions using the
     provided Bot instance.

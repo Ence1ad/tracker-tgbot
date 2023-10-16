@@ -14,8 +14,7 @@ from db.operations.users_operations import delete_user, create_user
 async def add_user_handler(event: ChatMemberUpdated, redis_client: Redis,
                            db_session: AsyncSession, i18n: TranslatorRunner
                            ) -> Message:
-    """
-    Handle the event of adding a user to the group.
+    """Handle the event of adding a user to the group.
 
     :param event: ChatMemberUpdated: The update event triggered by the user's addition.
     :param redis_client: Redis: The Redis client for caching user information.
@@ -38,8 +37,7 @@ async def add_user_handler(event: ChatMemberUpdated, redis_client: Redis,
 async def remove_user_handler(event: ChatMemberUpdated, redis_client: Redis,
                               i18n: TranslatorRunner, db_session: AsyncSession
                               ) -> Message:
-    """
-    Handle the event of removing a user from the group.
+    """Handle the event of removing a user from the group.
 
     :param event: ChatMemberUpdated: The update event triggered by the user's removal.
     :param redis_client: Redis: The Redis client for caching user information.

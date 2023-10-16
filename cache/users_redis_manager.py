@@ -4,8 +4,7 @@ REDIS_USERS_SET: str = "users"
 
 
 async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
-    """
-    Add a user ID to a Redis set.
+    """Add a user ID to a Redis set.
 
     This function adds a user's ID to a Redis set for tracking users who have been sent
     a message.
@@ -18,8 +17,7 @@ async def redis_sadd_user_id(user_id: int, redis_client: Redis) -> int:
 
 
 async def redis_srem_user_id(user_id: int, redis_client: Redis) -> int:
-    """
-    Remove a user ID from a Redis set.
+    """Remove a user ID from a Redis set.
 
     This function removes a user's ID from a Redis set of users who have been sent
     a message.
@@ -32,8 +30,7 @@ async def redis_srem_user_id(user_id: int, redis_client: Redis) -> int:
 
 
 async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | None:
-    """
-    Check if a user ID exists in a Redis set.
+    """Check if a user ID exists in a Redis set.
 
     This function checks if a user's ID exists in a Redis set of users who have been
     sent a message.
@@ -49,8 +46,7 @@ async def is_redis_sismember_user(user_id: int, redis_client: Redis) -> bool | N
 
 async def redis_smembers_users(redis_client: Redis, set_name: str = REDIS_USERS_SET
                                ) -> set[str] | None:
-    """
-    Retrieve a set of all user IDs from a Redis set.
+    """Retrieve a set of all user IDs from a Redis set.
 
     This function retrieves a set of all user IDs from a Redis set of users who have
     been sent a message.

@@ -6,8 +6,7 @@ from tgbot.utils.bot_commands import bot_commands
 
 
 async def start_bot(bot: Bot) -> Message:
-    """
-    Start the bot and send a notification to the admin.
+    """Start the bot and send a notification to the admin.
 
     This function initializes the bot by getting its commands and sending
     a notification to the admin to indicate that the bot has been launched.
@@ -23,8 +22,7 @@ async def start_bot(bot: Bot) -> Message:
 
 
 async def is_bot_admin(bot: Bot, chat_id: int) -> None:
-    """
-    Check if the bot is an administrator in the specified chat.
+    """Check if the bot is an administrator in the specified chat.
 
     This function checks whether the bot is an administrator in the given chat. If not,
     it raises a PermissionError indicating that the bot does not have the required

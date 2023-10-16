@@ -53,26 +53,44 @@ class TgBotSettings(BaseSettings):
     GROUP_ID: int
 
 
-class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings, TgBotSettings,  BaseSettings):
+class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings,
+               TgBotSettings, BaseSettings):
+    """Application settings class that combines various configuration settings.
+
+    This class inherits from multiple configuration settings classes to create a
+    composite configuration.
+
+    Attributes
+    ----------
+        model_config (SettingsConfigDict): The model configuration settings.
+            - env_file (str): The name of the environment file.
+            - env_file_encoding (str): The encoding of the environment file.
+
+    Properties:
+        cache_url (str): A property that generates the Redis cache URL based on
+        configuration settings.
+        db_url (str): A property that generates the database URL based on configuration
+        settings.
+        scheduler_job_stores (dict[str, RedisJobStore]): A dictionary of job stores
+        for the scheduler.
+    """
+
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
     @property
     def cache_url(self) -> str:
-        """
-        The cache_url function returns a string that is the URL for connection to the Redis database.
+        """Generate the Redis cache URL based on configuration settings.
 
-        :param self: Access the class attributes
-        :return: A string containing the connection url for a redis database
+        :return: str: The Redis cache URL.
         """
-        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}?protocol=3"
+        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/" \
+               f"{self.REDIS_DB}?protocol=3"
 
     @property
     def db_url(self) -> str:
-        """
-        The db_url function returns a string that is the URL for connecting to the database.
+        """Generate the database URL based on configuration settings.
 
-        :param self: Reference the class itself
-        :return: A string that is a connection url for the database
+        :return: str: The database URL.
         """
         return URL.create(
             drivername="postgresql+asyncpg",
@@ -85,13 +103,9 @@ class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings
 
     @property
     def scheduler_job_stores(self) -> dict[str, RedisJobStore]:
-        """
-        The scheduler_job_stores function is used to configure the job stores that are available to the scheduler.
+        """Get the dictionary of job stores for the scheduler.
 
-        The function should return a dictionary of job store configurations, keyed by name.
-
-        :param self: Represent the instance of the class
-        :return: A dictionary with a single key-value pair
+        :return: dict[str, RedisJobStore]: A dictionary of job stores for the scheduler.
         """
         scheduler_job_stores = {
             'default': RedisJobStore(
@@ -108,13 +122,14 @@ class Settings(LoggingSettings, PostgresSettings, ProjectSettings, RedisSettings
 
 @lru_cache
 def get_settings() -> Settings:
-    """
-    Return an instance of the Settings class.
+    """Get application settings.
 
-    The Settings class contains all the settings for this project,
-    and it's used by other modules to access those settings.
+    This function returns an instance of the `Settings` class, which represents the
+    application's configuration settings. The settings include various configurations
+    inherited from multiple configuration settings classes.
 
-    :return: A settings object
+    :return: Settings: An instance of the `Settings` class containing application
+     configuration settings.
     """
     return Settings()
 

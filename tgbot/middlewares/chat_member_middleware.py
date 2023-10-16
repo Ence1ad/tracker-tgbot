@@ -18,8 +18,7 @@ from db.operations.users_operations import create_user
 
 
 class ChatMemberMiddleware(BaseMiddleware):
-    """
-    Middleware for handling chat member status and user registration.
+    """Middleware for handling chat member status and user registration.
 
     This middleware checks the status of users in a chat and manages user registration
     in Redis and the database. If a user is a bot, they are excluded.
@@ -30,8 +29,7 @@ class ChatMemberMiddleware(BaseMiddleware):
     """
 
     def __init__(self) -> None:
-        """
-        Initialize the ChatMemberMiddleware.
+        """Initialize the ChatMemberMiddleware.
 
         :return: None
         """
@@ -43,8 +41,7 @@ class ChatMemberMiddleware(BaseMiddleware):
             event: Update,
             data: dict[str, Any],
     ) -> Awaitable[Any] | None:
-        """
-        Handle incoming events based on user chat membership status.
+        """Handle incoming events based on user chat membership status.
 
         This method is called when a user interacts with the bot.
         It checks the user's status in the chat.
@@ -63,7 +60,7 @@ class ChatMemberMiddleware(BaseMiddleware):
         """
         user: User = data['event_from_user']
         if user.is_bot:
-            return
+            return None
 
         user_id: int = user.id
         redis_client: Redis = data['redis_client']
@@ -92,9 +89,9 @@ class ChatMemberMiddleware(BaseMiddleware):
             else:
                 # If a user leaves the group but tries to trigger the bot,
                 # just ignore it.
-                return
+                return None
         else:
-            is_user: bool = await is_redis_sismember_user(user_id, redis_client)
+            is_user: bool | None = await is_redis_sismember_user(user_id, redis_client)
             # If the user is in the group and in the redis set,
             # then an update is passed.
             if is_user:
@@ -103,8 +100,8 @@ class ChatMemberMiddleware(BaseMiddleware):
                 # If the user is in the group but not in the redis,
                 # add the user to the redis and the db
                 first_name: str = user.first_name
-                last_name: str = user.last_name
-                username: str = user.username
+                last_name: str | None = user.last_name
+                username: str | None = user.username
                 with suppress(IntegrityError):
                     await create_user(
                         user_id=user_id,

@@ -6,8 +6,7 @@ from config import settings
 
 
 def register_common_handlers() -> Router:
-    """
-    Register common message and callback handlers for your Telegram bot.
+    """Register common message and callback handlers for your Telegram bot.
 
     This function sets up various handlers for your bot to handle messages and events,
      including:

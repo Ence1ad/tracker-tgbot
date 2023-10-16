@@ -8,8 +8,7 @@ LANG_PREFIX = 'lang'
 
 async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None = None
                           ) -> str:
-    """
-    Retrieve the language code for a user from Redis.
+    """Retrieve the language code for a user from Redis.
 
     This function fetches the language code associated with a user from a Redis
     database. If no language code is found, it returns the default global language code
@@ -34,8 +33,7 @@ async def redis_hget_lang(user_id: int,  redis_client: Redis, local: str | None 
 
 async def redis_hset_lang(user_id: int,  redis_client: Redis, lang_code: str | bytes
                           ) -> int:
-    """
-    Set the language code for a user in Redis.
+    """Set the language code for a user in Redis.
 
     This function is used to update the language code for a user in a Redis database.
 

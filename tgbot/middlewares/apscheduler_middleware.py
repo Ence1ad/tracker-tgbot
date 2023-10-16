@@ -1,4 +1,5 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any
+from collections.abc import Callable, Awaitable
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
@@ -7,14 +8,14 @@ from apscheduler_di import ContextSchedulerDecorator
 
 class SchedulerMiddleware(BaseMiddleware):
     def __init__(self, scheduler: ContextSchedulerDecorator) -> None:
-        """
-        Initialize the SchedulerMiddleware.
+        """Initialize the SchedulerMiddleware.
 
         :param scheduler: The APScheduler instance used for scheduling tasks.
         :type scheduler: ContextSchedulerDecorator
 
-        This middleware is responsible for integrating an APScheduler instance into the Telegram bot.
-        The APScheduler allows scheduling and executing tasks at specified intervals.
+        This middleware is responsible for integrating an APScheduler instance into the
+        Telegram bot. The APScheduler allows scheduling and executing tasks at specified
+        intervals.
 
         """
         super().__init__()
@@ -22,12 +23,11 @@ class SchedulerMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
             event: TelegramObject,
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Awaitable[Any]:
-        """
-        Handle incoming events with APScheduler integration.
+        """Handle incoming events with APScheduler integration.
 
         :param handler: The event handler function to be called.
         :type handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]]
@@ -41,9 +41,9 @@ class SchedulerMiddleware(BaseMiddleware):
         :return: The result of the event handler.
         :rtype: Awaitable[Any]
 
-        This method is called when an event is received by the Telegram bot. It associates the provided
-        APScheduler instance with the event data, allowing for scheduling and executing tasks at
-        specified intervals using APScheduler.
+        This method is called when an event is received by the Telegram bot.
+        It associates the provided APScheduler instance with the event data, allowing
+        for scheduling and executing tasks at specified intervals using APScheduler.
 
         """
         data["apscheduler"] = self.scheduler

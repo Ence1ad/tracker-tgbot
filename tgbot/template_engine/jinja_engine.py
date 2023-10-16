@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Optional, Any, Dict
+
+from typing import Any
 
 from jinja2 import Environment, select_autoescape, Template, FileSystemLoader
 
@@ -11,18 +12,22 @@ env = Environment(
 )
 
 
-def render_template(name: str, values: Optional[Dict[str, Any]] = None,
+def render_template(name: str, values: dict[str, Any] | None = None,
                     **kwargs: dict) -> str:
-    """
-    Renders template & returns text
+    """Render a Jinja2 template with optional context values.
 
-    :param name: Name of template
-    :param values: Values for template (optional)
-    :param kwargs: Keyword-arguments for template (high-priority)
+    This function renders a Jinja2 template with the specified template name, using the
+    provided context values and keyword arguments.
+
+    :param name: str: The name of the Jinja2 template to render.
+    :param values: dict[str, Any] | None: A dictionary of context values to pass to the
+    template (default is None).
+    :param kwargs: dict: Additional keyword arguments to pass to the template.
+    :return: str: The rendered template as a string.
     """
     template: Template = env.get_template(name)
     if values:
-        rendered_template: str = template.render(values, **kwargs)
+        return template.render(values, **kwargs)
     else:
-        rendered_template: str = template.render(**kwargs)
-    return rendered_template
+        return template.render(**kwargs)
+
