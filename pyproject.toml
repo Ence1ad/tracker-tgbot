@@ -1,0 +1,103 @@
+[tool.pytest.ini_options]
+addopts = "--tb=short --cov=tgbot --cov=db --cov=cache"
+testpaths = [
+    "tests",
+    ]
+
+[tool.ruff]
+line-length = 88
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py310"
+
+select = [
+    "E", # pycodestyle
+    "F", # pyflakes
+    "UP", # pyupgrade
+    "D", # pydocstyle
+]
+ignore = [
+    "D100",
+    "D105",
+    "D107",
+    "D101",
+    "D104"
+]
+fixable = ["ALL"]
+unfixable = ["B"]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+extend-exclude = ["tests", "db/alembic"]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+[per-file-ignores]
+"__init__.py" = ["E402"]
+#"path/to/file.py" = ["E402"]
+
+
+[tool.mypy]
+#plugins = ["sqlalchemy.ext.mypy.plugin"]
+#no_implicit_optional = true
+#warn_unused_ignores = true
+
+# Specify the Python version
+python_version = "3.10"
+
+# Treat missing imports as errors (recommended for type checking)
+disallow_untyped_defs = true
+
+# Enable stricter type checking
+strict = true
+
+# Use stricter runtime checking (recommended for type checking)
+check_untyped_defs = true
+
+# Enable incremental type checking
+incremental = true
+
+# Show error messages for incomplete stubs
+show_error_codes = true
+
+exclude = ['env/']
+# Specify the directories to check (adjust these paths to match your project structure)
+[mypy]
+files = [
+  "tgbot/**/*.py",
+]
+
+# Additional configuration (adjust to your needs)
+[tool.mypy.options]
+# Configure type checking behavior
+
+# Ignore errors from third-party packages (you can add more)
+ignore_missing_imports = true
+
+# Allow untyped calls and definitions for dynamic parts of your codebase
+# (use sparingly and add type hints where possible)
+disallow_untyped_calls = false
+disallow_untyped_decorators = false
+check_untyped_defs = false
