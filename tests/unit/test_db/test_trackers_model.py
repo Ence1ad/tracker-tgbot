@@ -45,6 +45,7 @@ class TestTrackers:
             )
             assert tracker_obj.user_id == user_id
             assert tracker_obj.duration is None
+            assert str(tracker_obj) == str(tracker_obj.tracker_id)
 
     @pytest.mark.parametrize(
         ['user_id', 'tracker_id', 'expectation'],
@@ -87,6 +88,7 @@ class TestTrackers:
             res_fetchall = await select_stopped_trackers(
                 user_id, db_session=db_session_fixture
             )
+            assert isinstance(res_fetchall, list)
             assert res_fetchall
 
     @pytest.mark.parametrize(
@@ -128,4 +130,5 @@ class TestTrackers:
             res_scalar_one_or_none = await delete_tracker(
                 user_id, tracker_id, db_session=db_session_fixture
             )
+            assert isinstance(res_scalar_one_or_none, int)
             assert res_scalar_one_or_none == tracker_id

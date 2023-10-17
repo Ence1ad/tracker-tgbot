@@ -63,6 +63,7 @@ class TestUsers:
             assert user_model.first_name == first_name
             assert user_model.last_name == last_name
             assert user_model.username == username
+            assert str(user_model) == str(user_id)
 
     @pytest.mark.parametrize(
         "user_id, expectation",

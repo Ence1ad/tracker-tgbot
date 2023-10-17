@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import nullcontext as does_not_raise
 from sqlalchemy.exc import IntegrityError, DBAPIError, ProgrammingError
 
-from db.operations.categories_operations import create_category, select_categories,\
-    update_category, delete_category, select_category_id
+from db.operations.categories_operations import create_category, select_categories, \
+    update_category, delete_category, select_category_id, select_categories_with_actions
 from db.models.category_model import CategoryModel
 from tests.utils import MAIN_USER_ID, OTHER_USER_ID, NONE_USER_ID, \
     ABSENT_IN_DB_USER_ID, INVALID_USER_ID
@@ -76,8 +76,9 @@ class TestCategories:
             self, db_session_fixture: AsyncSession, user_id: int, expectation: Any,
     ) -> None:
         with expectation:
-            categories_fetchall = await select_categories(user_id,
-                                                          db_session=db_session_fixture)
+            categories_fetchall = await select_categories_with_actions(
+                user_id, db_session=db_session_fixture
+            )
             assert isinstance(categories_fetchall, list)
             assert categories_fetchall
 

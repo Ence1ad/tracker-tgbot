@@ -181,4 +181,5 @@ async def redis_expireat_midnight(user_id: int, redis_client: Redis,
         when_time = day_time
     today_midnight: dt = datetime.datetime.combine(today, when_time)
     tracker_cnt_name: str = set_redis_name(user_id, TRACKER_CNT_PREFIX)
-    return await redis_client.expireat(name=tracker_cnt_name, when=today_midnight)
+    return await redis_client.expireat(name=tracker_cnt_name, when=today_midnight,
+                                       nx=True)
