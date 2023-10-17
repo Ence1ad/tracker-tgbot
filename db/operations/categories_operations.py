@@ -97,7 +97,7 @@ async def select_category_id(user_id: int, category_name: str, db_session: Async
 
 
 async def update_category(user_id: int, category_id: int, new_category_name: str,
-                          db_session: AsyncSession) -> None:
+                          db_session: AsyncSession) -> int | None:
     """Update the name of a user's category.
 
     :param user_id: The user's ID.
