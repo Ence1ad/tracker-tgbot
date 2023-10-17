@@ -60,9 +60,16 @@ docstring-quotes = "double"
 
 
 [tool.mypy]
-#plugins = ["sqlalchemy.ext.mypy.plugin"]
-#no_implicit_optional = true
-#warn_unused_ignores = true
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+
+# Ignore errors from third-party packages (you can add more)
+ignore_missing_imports = true
+
+# Allow untyped calls and definitions for dynamic parts of your codebase
+# (use sparingly and add type hints where possible)
+disallow_untyped_calls = false
+disallow_untyped_decorators = false
+check_untyped_defs = false
 
 # Specify the Python version
 python_version = "3.10"
@@ -72,9 +79,6 @@ disallow_untyped_defs = true
 
 # Enable stricter type checking
 strict = true
-
-# Use stricter runtime checking (recommended for type checking)
-check_untyped_defs = true
 
 # Enable incremental type checking
 incremental = true
@@ -90,14 +94,6 @@ files = [
 ]
 
 # Additional configuration (adjust to your needs)
-[tool.mypy.options]
+#[tool.mypy.options]
 # Configure type checking behavior
 
-# Ignore errors from third-party packages (you can add more)
-ignore_missing_imports = true
-
-# Allow untyped calls and definitions for dynamic parts of your codebase
-# (use sparingly and add type hints where possible)
-disallow_untyped_calls = false
-disallow_untyped_decorators = false
-check_untyped_defs = false

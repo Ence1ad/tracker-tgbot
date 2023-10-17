@@ -56,7 +56,7 @@ class TrackerModel(AsyncSaBase):
     )
 
     __table_args__ = (
-        Index('trackers_user_id_tracker_id_idx', 'user_id', 'tracker_id')
+        Index('trackers_user_id_tracker_id_idx', 'user_id', 'tracker_id'),
     )
 
     def __str__(self) -> str:

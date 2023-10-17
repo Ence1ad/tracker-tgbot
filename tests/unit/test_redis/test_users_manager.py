@@ -8,7 +8,7 @@ from redis.asyncio import Redis
 
 from cache.users_redis_manager import redis_sadd_user_id, is_redis_sismember_user, \
     redis_smembers_users, redis_srem_user_id, REDIS_USERS_SET
-from tests.utils import MAIN_USER_ID, OTHER_USER_ID, INVALID_USER_ID
+from tests.utils import MAIN_USER_ID, OTHER_USER_ID, NONE_USER_ID
 
 
 @pytest.mark.asyncio
@@ -28,7 +28,7 @@ class TestUsersManager:
             (OTHER_USER_ID, does_not_raise()),
             (memoryview(b'11'), does_not_raise()),
             ([1, 2, 3], pytest.raises(DataError)),
-            (INVALID_USER_ID, pytest.raises(DataError)),
+            (NONE_USER_ID, pytest.raises(DataError)),
         ]
     )
     async def test_redis_add_user_id(self, user_id: int, expectation: Any,
@@ -58,7 +58,7 @@ class TestUsersManager:
             (OTHER_USER_ID, does_not_raise()),
             ('12345678', pytest.raises(AssertionError)),
             ([1, 2, 3], pytest.raises(AssertionError)),
-            (INVALID_USER_ID, pytest.raises(AssertionError)),
+            (NONE_USER_ID, pytest.raises(AssertionError)),
         ]
     )
     async def test_is_redis_sismember_user(self, user_id: int, redis_cli: Redis,
@@ -88,7 +88,7 @@ class TestUsersManager:
             (OTHER_USER_ID, does_not_raise()),
             ('12345678', pytest.raises(AssertionError)),
             ([1, 2, 3], pytest.raises(DataError)),
-            (INVALID_USER_ID, pytest.raises(DataError)),
+            (NONE_USER_ID, pytest.raises(DataError)),
         ]
     )
     async def test_redis_srem_user_id(self, user_id: int, expectation: Any,

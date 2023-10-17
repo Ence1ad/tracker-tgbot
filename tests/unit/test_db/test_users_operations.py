@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from db.models.user_model import UserModel
 from db.operations.users_operations import create_user, delete_user
-from tests.utils import MAIN_USER_ID, INVALID_USER_ID, OTHER_USER_ID
+from tests.utils import MAIN_USER_ID, NONE_USER_ID, OTHER_USER_ID, INVALID_USER_ID
 
 
 @pytest.mark.asyncio
@@ -28,8 +28,8 @@ class TestUsers:
             (1000000003, 'Ivan', 'Ivanov', None, does_not_raise()),
             (1000000004, 'Ivan', None, None, does_not_raise()),
             (1000000006, '', '', '', does_not_raise()),
-            (INVALID_USER_ID, '', '', '', pytest.raises(IntegrityError)),
-            ('abc', '', '', '', pytest.raises(DBAPIError)),
+            (NONE_USER_ID, '', '', '', pytest.raises(IntegrityError)),
+            (INVALID_USER_ID, '', '', '', pytest.raises(DBAPIError)),
             (1000000007, 123, '', '', pytest.raises(DBAPIError)),
             (1000000008, '', 123, '', pytest.raises(DBAPIError)),
             (1000000009, '', '', 123, pytest.raises(DBAPIError)),
@@ -70,7 +70,7 @@ class TestUsers:
             (MAIN_USER_ID,  does_not_raise()),
             (MAIN_USER_ID, pytest.raises(AssertionError)),
             (OTHER_USER_ID,  does_not_raise()),
-            (INVALID_USER_ID, pytest.raises(AssertionError)),
+            (NONE_USER_ID, pytest.raises(AssertionError)),
             (1000000004,  does_not_raise()),
             (1000000006,  does_not_raise()),
         ]
