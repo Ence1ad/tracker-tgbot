@@ -34,7 +34,13 @@ class ProjectSettings(BaseSettings):
     EN_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
     GLOBAL_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
     USER_REPORT_DIR: str = Field(default='./reports/')
-
+    WEEKLY_XLSX_FILE_NAME: str = Field(default='Weekly Report.xlsx')
+    LENGTH_NAME_LIMIT: int = Field(default=20)
+    USER_ACTIONS_LIMIT: int = Field(default=10)
+    USER_CATEGORIES_LIMIT: int = Field(default=10)
+    USER_TRACKERS_DAILY_LIMIT: int = Field(default=10)
+    USER_TRACKERS_WEEKLY_LIMIT: int = Field(default=100)
+    MAX_HOURS_DURATION_TRACKER: int = Field(default=24)
 
 class RedisSettings(BaseSettings):
     """Redis Settings."""
