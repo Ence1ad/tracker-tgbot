@@ -13,7 +13,7 @@ env = Environment(
 
 
 def render_template(name: str, values: dict[str, Any] | None = None,
-                    **kwargs: dict) -> str:
+                    **kwargs: dict[str, str]) -> str:
     """Render a Jinja2 template with optional context values.
 
     This function renders a Jinja2 template with the specified template name, using the
@@ -22,7 +22,7 @@ def render_template(name: str, values: dict[str, Any] | None = None,
     :param name: str: The name of the Jinja2 template to render.
     :param values: dict[str, Any] | None: A dictionary of context values to pass to the
     template (default is None).
-    :param kwargs: dict: Additional keyword arguments to pass to the template.
+    :param kwargs: dict[str, str]: Additional keyword arguments to pass to the template.
     :return: str: The rendered template as a string.
     """
     template: Template = env.get_template(name)
