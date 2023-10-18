@@ -1,10 +1,9 @@
 from enum import IntEnum
-from typing import Any
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from fluentogram import TranslatorRunner
-from sqlalchemy import Row
+from sqlalchemy import Sequence
 
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.keyboards.callback_factories import CategoryCD, CategoryOperation, \
@@ -41,11 +40,11 @@ async def menu_inline_kb(
     return kb_builder.as_markup()
 
 
-async def callback_factories_kb(data_from_db: dict[str, str], enum_val: IntEnum
+async def callback_factories_kb(data_from_db: Sequence, enum_val: IntEnum
                                 ) -> InlineKeyboardMarkup:
     """Generate an inline keyboard for callback factories.
 
-    :param data_from_db: dict[str, str]): Data from a database query.
+    :param data_from_db: Sequence: Data from a database query.
     :param enum_val: IntEnum: An IntEnum value representing the operation type.
     :raises KeyError: If the specified Enum value is not recognized.
     :return: InlineKeyboardMarkup: The generated inline keyboard markup.
@@ -85,12 +84,12 @@ async def callback_factories_kb(data_from_db: dict[str, str], enum_val: IntEnum
 
 
 async def _tracker(
-        trackers: list[Row[Any]], callback_class: type["TrackerCD"],
+        trackers: Sequence, callback_class: type["TrackerCD"],
         builder: InlineKeyboardBuilder, operation: TrackerOperation
 ) -> InlineKeyboardBuilder:
     """Generate an inline keyboard for tracker-related operations.
 
-    :param trackers: list[Row[Any]]: List of tracker data from a database query.
+    :param trackers: Sequence: List of tracker data from a database query.
     :param callback_class: type["TrackerCD"]): The callback class for tracker-related
     operations.
     :param builder: InlineKeyboardBuilder: The keyboard builder to add buttons to.
@@ -109,13 +108,13 @@ async def _tracker(
 
 
 async def _actions(
-        actions: list[Row[Any]], callback_class: type["ActionCD"],
+        actions: Sequence, callback_class: type["ActionCD"],
         builder: InlineKeyboardBuilder, operation: ActionOperation
 ) -> InlineKeyboardBuilder:
     """Generate an inline keyboard for action-related operations.
 
     This function is used internally to create action-related inline keyboards.
-    :param actions: list[Row[Any]]: List of action data from a database query.
+    :param actions: Sequence: List of action data from a database query.
     :param callback_class: type["ActionCD"]: The callback class for action-related
      operations.
     :param builder: InlineKeyboardBuilder: The keyboard builder to add buttons to.
@@ -132,12 +131,12 @@ async def _actions(
     return builder
 
 
-async def _categories(categories: list[Row[Any]], callback_class: type["CategoryCD"],
+async def _categories(categories: Sequence, callback_class: type["CategoryCD"],
                       builder: InlineKeyboardBuilder,
                       operation: CategoryOperation) -> InlineKeyboardBuilder:
     """Generate an inline keyboard for category-related operations.
 
-    :param categories: list[Row[Any]]: List of category data from a database query.
+    :param categories: Sequence: List of category data from a database query.
     :param callback_class: type["CategoryCD"]: The callback class for category-related
      operations.
     :param builder: InlineKeyboardBuilder: The keyboard builder to add buttons to.

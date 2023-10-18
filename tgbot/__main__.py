@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers
+from tgbot.handlers.categories_handlers import register_categories_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
 from tgbot.middlewares.apscheduler_middleware import SchedulerMiddleware
@@ -95,7 +96,8 @@ async def main() -> None:
     )
     # Register handlers
     common_handlers_router = register_common_handlers()
-    dp.include_routers(common_handlers_router)
+    categories_router = register_categories_handlers()
+    dp.include_routers(common_handlers_router, categories_router)
 
     try:
         await dp.start_polling(bot)
