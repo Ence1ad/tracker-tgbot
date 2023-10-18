@@ -22,7 +22,7 @@ async def command_help_handler(message: Message, redis_client: Redis,
                                               redis_client=redis_client)
 
     if current_user_lang == settings.RU_LANG_CODE:
-        lang_code: dict[str, str] = {
+        lang_code = {
             "main": 'ru_help_main.html',
             "cat": 'ru_help_categories.html',
             "act": 'ru_help_actions.html',
@@ -51,19 +51,10 @@ async def command_help_handler(message: Message, redis_client: Redis,
     elif len(words) == 2:
         # Extract the <command> part from the message
         command = words[1]
-
-        if command == "cat":
-            categories_help_msg: str = render_template(lang_code.get("cat"))
-            return await message.reply(text=categories_help_msg)
-        elif command == "act":
-            actions_help_msg: str = render_template(lang_code.get("act"))
-            return await message.reply(text=actions_help_msg)
-        elif command == "tra":
-            trackers_help_msg: str = render_template(lang_code.get("tra"))
-            return await message.reply(text=trackers_help_msg)
-        elif command == "rep":
-            reports_help_msg: str = render_template(lang_code.get("rep"))
-            return await message.reply(text=reports_help_msg)
+        template = lang_code.get(command)
+        if template is not None:
+            text = render_template(template)
+            return await message.reply(text=text)
         else:
             return await message.reply(text=i18n.get('help_unknown_command_text'))
     else:
