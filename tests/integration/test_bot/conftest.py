@@ -9,7 +9,8 @@ from config import settings
 from tests.integration.mocked_bot import MockedBot
 from tests.integration.test_bot.utils import get_update, get_callback_query, \
     get_message, TEST_CHAT
-from tgbot.handlers import register_common_handlers
+from tgbot.handlers import register_common_handlers, categories_handlers
+from tgbot.handlers.categories_handlers import register_categories_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
 from tgbot.middlewares.db_middleware import DbSessionMiddleware
@@ -74,7 +75,8 @@ async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n,
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
 
     common_handlers_router = register_common_handlers()
-    dp.include_routers(common_handlers_router)
+    categories_router = register_categories_handlers()
+    dp.include_routers(common_handlers_router, categories_router)
     await dp.emit_startup()
     try:
         yield dp
