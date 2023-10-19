@@ -41,6 +41,10 @@ class ProjectSettings(BaseSettings):
     USER_TRACKERS_DAILY_LIMIT: int = Field(default=10)
     USER_TRACKERS_WEEKLY_LIMIT: int = Field(default=100)
     MAX_HOURS_DURATION_TRACKER: int = Field(default=24)
+    # Cron setup for weekly report
+    CRON_DAY_OF_WEEK: str = Field(default='sun')
+    CRON_HOUR: int = Field(default=23)
+    CRON_MINUTE: int = Field(default=50)
 
 class RedisSettings(BaseSettings):
     """Redis Settings."""
