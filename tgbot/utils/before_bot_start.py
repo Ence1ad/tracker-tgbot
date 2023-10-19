@@ -35,3 +35,4 @@ async def is_bot_admin(bot: Bot, chat_id: int) -> None:
     chat_member = await bot.get_chat_member(chat_id=chat_id, user_id=bot.id)
     if not isinstance(chat_member, ChatMemberAdministrator):
         raise PermissionError("Bot is not an administrator")
+    return None

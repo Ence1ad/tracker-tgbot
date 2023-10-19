@@ -36,7 +36,6 @@ def register_categories_handlers() -> Router:
                 AppButtons.general_btn_source.ACTIONS_BTN.name,
                 AppButtons.categories_btn_source.UPDATE_CATEGORIES.name,
                 AppButtons.categories_btn_source.DELETE_CATEGORIES.name,
-                AppButtons.trackers_btn_source.START_TRACKER_BTN.name
             )
         )
     )

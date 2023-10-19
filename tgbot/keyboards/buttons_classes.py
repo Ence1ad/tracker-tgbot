@@ -70,17 +70,6 @@ class CategoriesButtonsData(Enum):
         }
         return buttons_data
 
-    @classmethod
-    async def category_limit_menu(cls: type['CategoriesButtonsData']) -> dict[str, str]:
-        """Get a dictionary for category limit menu.
-
-        :return: dict[str, str]: A dictionary for category limit menu.
-        """
-        buttons_data: dict[str, str] = {
-            cls.DELETE_CATEGORIES.name: cls.DELETE_CATEGORIES.value
-        }
-        return buttons_data
-
 
 class GeneralButtonsData(Enum):
     """Enum for general buttons."""

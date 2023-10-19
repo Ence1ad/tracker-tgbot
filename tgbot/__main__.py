@@ -12,13 +12,14 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from config import settings
 from db.db_session import create_async_session
 from tgbot.handlers import register_common_handlers, register_actions_handlers, \
-    register_categories_handlers
+    register_categories_handlers, register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
 from tgbot.middlewares import SchedulerMiddleware, ButtonsMiddleware,\
     ChatMemberMiddleware, DbSessionMiddleware, CacheMiddleware, ThrottlingMiddleware, \
     TranslatorRunnerMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
+from tgbot.schedule.schedule_jobs import interval_sending_reports_job
 from tgbot.utils.before_bot_start import start_bot, is_bot_admin
 
 
@@ -77,6 +78,8 @@ async def main() -> None:
 
     # Get commands
     await start_bot(bot)
+    # Set sending reports job
+    await interval_sending_reports_job(scheduler=scheduler)
 
     dp.startup.register(start_bot)
     # Register middlewares
@@ -94,7 +97,10 @@ async def main() -> None:
     common_handlers_router = register_common_handlers()
     categories_router = register_categories_handlers()
     actions_router = register_actions_handlers()
-    dp.include_routers(common_handlers_router, categories_router, actions_router)
+    tracker_router = register_tracker_handlers()
+    report_router = register_report_handlers()
+    dp.include_routers(common_handlers_router, categories_router, actions_router,
+                       tracker_router, report_router)
 
     try:
         await dp.start_polling(bot)
