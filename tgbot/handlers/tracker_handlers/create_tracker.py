@@ -114,8 +114,6 @@ async def create_new_tracker(
     creates a new tracker, updates Redis data, and sets up a schedule job to
     automatically delete the tracker if not stopped.
 
-    Returns:
-        Message: The message to be sent to the user as a response.
     :param call: CallbackQuery: The CallbackQuery object representing the user's
     interaction.
     :param callback_data: ActionCD: The callback data containing action information.
@@ -128,7 +126,7 @@ async def create_new_tracker(
     :param buttons: AppButtons: The AppButtons object containing button configurations.
     :param i18n: TranslatorRunner: The TranslatorRunner for handling language
      localization.
-    :return:
+    :return: Message: The message to be sent to the user as a response.
     """
     user_id: int = call.from_user.id
     action_name: str = callback_data.action_name

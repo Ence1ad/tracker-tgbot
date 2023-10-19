@@ -11,11 +11,12 @@ from tests.integration.mocked_bot import MockedBot
 from tests.integration.test_bot.utils import get_update, get_callback_query, \
     get_message, TEST_CHAT
 from tgbot.handlers import register_common_handlers, register_actions_handlers, \
-    register_categories_handlers
+    register_categories_handlers, register_tracker_handlers, register_report_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import SchedulerMiddleware, ButtonsMiddleware,\
-    DbSessionMiddleware, CacheMiddleware, TranslatorRunnerMiddleware
+from tgbot.middlewares import SchedulerMiddleware, ButtonsMiddleware, \
+    DbSessionMiddleware, CacheMiddleware, TranslatorRunnerMiddleware, \
+    ThrottlingMiddleware, ChatMemberMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
@@ -68,14 +69,22 @@ async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n,
     translator = Translator(global_lang=lang_bot_settings)
     dp.update.middleware.register(DbSessionMiddleware(async_session_fixture))
     dp.update.middleware.register(CacheMiddleware(redis_cli))
-    dp.callback_query.middleware.register(SchedulerMiddleware(scheduler))
+    dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.update.middleware.register(ButtonsMiddleware(buttons))
     dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
-
+    dp.update.middleware.register(ChatMemberMiddleware())
+    dp.update.middleware.register(SchedulerMiddleware(scheduler))
+    dp.update.middleware.register(ThrottlingMiddleware(
+        limit=35,
+        period=30)
+    )
     common_handlers_router = register_common_handlers()
     categories_router = register_categories_handlers()
     actions_router = register_actions_handlers()
-    dp.include_routers(common_handlers_router, categories_router, actions_router)
+    tracker_router = register_tracker_handlers()
+    report_router = register_report_handlers()
+    dp.include_routers(common_handlers_router, categories_router, actions_router,
+                       tracker_router, report_router)
     await dp.emit_startup()
     try:
         yield dp
