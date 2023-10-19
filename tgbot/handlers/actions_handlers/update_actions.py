@@ -47,11 +47,6 @@ async def update_action_name_handler(
     This handler is triggered when a user enters a new name for an existing action and
     updates the action name if the new name is valid.
 
-    Handler Description:
-    - Updates the action name in the state.
-    - Validates if the new action name is unique within the category.
-    - Updates the action name in the database if the name is valid.
-    - Updates the action name in the Redis cache.
     :param message: Message: The user's message with the new action name.
     :param state: FSMContext: The current state of the conversation.
     :param db_session: AsyncSession: The database session for database operations.
@@ -71,10 +66,8 @@ async def update_action_name_handler(
     await state.set_state(ActionState.WAIT_CATEGORY_DATA)
     markup: InlineKeyboardMarkup = await menu_inline_kb(
         await buttons.actions_btn_source.action_menu_buttons(), i18n)
-
     if user_actions := await select_category_actions(user_id, category_id=category_id,
                                                      db_session=db_session):
-
         if new_valid_action_name := await valid_name(user_actions, new_action_name):
             await update_action_name(
                 user_id=user_id, action_id=action_id,  db_session=db_session,
