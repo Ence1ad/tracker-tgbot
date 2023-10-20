@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--tb=short --cov=tgbot --cov=db --cov=cache"
+addopts = "--tb=short --cov=tgbot --cov=db --cov=cache --cov=report_baker"
 testpaths = [
     "tests",
     ]

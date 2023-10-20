@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import pytest_asyncio
 from aiogram import Dispatcher
@@ -10,13 +12,10 @@ from config import settings
 from tests.integration.mocked_bot import MockedBot
 from tests.integration.test_bot.utils import get_update, get_callback_query, \
     get_message, TEST_CHAT
-from tgbot.handlers import register_common_handlers, register_actions_handlers, \
-    register_categories_handlers, register_tracker_handlers, register_report_handlers
+from tests.utils import TRACKER_ID, ACTION_NAME, ACTION_ID, CATEGORY_NAME, CATEGORY_ID
+from tgbot.__main__ import _register_middlewares, _register_handlers
 from tgbot.keyboards.app_buttons import AppButtons
 from tgbot.localization.localize import Translator
-from tgbot.middlewares import SchedulerMiddleware, ButtonsMiddleware, \
-    DbSessionMiddleware, CacheMiddleware, TranslatorRunnerMiddleware, \
-    ThrottlingMiddleware, ChatMemberMiddleware
 from tgbot.schedule.schedule_adjustment import setup_scheduler
 
 
@@ -63,28 +62,18 @@ async def scheduler(async_session_fixture, redis_storage, bot, redis_cli):
 
 
 @pytest_asyncio.fixture()
-async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, i18n,
-                     async_session_fixture,  redis_storage, scheduler):
+async def dispatcher(bot, redis_cli, buttons, lang_bot_settings, async_session_fixture,
+                     redis_storage, scheduler):
+
     dp = Dispatcher(storage=redis_storage)
     translator = Translator(global_lang=lang_bot_settings)
-    dp.update.middleware.register(DbSessionMiddleware(async_session_fixture))
-    dp.update.middleware.register(CacheMiddleware(redis_cli))
-    dp.update.middleware.register(SchedulerMiddleware(scheduler))
-    dp.update.middleware.register(ButtonsMiddleware(buttons))
-    dp.update.middleware.register(TranslatorRunnerMiddleware(translator))
-    dp.update.middleware.register(ChatMemberMiddleware())
-    dp.update.middleware.register(SchedulerMiddleware(scheduler))
-    dp.update.middleware.register(ThrottlingMiddleware(
-        limit=35,
-        period=30)
+
+    await _register_middlewares(
+        dp=dp, async_session=async_session_fixture, buttons=buttons,
+        redis_client=redis_cli, translator=translator, scheduler=scheduler,
+        throttling=(35, 30)
     )
-    common_handlers_router = register_common_handlers()
-    categories_router = register_categories_handlers()
-    actions_router = register_actions_handlers()
-    tracker_router = register_tracker_handlers()
-    report_router = register_report_handlers()
-    dp.include_routers(common_handlers_router, categories_router, actions_router,
-                       tracker_router, report_router)
+    await _register_handlers(dp)
     await dp.emit_startup()
     try:
         yield dp
@@ -131,9 +120,10 @@ async def execute_message_handler(bot: MockedBot, dispatcher: Dispatcher,
 @pytest_asyncio.fixture
 async def create_tracker_fixt_fact(redis_cli):
     async def _create_tracker_fixt_fact(
-            user_id: int, category_id: int, category_name: str, action_id: int,
-            action_name: str, tracker_id: str
-    ):
+            user_id: int, category_id: int = CATEGORY_ID,
+            category_name: str = CATEGORY_NAME, action_id: int = ACTION_ID,
+            action_name: str = ACTION_NAME, tracker_id: str = TRACKER_ID
+    ) -> Any | None:
         tracker = await redis_hmset_create_tracker(
             user_id=user_id, tracker_id=tracker_id, action_id=action_id,
             action_name=action_name, category_id=category_id,

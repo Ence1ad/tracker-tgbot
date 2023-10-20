@@ -1,8 +1,10 @@
 from datetime import datetime
 
+from aiogram import Dispatcher
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 
+from tests.integration.mocked_bot import MockedBot
 from tests.utils import MAIN_USER_ID
 
 TEST_USER = User(

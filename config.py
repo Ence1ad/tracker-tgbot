@@ -45,6 +45,8 @@ class ProjectSettings(BaseSettings):
     CRON_DAY_OF_WEEK: str = Field(default='sun')
     CRON_HOUR: int = Field(default=23)
     CRON_MINUTE: int = Field(default=50)
+    REPORTS_DISTRIBUTION_DELAY: int = Field(default=1)
+
 
 class RedisSettings(BaseSettings):
     """Redis Settings."""

@@ -51,7 +51,7 @@ async def schedule_delete_tracker(
 
 
 async def schedule_weekly_report(
-        bot: Bot, redis_client: Redis, async_session: AsyncSession
+        bot: Bot, redis_client: Redis, async_session: AsyncSession,
 ) -> None:
     """Schedule the generation and sending of a weekly report to users.
 
@@ -74,7 +74,7 @@ async def schedule_weekly_report(
             document = FSInputFile(doc_path)
             try:
                 await bot.send_document(chat_id=user_id, document=document)
-                await asyncio.sleep(2)
+                await asyncio.sleep(settings.REPORTS_DISTRIBUTION_DELAY)
             except TelegramForbiddenError as ex:
                 logging.exception(ex)
     return None
