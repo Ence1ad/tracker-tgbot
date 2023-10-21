@@ -76,6 +76,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    user: 1000:1000
     restart: on-failure
     env_file: .env
     depends_on:
@@ -101,9 +102,6 @@ volumes:
     driver: local
 
 
-
 networks:
   bot_api:
-#    name: bot_api
   monitoring:
-#    name: monitoring

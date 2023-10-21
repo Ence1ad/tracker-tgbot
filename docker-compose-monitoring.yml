@@ -171,8 +171,6 @@ volumes:
 
 networks:
   bot_api:
-#    name: bot_api
     external: true
   monitoring:
-#    name: monitoring
     external: true
