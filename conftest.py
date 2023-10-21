@@ -5,12 +5,13 @@ import pytest
 import pytest_asyncio
 from redis import asyncio as redis
 from redis.asyncio import Redis
-from sqlalchemy import URL, make_url, text
+from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, \
     async_sessionmaker, AsyncSession
 
 from config import settings
 from db.base_model import AsyncSaBase
+from tests.utils import create_database, drop_database
 
 
 def pytest_addoption(parser) -> None:
@@ -176,9 +177,6 @@ def _lang_bot_settings():
     return settings.GLOBAL_LANG_CODE
 
 
-POSTGRES_DEFAULT_DB = "postgres"
-
-
 @pytest_asyncio.fixture(scope="session")
 async def _database_url():
     """Fixture providing the database URL for the test database connection.
@@ -298,59 +296,3 @@ async def db_session_fixture(async_session_fixture):
     """
     async with async_session_fixture() as db_session:
         yield db_session
-
-
-async def create_database(url: str):
-    """Create a new database in the PostgreSQL server.
-
-    This function is used to create a new PostgreSQL database using the specified URL.
-    It checks if the database already exists and, if not, creates the new database.
-
-    :param url: The database URL.
-    :return: None
-    """
-    url_object = make_url(url)
-    database_name = url_object.database
-    dbms_url = url_object.set(database=POSTGRES_DEFAULT_DB)
-    engine = create_async_engine(dbms_url, isolation_level="AUTOCOMMIT")
-
-    async with engine.connect() as conn:
-        c = await conn.execute(
-            text(f"SELECT 1 FROM pg_database WHERE datname='{database_name}'")
-        )
-        database_exists = c.scalar() == 1
-
-    if database_exists:
-        await drop_database(url_object)
-
-    async with engine.connect() as conn:
-        await conn.execute(
-            text(f'CREATE DATABASE "{database_name}"')
-        )
-    await engine.dispose()
-
-
-async def drop_database(url: URL):
-    """Drop a database from the PostgreSQL server.
-
-    This function is used to drop a PostgreSQL database based on the specified URL.
-    It disconnects users and drops the database.
-
-    :param url: The database URL.
-    :return: None
-    """
-    url_object = make_url(url)
-    dbms_url = url_object.set(database=POSTGRES_DEFAULT_DB)
-    engine = create_async_engine(dbms_url, isolation_level="AUTOCOMMIT")
-    async with engine.connect() as conn:
-        disconnect_users = """
-        SELECT pg_terminate_backend(pg_stat_activity.{pid_column})
-        FROM pg_stat_activity
-        WHERE pg_stat_activity.datname = '{database}'
-          AND {pid_column} <> pg_backend_pid();
-        """.format(
-            pid_column="pid",
-            database=url_object.database,
-        )
-        await conn.execute(text(disconnect_users))
-        await conn.execute(text(f'DROP DATABASE "{url_object.database}"'))
