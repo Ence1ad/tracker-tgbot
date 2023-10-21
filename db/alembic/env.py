@@ -13,7 +13,10 @@ from config import settings
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option('sqlalchemy.url', settings.db_url)
+db_url = config.get_main_option("sqlalchemy.url")
+
+if db_url is None:
+    config.set_main_option('sqlalchemy.url', settings.db_url)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
