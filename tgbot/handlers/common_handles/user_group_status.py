@@ -48,7 +48,7 @@ async def remove_user_handler(event: ChatMemberUpdated, redis_client: Redis,
     user_id: int = event.new_chat_member.user.id
     await redis_srem_user_id(user_id, redis_client)
     await delete_user(user_id, db_session)
-    if Path.exists(Path(f'{settings.USER_REPORT_DIR}{user_id}')):
+    if Path.is_dir(Path(f'{settings.USER_REPORT_DIR}{user_id}')):
         shutil.rmtree(Path(f'{settings.USER_REPORT_DIR}{user_id}'))
     return await event.answer(f"{event.new_chat_member.user.first_name} "
                               f"{i18n.get('farewell_group_text')}")

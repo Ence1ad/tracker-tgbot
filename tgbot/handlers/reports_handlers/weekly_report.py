@@ -64,9 +64,6 @@ async def get_document(user_id, redis_client: Redis, db_session) -> FSInputFile 
     :return: FSInputFile | None: The user's report document as a file or None if no
      document is available.
     """
-    # Create user_report dir if not exists
-    await _create_user_report_dir(user_id)
-
     await redis_expireat_end_of_week(user_id, redis_client)
     sheet_name = f"{settings.USER_REPORT_DIR}{user_id}/{settings.WEEKLY_XLSX_FILE_NAME}"
     is_report_need_update = await redis_get_report_need_upd(user_id, redis_client)
@@ -82,18 +79,6 @@ async def get_document(user_id, redis_client: Redis, db_session) -> FSInputFile 
         else:
             return await create_document(user_id, db_session=db_session,
                                          sheet_name=sheet_name)
-
-
-async def _create_user_report_dir(user_id: int) -> None:
-    """Create the user's report directory if it doesn't exist.
-
-    :param user_id:  The user's ID.
-    :return: None
-    """
-    user_report_dir: Path = Path(f'{settings.USER_REPORT_DIR}{user_id}')
-    if not Path.exists(user_report_dir):
-        Path.mkdir(user_report_dir)
-    return None
 
 
 async def create_document(user_id, db_session, sheet_name) -> FSInputFile | None:

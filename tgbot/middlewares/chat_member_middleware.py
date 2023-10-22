@@ -1,5 +1,6 @@
 from contextlib import suppress
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 from collections.abc import Callable,  Awaitable
 
@@ -15,6 +16,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from cache.users_redis_manager import is_redis_sismember_user, redis_sadd_user_id
 from config import settings
 from db.operations.users_operations import create_user
+
+
+async def _create_user_report_dir(user_id: int) -> None:
+    """Create the user's report directory if it doesn't exist.
+
+    :param user_id:  The user's ID.
+    :return: None
+    """
+    user_report_dir: Path = Path(f'{settings.USER_REPORT_DIR}{user_id}')
+    if not Path.is_dir(user_report_dir):
+        Path.mkdir(user_report_dir)
+    return None
 
 
 class ChatMemberMiddleware(BaseMiddleware):
@@ -97,6 +110,8 @@ class ChatMemberMiddleware(BaseMiddleware):
             if is_user:
                 return await handler(event, data)
             else:
+                # Create user_report dir if not exists
+                await _create_user_report_dir(user_id)
                 # If the user is in the group but not in the redis,
                 # add the user to the redis and the db
                 first_name: str = user.first_name
