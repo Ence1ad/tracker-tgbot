@@ -28,24 +28,29 @@ class PostgresSettings(BaseSettings):
 class ProjectSettings(BaseSettings):
     """Project Settings."""
 
-    THROTTLING_RATE_LIMIT: int = Field(default=10)  # Maximum number of messages
-    THROTTLING_RATE_PERIOD: int = Field(default=10)  # Time period in seconds
-    RU_LANG_CODE: str = Field(default='ru')  # ISO 639-1 language code
-    EN_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
-    GLOBAL_LANG_CODE: str = Field(default='en')  # ISO 639-1 language code
+    THROTTLING_RATE_LIMIT: int = Field(default=10, gt=0,
+                                       description='Maximum number of messages')
+    THROTTLING_RATE_PERIOD: int = Field(default=10, gt=0,
+                                        description='Time period in seconds')
+    RU_LANG_CODE: str = Field(default='ru', max_length=2,
+                              description='ISO 639-1 language code')
+    EN_LANG_CODE: str = Field(default='en', max_length=2,
+                              description='ISO 639-1 language code')
+    GLOBAL_LANG_CODE: str = Field(default='en', max_length=2,
+                                  description='ISO 639-1 language code')
     USER_REPORT_DIR: str = Field(default='./reports/')
     WEEKLY_XLSX_FILE_NAME: str = Field(default='Weekly Report.xlsx')
-    LENGTH_NAME_LIMIT: int = Field(default=20)
-    USER_ACTIONS_LIMIT: int = Field(default=10)
-    USER_CATEGORIES_LIMIT: int = Field(default=10)
-    USER_TRACKERS_DAILY_LIMIT: int = Field(default=10)
-    USER_TRACKERS_WEEKLY_LIMIT: int = Field(default=100)
-    MAX_HOURS_DURATION_TRACKER: int = Field(default=24)
+    LENGTH_NAME_LIMIT: int = Field(default=20, gt=0, le=20)
+    USER_ACTIONS_LIMIT: int = Field(default=10, gt=0, le=10)
+    USER_CATEGORIES_LIMIT: int = Field(default=10, gt=0, le=10)
+    USER_TRACKERS_DAILY_LIMIT: int = Field(default=10, gt=0, le=10)
+    USER_TRACKERS_WEEKLY_LIMIT: int = Field(default=10, gt=0, le=10, )
+    MAX_HOURS_DURATION_TRACKER: int = Field(default=23, gt=0, le=23, )
     # Cron setup for weekly report
-    CRON_DAY_OF_WEEK: str = Field(default='sun')
-    CRON_HOUR: int = Field(default=23)
-    CRON_MINUTE: int = Field(default=50)
-    REPORTS_DISTRIBUTION_DELAY: int = Field(default=1)
+    CRON_DAY_OF_WEEK: str = Field(default='sun', max_length=3)
+    CRON_HOUR: int = Field(default=23, gt=0, le=23)
+    CRON_MINUTE: int = Field(default=50, gt=0, le=59)
+    REPORTS_DISTRIBUTION_DELAY: int = Field(default=2, gt=0, le=10)
 
 
 class RedisSettings(BaseSettings):
