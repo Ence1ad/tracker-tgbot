@@ -96,7 +96,7 @@ async def main(bot: Bot, debug: bool) -> None:
     """
     # Initialize sqlalchemy session
     async_session: async_sessionmaker[AsyncSession] = await create_async_session(
-        url=settings.db_url, echo=True
+        url=settings.db_url, echo=False
     )
     # Initialize redis
     redis_client: Redis = redis.from_url(settings.cache_url)
@@ -146,6 +146,7 @@ async def main(bot: Bot, debug: bool) -> None:
         if debug:
             await dp.emit_startup()
         else:
+            scheduler.start()
             await dp.start_polling(bot)
     except Exception as ex:
         logging.error(ex)
