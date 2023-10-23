@@ -17,19 +17,19 @@ from report_baker.chart_date_title import DateTitle
 
 
 async def create_fig(df_action: DataFrame, df_categories: DataFrame,
-                     sheet_name: str = settings.WEEKLY_XLSX_FILE_NAME) -> None:
+                     file_name: str = settings.WEEKLY_XLSX_FILE_NAME) -> None:
     """Create figures and charts in an Excel workbook.
 
     :param df_action: DataFrame: DataFrame containing action data.
     :param df_categories: DataFrame: DataFrame containing category data.
-    :param sheet_name: str: Name of the Excel sheet to save the figures and charts
+    :param file_name: str: Name of the Excel file to save the figures and charts
     (default: settings.WEEKLY_XLSX_FILE_NAME).
     :return: None
     """
     wb: Workbook = Workbook()
     create_bar_charts(df=df_action, wb=wb)
     create_pie_chart(df=df_categories, wb=wb)
-    wb.save(sheet_name)
+    wb.save(file_name)
 
 
 def create_bar_charts(*, df: DataFrame, wb: Workbook) -> None:
