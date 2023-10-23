@@ -48,8 +48,8 @@ class ProjectSettings(BaseSettings):
     MAX_HOURS_DURATION_TRACKER: int = Field(default=23, gt=0, le=23, )
     # Cron setup for weekly report
     CRON_DAY_OF_WEEK: str = Field(default='sun', max_length=3)
-    CRON_HOUR: int = Field(default=23, gt=0, le=23)
-    CRON_MINUTE: int = Field(default=50, gt=0, le=59)
+    CRON_HOUR: int = Field(default=23, ge=0, le=23)
+    CRON_MINUTE: int = Field(default=55, ge=0, le=59)
     REPORTS_DISTRIBUTION_DELAY: int = Field(default=2, gt=0, le=10)
 
 
