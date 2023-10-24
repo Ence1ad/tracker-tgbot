@@ -6,7 +6,7 @@ services:
     container_name: prometheus
     hostname: prometheus
     user: "1000:1000"
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.47.2
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -47,7 +47,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana
+    image: grafana/grafana:10.1.5
     restart: unless-stopped
     user: 1000:1000
     ports:
@@ -74,7 +74,7 @@ services:
 
   alertmanager:
     container_name: alertmanager
-    image: prom/alertmanager
+    image: prom/alertmanager:v0.26.0
     user: "1000:1000"
     hostname: alertmanager
     restart: unless-stopped
@@ -94,7 +94,7 @@ services:
   redis_exporter:
     container_name: redis_exporter
     hostname: redis_exporter
-    image: oliver006/redis_exporter
+    image: oliver006/redis_exporter:v1.55.0
     command: [ "--redis.addr", "redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}?protocol=3" ]
     ports:
       - "9121:9121"
@@ -107,7 +107,7 @@ services:
 
   postgres_exporter:
     container_name: exporter_container
-    image: prometheuscommunity/postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.14.0
     restart: unless-stopped
     hostname: postgres_exporter
     environment:
@@ -129,7 +129,7 @@ services:
       - monitoring
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.6.1
     container_name: node-exporter
     restart: unless-stopped
     volumes:
@@ -148,7 +148,7 @@ services:
 
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:linux-amd64-2.19.1
     restart: unless-stopped
     command: -H unix:///var/run/docker.sock
     ports:
