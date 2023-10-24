@@ -241,7 +241,9 @@ cython_debug/
 
 .ruff_cache
 .pytest_cache
-/metrics_containers_data
 /postgres_data
 /redis_data
 /pg_backups
+/monitoring
+/tests
+/reports
