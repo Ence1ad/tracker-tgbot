@@ -1,4 +1,4 @@
-name: Testing & Linting
+name: CI
 
 on:
   push:
@@ -68,3 +68,24 @@ jobs:
       - name: Lint with Ruff
         run: |
           ruff --output-format=github --target-version=py310 .
+
+  ci_docker_hub:
+    needs: [tests, lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tracker-tgbot:0.0.3
