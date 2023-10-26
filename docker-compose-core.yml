@@ -73,9 +73,7 @@ services:
 
   tgbot:
     container_name: tgbot
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ence1ad/tracker-tgbot:0.0.3
     user: 1000:1000
     restart: on-failure
     env_file: .env
